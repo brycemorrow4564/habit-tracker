@@ -65,7 +65,16 @@ circle {
     stroke-width: .7;
 }
 
-body {
-    background-image: linear-gradient(to top, #09203f 0%, #537895 100%);    
+html {
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center; 
+    background-attachment: fixed;
 }
 
+body {
+    background: transparent; 
+}

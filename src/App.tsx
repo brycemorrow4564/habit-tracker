@@ -4,6 +4,9 @@ import { reducer, reducerInitialState } from './reducer';
 
 import SingleWeekView from "./views/SingleWeekView"; 
 
+import fireSvg from "./fire5.svg"; 
+import mountainImage from "./mountain.jpg"; 
+
 import './App.css';
 import './Custom.css'; 
 import './Custom.scss';
@@ -20,6 +23,14 @@ Views
 function App() {
 
   const [ state, dispatch ] = React.useReducer(reducer, reducerInitialState);
+  
+  // let backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${mountainImage}) no-repeat center center fixed`; 
+  let backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${mountainImage})`; 
+
+  React.useEffect(() => {
+    let elem = document.querySelector('html') as HTMLElement; 
+    elem.style.backgroundImage = backgroundImage; 
+  }, []); 
 
   return (
     <RootProvider value={{ state, dispatch }}>
