@@ -62,7 +62,8 @@
 
 circle {
     stroke: #2c2c2c;
-    stroke-width: .7;
+    stroke-width: .5;
+    opacity: 80%;
 }
 
 html {
