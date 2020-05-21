@@ -1,0 +1,71 @@
+.habit-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    box-sizing: content-box;
+}
+
+.habit-grid-cell {
+    padding: 1px;
+    box-sizing: border-box;
+    display: flex;
+}
+
+.habit-grid-cell-fillable {
+    flex: 1; 
+    border-radius: 50%;
+}
+
+.header-text {
+    margin-top: .5em; 
+    color: white; 
+    text-align: center;
+}
+
+.header-text-sub {
+    margin-top: .25em; 
+    color: white; 
+    text-align: center;
+    opacity: .65;
+}
+
+.dynamic-row {
+    display: flex;
+    align-content: flex-start; 
+    box-sizing: content-box;
+}
+
+.habit-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    box-sizing: content-box;
+}
+
+.habit-name-labels {
+    color: rgb(177, 178, 182); 
+    font-size: 20px;
+    text-align: right;
+    margin: 0 auto; 
+}
+
+:not(.single-week-habit-row) + .single-week-habit-row {
+    /*  Selects the first element with class .single-week-habit-row
+    this work-around is necessary bc .single-week-habit-row:first-of-type 
+    is not working as expected */
+    margin-top: 2em; 
+}
+
+.single-week-habit-row {
+    margin-bottom: 1em;
+}
+
+circle {
+    stroke: #2c2c2c;
+    stroke-width: .7;
+}
+
+body {
+    background-image: linear-gradient(to top, #09203f 0%, #537895 100%);    
+}
+
