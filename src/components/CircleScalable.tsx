@@ -115,9 +115,15 @@ const CircleScalable: React.FC<CircleScalableProps> = (props) => {
 
     }, [localValue, value]); 
 
+    React.useEffect(() => {
+        // subscribe to all animations
+    }, []); 
+
     let handleClick = () => {
         dispatch(['set dataRowCol', [rowIndex, colIndex, value === 1 ? 0 : 1]]); 
     }; 
+
+
 
     return (
         <circle
