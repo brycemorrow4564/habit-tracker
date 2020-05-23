@@ -21,7 +21,14 @@ export const reducerInitialState = {
     "singleWeekViewOffset": 6, 
     "singleWeekXAnchors": null, 
     "numHabits": numHabits, 
-    "habitHistories": _.range(0, numHabits).map(i => _.range(0, habitHistoryLength).map(e => Math.random() < .5 ? 1 : 0)), 
+    "habitTable": _.range(0, numHabits).map(i => _.range(0, habitHistoryLength).map(e => Math.random() < .5 ? 1 : 0)), 
+    
+    // TODO: add some field that explicitly calculates the temporal period the index range covers 
+    "habitTableStartIndex": 0, 
+    "habitTableEndIndex": 6, 
+
+    "currentDayIndex": 0, 
+    
     "animations": {
         'singleWeekView-circles-opacity': [],
         'singleWeekView-circles-fill': [],
@@ -44,21 +51,21 @@ export function reducer(state, [type, payload]) {
             return { ...state, singleWeekXAnchors: payload }; 
         }, 
         'set dataRowCol': () => {
-            let habitHistories = _.cloneDeep(state.habitHistories); 
+            let habitTable = _.cloneDeep(state.habitTable); 
             let [r,c,v] = payload; 
-            habitHistories[r][c] = v;
-            return { ...state, habitHistories }; 
+            habitTable[r][c] = v;
+            return { ...state, habitTable }; 
         }, 
         'trigger animation': () => {
-            /*
-
-            */
-
             // let queuedAnimations = [];
             // for (let { key, delay, duration, type, startValue, endValue } of payload) {
             //     queuedAnimations.push({ key, duration, type, startValue, endValue }); 
             // }
             // return { ...state, queuedAnimations }; 
+        }, 
+        'set habitTableIndexRange': () => {
+            let [habitTableStartIndex, habitTableEndIndex] = payload; 
+            return { ...state, habitTableStartIndex, habitTableEndIndex }; 
         }
         
     }; 

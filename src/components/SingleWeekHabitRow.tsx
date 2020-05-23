@@ -67,7 +67,7 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
 
             {!singleWeekXAnchors ? null : (
                 <svg style={{ height: cellHeight, width: '100%', display: 'block' }}>
-                    {data.slice(0, windowSize).map((d, i) => {
+                    {data.map((d, i) => {
                         return (
                             <CircleScalable
                             
