@@ -4,50 +4,13 @@ import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import _ from "lodash"; 
 import moment from "moment"; 
 import { Row, Col, Carousel } from "antd"; 
+import { cssLinearGradientPropertyGenerator, weekIndexMapper } from "../utils/util"; 
 import { useRootContext } from "../contexts/context"; 
 import SingleWeekHabitRow from '../components/SingleWeekHabitRow';
-
-function weekIndexMapper(dayIndex: number) {
-  return ['SUN','MON','TUE','WED','THU','FRI','SAT'][dayIndex]; 
-}
 
 export interface SingleWeekViewProps {
 
 }
-
-function cssLinearGradientPropertyGenerator(colorA: string, colorB: string, stripeRatioA: number, stripeRatioB: number, degrees: number) {
-  /*
-  Generates a css linear-gradient striping pattern
-  */
-
-  let stepStripeA: number = stripeRatioA * 100; 
-  let stepStripeB: number = stripeRatioB * 100; 
-  let prefix: string = `linear-gradient(${degrees}deg,`;  
-  let transforms: string[] = []; 
-
-  let p: number = 0; 
-  let p1: number = 0; 
-  let toggle: Boolean = true; 
-  while (p < 100) {
-    let step = toggle ? stepStripeA : stepStripeB; 
-    let color = toggle ? colorA : colorB; 
-    p1 = Math.min(100, p + step); 
-    transforms.push(`${color} ${p}%, ${color} ${p1}%,`); 
-    p = p1; 
-    toggle = !toggle; 
-  }
-
-  let n: number = transforms.length; 
-  if (n) {
-    // remove comma from last transform in sequence 
-    let lastString: string = transforms[n-1]; 
-    transforms[n-1] = lastString.substring(0, lastString.length-1); 
-  }
-  
-  let resp = `${prefix}${transforms.join('')})`; 
-  return resp; 
-
-}; 
 
 const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
 
@@ -98,7 +61,18 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
     }
 
     const getCurrentDateText = () => {
-      return `${windowStartDate.format('M/DD')} - ${windowEndDate.format('M/DD')}`;
+      /*  the current date window either exists within one 
+          month or spans 2 months. format based on this distinction
+      */
+      let monthStart = windowStartDate.month(); 
+      let monthEnd = windowEndDate.month(); 
+      if (monthStart === monthEnd) {
+        // Display month once at start of string 
+        return `${windowStartDate.format('MMM D')} - ${windowEndDate.format('D')}`; 
+      } else {
+        // Display month on both sides of the '-' 
+        return `${windowStartDate.format('MMM D')} - ${windowEndDate.format('MMM D')}`; 
+      }
     }; 
 
     React.useEffect(() => {
@@ -145,11 +119,11 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
         </Row>
 
         {/* Text describing time granularity of current view */}
-        <Row justify="center" align="middle">
+        {/* <Row justify="center" align="middle">
           <Col span={8}>
             <h4 className="header-text-sub" style={{ fontSize: 22 }}>{getSubtitle()}</h4>
           </Col> 
-        </Row>
+        </Row> */}
 
         {/* Text describing current time window of analysis */}
         <Row justify="center" align="middle">
