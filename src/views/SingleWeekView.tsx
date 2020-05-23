@@ -6,6 +6,7 @@ import moment from "moment";
 import { Row, Col, Carousel } from "antd"; 
 import { cssLinearGradientPropertyGenerator, weekIndexMapper } from "../utils/util"; 
 import { useRootContext } from "../contexts/context"; 
+import { useAnimationDispatcher } from "../hooks/animationManagerHooks"; 
 import SingleWeekHabitRow from '../components/SingleWeekHabitRow';
 
 export interface SingleWeekViewProps {
@@ -16,6 +17,7 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
 
     const { state, dispatch } = useRootContext(); 
     const { cellWidth, windowSize, singleWeekViewOffset, habitTable, windowStartIndex, windowStartDate, windowEndDate, windowEndIndex, dateMin, dateMax } = state; 
+    const { triggerAnimation } = useAnimationDispatcher(); 
 
     const currentDayColor = "#ffd500"; 
     const numDataWeeks = dateMax.diff(dateMin, 'weeks');
@@ -106,7 +108,12 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
 
     }, [carouselRef]); 
 
-  console.log(carouselCurSlide); 
+    // FOR TESTING 
+    React.useEffect(() => {
+      if (carouselInit) {
+        triggerAnimation('single-week-view-init'); 
+      }
+    }, [carouselInit]); 
 
   return (
       <React.Fragment>
@@ -137,9 +144,13 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
             
             {/* Shift left icon */}
             <Col span={singleWeekViewOffset}>
-              <Row justify="end" align="middle">
+              <Row justify="end" align="middle" style={{ height: '100%' }}>
                 <Col>
-                  <LeftOutlined translate={0} style={{ color: 'rgb(177, 178, 182)' }} onClick={() => shiftWindowByWeek(false)}/>
+                    <Row justify="end" align="middle">
+                      <Col >
+                          <LeftOutlined translate={0} style={{ color: 'rgb(177, 178, 182)', fontSize: 24 }} onClick={() => shiftWindowByWeek(false)}/>
+                      </Col>
+                    </Row>
                 </Col>
               </Row>
             </Col>
@@ -157,7 +168,6 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
                             const isCurrentDay = (j === numDataWeeks - 1) && (i === currDayIndex); 
                             return (
                               <Col style={{ width: cellWidth }}>
-                    
                                 <p className={isCurrentDay ? "weekday weekday-current" : "weekday"}>{weekIndexMapper(i)}</p>
                                 {!isCurrentDay ? null : 
                                                 <div className='current-day-indicator' style={{ borderColor: currentDayColor, background: cssLinearGradientPropertyGenerator('transparent', currentDayColor, .05, .025, 65) }} />
@@ -178,7 +188,7 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
                     return (
                       <Col style={{ width: cellWidth }}>
                         <p style={{ textAlign: 'center', color: '#b1b2b6' }} className="weekday" ref={refs[i]}>{weekIndexMapper(i)}</p>
-                        <div style={{ height: '1em', width: '100%' , border: `1px solid ${currentDayColor}`, background: cssLinearGradientPropertyGenerator('transparent', currentDayColor, .05, .025, 65) }} />
+                        {/* <div style={{ height: '1em', width: '100%' , border: `1px solid ${currentDayColor}`, background: cssLinearGradientPropertyGenerator('transparent', currentDayColor, .05, .025, 65) }} /> */}
                       </Col>
                     )
                   })}
@@ -189,9 +199,13 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
 
             {/* Shift right icon */}
             <Col span={singleWeekViewOffset}>
-              <Row justify="start" align="middle">
+              <Row justify="start" align="middle" style={{ height: '100%' }}>
                 <Col>
-                <RightOutlined translate={0} style={{ color: 'rgb(177, 178, 182)' }} onClick={() => shiftWindowByWeek(true)}/>
+                    <Row justify="start" align="middle">
+                      <Col >
+                          <RightOutlined translate={0} style={{ color: 'rgb(177, 178, 182)', fontSize: 24  }} onClick={() => shiftWindowByWeek(true)}/>
+                      </Col>
+                    </Row>
                 </Col>
               </Row>
             </Col>

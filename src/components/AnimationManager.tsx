@@ -2,11 +2,8 @@ import * as React from "react";
 import _ from "lodash"; 
 import { interpolateRgb } from "d3-interpolate"; 
 import { easeCubic, easeSinIn } from 'd3-ease'; 
-import { useRootContext } from "../contexts/context"; 
-
-export interface AnimationMonitorProps {
-
-};
+import { reducer, reducerInitialState } from "../reducers/reducerAnimation"; 
+import { AnimationProvider } from "../contexts/animationContext"; 
 
 const activeColor = "#6ded81" ; 
 const inactiveColor = "#eeeae8";
@@ -19,50 +16,26 @@ const scaleDuration = 1250;
 const opacityDuration = 1250;
 const translateDuration = 1500;
 
-class GridMatrix {
+export interface AnimationManagerProps {
 
-    private data: any[]; 
+};
 
-    constructor(public nRows: number, public nCols: number) {
-        this.data = new Array(nRows * nCols); 
-        this.zero(); 
-    }
+const AnimationManager: React.FC<AnimationManagerProps> = (props) => {
 
-    getElement(i: number, j: number) {
-        return this.data[i*this.nCols + j];
-    }
+    const [ state, dispatch ] = React.useReducer(reducer, reducerInitialState);
+    
+    return (
+        <AnimationProvider value={{ state, dispatch }}>
+            {props.children}
+        </AnimationProvider>    
+    );
 
-    setElement(i: number, j: number, value: any) {
-        this.data[i*this.nCols + j] = value;
-    }
+        // const { singleWeekXAnchors } = state; 
 
-    zero() {
-        this.data.fill(0); 
-    }
+    // return
 
-}
-
-const AnimationMonitor: React.FC<AnimationMonitorProps> = (props) => {
-
-    /*
-    Each element that desires to be animated (ScalableCircle in this app), 
-    must dispatch an action specifying an animation key which the object 
-    desires to be associated with, 
-        duration
-        delay before starting
-
-
-    */ 
-
-    const { state, dispatch } = useRootContext(); 
-    const { queuedAnimations, animations, singleWeekXAnchors } = state; 
-
-    const nRows = 10; 
-    const nCols = 7;
-
-    let getGridMatrix = () => {
-        
-    }
+    // const nRows = 10; 
+    // const nCols = 7;
 
     // React.useEffect(() => {
 
@@ -165,4 +138,4 @@ const AnimationMonitor: React.FC<AnimationMonitorProps> = (props) => {
     return null; 
 };
 
-export default AnimationMonitor; 
+export default AnimationManager; 

@@ -3,6 +3,7 @@ import _ from "lodash";
 import { interpolateRgb } from "d3-interpolate"; 
 import { easeCubic, easeSinIn } from 'd3-ease'; 
 import { useRootContext } from "../contexts/context"; 
+import { Animation, AnimationType, useAnimationRegistrar } from "../hooks/animationManagerHooks"; 
 
 const minOpacity = .15; 
 
@@ -36,104 +37,123 @@ const CircleScalable: React.FC<CircleScalableProps> = (props) => {
     const [fillColor, setFillColor]         = React.useState<string>(localValue === 1 ? activeColor : 
                                                                                         inactiveColor); 
 
-    React.useEffect(() => {
 
-        let startTime: number = 0;
-        let frame: number = 0;
+    const animationManager = useAnimationRegistrar(new Animation(
+        0, 
+        1000, 
+        'single-week-view-init', 
+        AnimationType.Color, 
+        'fill', 
+        '#00ff00', 
+        '#ff0000', 
+        [rowIndex, colIndex]
+    )); 
 
-        function ticked(timestamp: number) {
-            if (!startTime) startTime = timestamp;
 
-            const elapsed = timestamp - startTime;
-            const scaleT = Math.min(1, elapsed / scaleDuration);
-            const translateT = Math.min(1, elapsed / translateDuration); 
-            const opacityT = Math.min(1, elapsed / opacityDuration);
+    // React.useEffect(() => {
 
-            if (elapsed < Math.max(...[scaleDuration, translateDuration, opacityDuration])) {
-                // if the elapsed time is less than the duration, continue the animation
-                const transformStr = getTransformString(scaleT, translateT);
-                setTransformStr(transformStr); 
-                setOpacity(easeSinIn(opacityT) * (1-minOpacity) + minOpacity); 
-                frame = requestAnimationFrame(ticked);
-            }
-        };
+    //     let startTime: number = 0;
+    //     let frame: number = 0;
 
-        function getTransformString(scaleT: number, translateT: number): string {
-            let tScaleNorm = easeSinIn(scaleT); 
-            let tTranslateNorm = easeCubic(translateT); 
-            let scaleRange: number =  maxScale - minScale;
-            return `translate(${cx * tTranslateNorm}, ${cy}) 
-                    scale(${scaleRange * tScaleNorm + minScale})`;
-        }
+    //     function ticked(timestamp: number) {
+    //         if (!startTime) startTime = timestamp;
 
-        setTimeout(() => {
-            requestAnimationFrame(ticked);
-        }, delay);
+    //         const elapsed = timestamp - startTime;
+    //         const scaleT = Math.min(1, elapsed / scaleDuration);
+    //         const translateT = Math.min(1, elapsed / translateDuration); 
+    //         const opacityT = Math.min(1, elapsed / opacityDuration);
 
-        return () => cancelAnimationFrame(frame); 
+    //         if (elapsed < Math.max(...[scaleDuration, translateDuration, opacityDuration])) {
+    //             // if the elapsed time is less than the duration, continue the animation
+    //             const transformStr = getTransformString(scaleT, translateT);
+    //             setTransformStr(transformStr); 
+    //             setOpacity(easeSinIn(opacityT) * (1-minOpacity) + minOpacity); 
+    //             frame = requestAnimationFrame(ticked);
+    //         }
+    //     };
+
+    //     function getTransformString(scaleT: number, translateT: number): string {
+    //         let tScaleNorm = easeSinIn(scaleT); 
+    //         let tTranslateNorm = easeCubic(translateT); 
+    //         let scaleRange: number =  maxScale - minScale;
+    //         return `translate(${cx * tTranslateNorm}, ${cy}) 
+    //                 scale(${scaleRange * tScaleNorm + minScale})`;
+    //     }
+
+    //     setTimeout(() => {
+    //         requestAnimationFrame(ticked);
+    //     }, delay);
+
+    //     return () => cancelAnimationFrame(frame); 
         
 
-    }, [minScale, maxScale, delay]); 
+    // }, [minScale, maxScale, delay]); 
 
-    React.useEffect(() => {
+    // React.useEffect(() => {
 
-        let startTime: number = 0;
-        let frame: number = 0;
-        let startColor = value === 0 ? activeColor : inactiveColor; 
-        let endColor = value === 0 ? inactiveColor : activeColor; 
-        let interpolator = interpolateRgb(startColor, endColor);
+    //     let startTime: number = 0;
+    //     let frame: number = 0;
+    //     let startColor = value === 0 ? activeColor : inactiveColor; 
+    //     let endColor = value === 0 ? inactiveColor : activeColor; 
+    //     let interpolator = interpolateRgb(startColor, endColor);
         
-        function getFillColor(t: number) {
-            let tNorm = easeCubic(t); 
-            let color = interpolator(tNorm);  
-            return color; 
-        }
+    //     function getFillColor(t: number) {
+    //         let tNorm = easeCubic(t); 
+    //         let color = interpolator(tNorm);  
+    //         return color; 
+    //     }
 
-        function ticked(timestamp: number) {
-            if (!startTime) startTime = timestamp;
+    //     function ticked(timestamp: number) {
+    //         if (!startTime) startTime = timestamp;
 
-            const elapsed = timestamp - startTime;
-            const t = Math.min(1, elapsed / colorTransitionDuration);
+    //         const elapsed = timestamp - startTime;
+    //         const t = Math.min(1, elapsed / colorTransitionDuration);
 
-            if (elapsed < colorTransitionDuration) {
-                // if the elapsed time is less than the duration, continue the animation
-                const newFillColor = getFillColor(t);
-                setFillColor(newFillColor); 
-                frame = requestAnimationFrame(ticked);
-            }
-        };
+    //         if (elapsed < colorTransitionDuration) {
+    //             // if the elapsed time is less than the duration, continue the animation
+    //             const newFillColor = getFillColor(t);
+    //             setFillColor(newFillColor); 
+    //             frame = requestAnimationFrame(ticked);
+    //         }
+    //     };
         
-        if (localValue !== value) {
-            // a click event created a request to change the underlying data 
-            // the data has been changed and now we should transition the color 
-            // fill of the circle to represent this. 
-            setLocalValue(value);
-            requestAnimationFrame(ticked);
-        }
+    //     if (localValue !== value) {
+    //         // a click event created a request to change the underlying data 
+    //         // the data has been changed and now we should transition the color 
+    //         // fill of the circle to represent this. 
+    //         setLocalValue(value);
+    //         requestAnimationFrame(ticked);
+    //     }
 
-        return () => cancelAnimationFrame(frame); 
+    //     return () => cancelAnimationFrame(frame); 
 
-    }, [localValue, value]); 
+    // }, [localValue, value]); 
 
-    React.useEffect(() => {
-        // subscribe to all animations
-    }, []); 
+    // React.useEffect(() => {
+    //     // subscribe to all animations
+    // }, []); 
 
     let handleClick = () => {
         dispatch(['set dataRowCol', [rowIndex, colIndex, value === 1 ? 0 : 1]]); 
     }; 
 
-
-
     return (
+        // <circle
+        // onClick={handleClick}
+        // transform={transformStr}
+        // opacity={opacity}
+        // cx={0}
+        // cy={0}
+        // r={r}
+        // fill={fillColor}/>
         <circle
         onClick={handleClick}
         transform={transformStr}
         opacity={opacity}
-        cx={0}
-        cy={0}
+        cx={cx}
+        cy={cy}
         r={r}
-        fill={fillColor}/>
+        fill={'blue'}/>
     ); 
 };
 

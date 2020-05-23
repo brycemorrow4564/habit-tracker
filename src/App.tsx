@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { RootProvider } from './contexts/context'; 
 import { reducer, reducerInitialState } from './reducers/reducer'; 
+import AnimationManager from "./components/AnimationManager"; 
 import SingleWeekView from "./views/SingleWeekView"; 
 import mountainImage from "./assets/mountain.jpg"; 
 
@@ -33,7 +34,9 @@ function App() {
 
   return (
     <RootProvider value={{ state, dispatch }}>
-      <SingleWeekView/>
+      <AnimationManager>
+        {backgroundInit ? <SingleWeekView/> : null}
+      </AnimationManager>
     </RootProvider>    
   );
 }
