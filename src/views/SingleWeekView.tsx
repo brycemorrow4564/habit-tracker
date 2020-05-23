@@ -8,7 +8,7 @@ import { useRootContext } from "../context";
 import SingleWeekHabitRow from '../components/SingleWeekHabitRow';
 
 function weekIndexMapper(dayIndex: number) {
-  return ['MON','TUE','WED','THU','FRI','SAT','SUN'][dayIndex]; 
+  return ['SUN','MON','TUE','WED','THU','FRI','SAT'][dayIndex]; 
 }
 
 export interface SingleWeekViewProps {
@@ -55,10 +55,15 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
     const { cellWidth, windowSize, singleWeekViewOffset, habitTable, windowStartIndex, windowStartDate, windowEndDate, windowEndIndex, dateMin, dateMax } = state; 
 
     const currentDayColor = "#ffd500"; 
+    const numDataWeeks = dateMax.diff(dateMin, 'weeks');
+    const currDayIndex = moment().day();  
 
     const carouselRef = React.useRef(null);
     const [carouselInit, setCarouselInit] = React.useState<Boolean>(false); 
-    
+    const [carouselMinSlide, setCarouselMinSlide] = React.useState<number>(0); 
+    const [carouselMaxSlide, setCarouselMaxSlide] = React.useState<number>(numDataWeeks-1); 
+    const [carouselCurSlide, setCarouselCurSlide] = React.useState<number>(0); 
+
     const monRef = React.useRef(null); 
     const tueRef = React.useRef(null); 
     const wedRef = React.useRef(null); 
@@ -68,23 +73,19 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
     const sunRef = React.useRef(null); 
     const refs = [monRef, tueRef, wedRef, thuRef, friRef, satRef, sunRef]; 
 
-    const numDataWeeks = dateMax.diff(dateMin, 'weeks');
-    const currDayIndex = moment().day();  
-
-    const shiftWindowByWeek = (direction: number) => {
-      // ensure the current range can be shifted. if so, signal a shift
-      if (direction < 0 && windowStartIndex >= 7) {
-        dispatch(['set habitTableIndexRange', [windowStartIndex - 7, windowEndIndex - 7]]); 
-        if (carouselRef && carouselRef.current) {
-          let curr: any = carouselRef.current; 
-          curr.prev(); 
-        }
-      }
-      else if (direction > 0 && windowEndIndex + 7 < habitTable[0].length) {
-        dispatch(['set habitTableIndexRange', [windowStartIndex + 7, windowEndIndex + 7]]); 
-        if (carouselRef && carouselRef.current) {
+    const shiftWindowByWeek = (forwards: boolean) => {
+      // shift forwards or backwards by one week 
+      if (forwards) {
+        dispatch(['shift week forwards', null]);
+        if (carouselCurSlide < carouselMaxSlide && carouselRef && carouselRef.current) {
           let curr: any = carouselRef.current; 
           curr.next(); 
+        }
+      } else {
+        dispatch(['shift week backwards', null]);
+        if (carouselCurSlide > carouselMinSlide && carouselRef && carouselRef.current) {
+          let curr: any = carouselRef.current; 
+          curr.prev(); 
         }
       }      
     }; 
@@ -122,12 +123,16 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
     // Ensures the carousel is on the last slide to start 
     React.useEffect(() => {
       if (carouselRef && carouselRef.current && !carouselInit) {
+        const lastSlideIndex = numDataWeeks-1; 
         // @ts-ignore
-        carouselRef.current.goTo(numDataWeeks-1, true); 
+        carouselRef.current.goTo(lastSlideIndex, true); 
+        setCarouselCurSlide(lastSlideIndex);
         setCarouselInit(true); 
       }
 
     }, [carouselRef]); 
+
+  console.log(carouselCurSlide); 
 
   return (
       <React.Fragment>
@@ -139,12 +144,14 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
           </Col> 
         </Row>
 
+        {/* Text describing time granularity of current view */}
         <Row justify="center" align="middle">
           <Col span={8}>
             <h4 className="header-text-sub" style={{ fontSize: 22 }}>{getSubtitle()}</h4>
           </Col> 
         </Row>
 
+        {/* Text describing current time window of analysis */}
         <Row justify="center" align="middle">
           <Col span={8}>
             <h4 className="header-text-sub" style={{ fontSize: 22 }}>{getCurrentDateText()}</h4>
@@ -153,28 +160,33 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
         
         {/* Time Axis */}
         <Row>
+            
+            {/* Shift left icon */}
             <Col span={singleWeekViewOffset}>
               <Row justify="end" align="middle">
                 <Col>
-                  <LeftOutlined translate={0} style={{ color: 'rgb(177, 178, 182)' }} onClick={() => shiftWindowByWeek(-1)}/>
+                  <LeftOutlined translate={0} style={{ color: 'rgb(177, 178, 182)' }} onClick={() => shiftWindowByWeek(false)}/>
                 </Col>
               </Row>
             </Col>
+            
+            {/* Carousel of week axes */}
             <Col span={24 - 2 * singleWeekViewOffset}>
 
               {/* The top time axis contained within a carousel */}
-              <Carousel ref={carouselRef} dots={false} style={{ position: 'relative' }}>
+              <Carousel ref={carouselRef} dots={false} style={{ position: 'relative' }} afterChange={(value) => setCarouselCurSlide(value)}>
                   {_.range(0, numDataWeeks).map(j => {
                     return (
                       <div>
                         <Row justify="space-around" align="middle">
                           {_.range(0, windowSize).map((i) => {
+                            const isCurrentDay = (j === numDataWeeks - 1) && (i === currDayIndex); 
                             return (
                               <Col style={{ width: cellWidth }}>
-                                <p style={{ textAlign: 'center', color: 'white' }} className="weekday">{weekIndexMapper(i)}</p>
-                                {(j === numDataWeeks - 1) && (i === currDayIndex) ? 
-                                  <div style={{ height: '1em', width: '100%' , border: `1px solid ${currentDayColor}`, background: cssLinearGradientPropertyGenerator('transparent', currentDayColor, .05, .025, 65) }} />
-                                  : null
+                    
+                                <p className={isCurrentDay ? "weekday weekday-current" : "weekday"}>{weekIndexMapper(i)}</p>
+                                {!isCurrentDay ? null : 
+                                                <div className='current-day-indicator' style={{ borderColor: currentDayColor, background: cssLinearGradientPropertyGenerator('transparent', currentDayColor, .05, .025, 65) }} />
                                 }
                               </Col>
                             )
@@ -200,13 +212,16 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
               </div>
 
             </Col> 
+
+            {/* Shift right icon */}
             <Col span={singleWeekViewOffset}>
               <Row justify="start" align="middle">
                 <Col>
-                <RightOutlined translate={0} style={{ color: 'rgb(177, 178, 182)' }} onClick={() => shiftWindowByWeek(1)}/>
+                <RightOutlined translate={0} style={{ color: 'rgb(177, 178, 182)' }} onClick={() => shiftWindowByWeek(true)}/>
                 </Col>
               </Row>
             </Col>
+
         </Row>
 
         {/* Divider beneath time axis */}
@@ -219,6 +234,8 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
         {/* Data Rows */}
         {habitTable.map((data: number[], i: number) => (<SingleWeekHabitRow data={data.slice(windowStartIndex, windowEndIndex+1)} index={i} />))}
         
+        {/*  */}
+
       </React.Fragment>
   );
 }

@@ -48,7 +48,7 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
     const { data, index } = props; 
 
     let delayUnit = 1000 / (windowSize-1) + index * 30; 
-    let grid = new GridMatrix(numHabits, 7); 
+    // let grid = new GridMatrix(numHabits, 7); 
     
     return (
         <Row justify="start" align="middle" className="single-week-habit-row">
@@ -91,16 +91,16 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
             <Col span={singleWeekViewOffset}>
                 <Row justify="start" align="top">
                     <Col>
-                        <FireSvg style={{ height: 20, width: 20 }}/>
+                        <FireSvg className={'streak-icon'} style={{ height: 20, width: 20 }}/>
                     </Col>
                     <Col>
-                        <svg style={{ height: 20, width: 40 }}>
-                            <text x={0} y={18}>0</text>
+                        <svg className="streak-amount-container" style={{ height: 20, width: 40 }}>
+                            <text x={0} y={18} className="streak-amount">0</text>
                         </svg>
                     </Col>
                 </Row>
-                
             </Col>
+
         </Row>
     ); 
 };

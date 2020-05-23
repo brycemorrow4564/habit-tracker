@@ -4,10 +4,12 @@ import { reducer, reducerInitialState } from './reducer';
 
 import SingleWeekView from "./views/SingleWeekView"; 
 
-import fireSvg from "./fire5.svg"; 
 import mountainImage from "./mountain.jpg"; 
 
 import './App.css';
+import './css/StreakGlyph.css'; 
+import './css/WeekAxis.css'; 
+
 import './Custom.css'; 
 import './Custom.scss';
 
