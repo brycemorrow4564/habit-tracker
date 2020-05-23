@@ -18,12 +18,16 @@
 
 .header-text {
     margin-top: .5em; 
+    margin-bottom: 0; 
+    font-size: 2vw; 
+    font-weight: 100;
     color: white; 
     text-align: center;
 }
 
 .header-text-sub {
     margin-top: .25em; 
+    margin-bottom: 0;
     color: white; 
     text-align: center;
     opacity: .65;
