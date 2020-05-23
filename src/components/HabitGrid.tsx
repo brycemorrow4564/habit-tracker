@@ -3,7 +3,7 @@ import useDimensions from "react-use-dimensions";
 import { scaleLinear } from "d3-scale"; 
 import _ from "lodash"; 
 import GridCellBinary from "./GridCellBinary";
-import { useRootContext } from "../context"; 
+import { useRootContext } from "../contexts/context"; 
 
 /*
 A graphical component that allows for the grid-based display 

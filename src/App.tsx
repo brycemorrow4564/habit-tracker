@@ -1,17 +1,17 @@
 import * as React from 'react';
-import { RootProvider } from './context'; 
-import { reducer, reducerInitialState } from './reducer'; 
+import { RootProvider } from './contexts/context'; 
+import { reducer, reducerInitialState } from './reducers/reducer'; 
 
 import SingleWeekView from "./views/SingleWeekView"; 
 
-import mountainImage from "./mountain.jpg"; 
+import mountainImage from "./assets/mountain.jpg"; 
 
-import './App.css';
+import './css/App.css';
 import './css/StreakGlyph.css'; 
 import './css/WeekAxis.css'; 
+import './css/Custom.css'; 
 
-import './Custom.css'; 
-import './Custom.scss';
+import './css/Custom.scss';
 
 /*
 Views 

@@ -4,7 +4,7 @@ import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import _ from "lodash"; 
 import moment from "moment"; 
 import { Row, Col, Carousel } from "antd"; 
-import { useRootContext } from "../context"; 
+import { useRootContext } from "../contexts/context"; 
 import SingleWeekHabitRow from '../components/SingleWeekHabitRow';
 
 function weekIndexMapper(dayIndex: number) {

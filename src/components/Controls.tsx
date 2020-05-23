@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Slider, Row, Col, Button } from "antd";
-import { useRootContext } from "../context"; 
+import { useRootContext } from "../contexts/context"; 
 
 /*
 A graphical component that allows for the grid-based display 

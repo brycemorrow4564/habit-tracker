@@ -2,8 +2,8 @@ import * as React from "react";
 import _ from "lodash"; 
 import { Row, Col } from "antd"; 
 import CircleScalable from './CircleScalable';
-import { ReactComponent as FireSvg } from '../fire19.svg';
-import { useRootContext } from "../context"; 
+import { ReactComponent as FireSvg } from '../assets/fire19.svg';
+import { useRootContext } from "../contexts/context"; 
 
 export interface SingleWeekHabitRowProps {
     data: number[], 

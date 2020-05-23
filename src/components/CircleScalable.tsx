@@ -2,7 +2,7 @@ import * as React from "react";
 import _ from "lodash"; 
 import { interpolateRgb } from "d3-interpolate"; 
 import { easeCubic, easeSinIn } from 'd3-ease'; 
-import { useRootContext } from "../context"; 
+import { useRootContext } from "../contexts/context"; 
 
 const minOpacity = .15; 
 
