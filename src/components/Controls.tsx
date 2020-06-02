@@ -16,7 +16,7 @@ export interface ControlsProps {
 const Controls: React.FC<ControlsProps> = (props) => {
 
     const { state, dispatch } = useRootContext(); 
-    const { period, windowSize } = state; 
+    const { windowSize } = state; 
 
     const numWeeks = [1, 2, 3]; 
     const getClassName = (numWeeks : number) => {

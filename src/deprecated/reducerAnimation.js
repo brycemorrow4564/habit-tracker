@@ -2,7 +2,10 @@ import _ from "lodash";
 import moment from "moment"; 
 
 export const reducerInitialState = {
-    data: {}
+    data: {}, 
+    running: [], 
+    triggerCount: 0, 
+    activeGroupId: null
 }; 
 
 const mutators = { 
@@ -16,10 +19,11 @@ const mutators = {
             data[groupId] = {}; 
         }
         if (!Object.keys(data[groupId]).includes(groupIndex)) {
-            data[groupId][groupIndex] = [] 
+            data[groupId][groupIndex] = [];
         }
         // add the animation to a queue of animations at this index 
         data[groupId][groupIndex].push(payload); 
+        //
 
         // note nothing is run at this stage, when components render for the first time they 
         // will register their animation using the useAnimationRegistrar hook. Later, they will 
@@ -27,18 +31,7 @@ const mutators = {
         return { ...state, data };  
     }), 
     'trigger animation': ((state, [type, groupId]) => {
-        const { data } = state;
-        const interpolations = {}; 
-        let groupData = data[groupId]; 
-        let groupKeys = Object.keys(groupData);
-        for (let groupId of groupKeys) {
-            let animations = groupData[groupId]; 
-            for (let ani of animations) {
-
-            }
-        }
-        // let groupIndices = Object.keys(groupData).map(keyStr => JSON.parse(keyStr)); 
-        // console.log(groupIndices); 
+        return { ...state, activeGroupId: groupId, triggerCount: state.triggerCount + 1 }
     })
 }; 
 

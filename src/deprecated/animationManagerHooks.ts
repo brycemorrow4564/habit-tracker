@@ -1,5 +1,11 @@
 import * as React from "react"; 
-import { useAnimationContext } from "../contexts/animationContext"; 
+import _ from "lodash"
+import { interpolateRgb, interpolateTransformCss } from "d3-interpolate"; 
+import { easeSinIn } from "d3-ease"; 
+import { useAnimationContext } from "./animationContext"; 
+import AnimationInterpolator from "./AnimationInterpolator";
+
+type AnimationInterpolator = (t: number) => string | number;
 
 export enum AnimationType {
     Color, 
@@ -8,6 +14,10 @@ export enum AnimationType {
 }
 
 export class Animation {
+
+    public interpolator: AnimationInterpolator;
+
+    public startTime: number | null; 
 
     constructor(
         public delay: number,           // the amount of time the manager waits after starting the  
@@ -26,6 +36,7 @@ export class Animation {
         public endValue: any,           // end state of interpolator 
         public groupIndex: any[]        // tuple constituting unique id for each registering element within group
     ) {
+
         this.delay = delay; 
         this.duration = duration; 
         this.groupId = groupId; 
@@ -34,6 +45,43 @@ export class Animation {
         this.startValue = startValue; 
         this.endValue = endValue; 
         this.groupIndex = groupIndex; 
+        this.startTime = null;
+
+        switch (type) {
+            case AnimationType.Color: 
+                this.interpolator = interpolateRgb(this.startValue, this.endValue) as AnimationInterpolator;
+                break; 
+            case AnimationType.Opacity: 
+                this.interpolator = (t: number): string => {
+                    return this.startValue + t * (this.endValue - this.startValue); 
+                }; 
+                break; 
+            case AnimationType.Transform: 
+                let { xMin, xMax, yMin, yMax, scaleMin, scaleMax } = this.startValue;
+                let t0 = `  translate(${xMin}, ${yMin})
+                            scale(${scaleMin})`;
+                let t1 = `  translate(${xMax}, ${yMax})
+                            scale(${scaleMax})`;
+                this.interpolator = interpolateTransformCss(t0, t1); 
+                break; 
+            default: 
+                throw Error('Unrecognized animation type'); 
+        }
+    }
+
+    step(t: number) {
+        return this.interpolator && this.interpolator(t); 
+    }
+
+    setStartTime(startTime: number) {
+        this.startTime = startTime; 
+    }
+
+    generateInterpolationKey() {
+        if (!this.startTime) {
+            throw Error("tried to get animation key without starting it"); 
+        }
+        return `${this.startTime}-${this.groupId}-${this.groupIndex}-${this.propName}`;
     }
 
 }

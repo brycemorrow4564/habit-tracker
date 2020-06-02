@@ -10,37 +10,6 @@ export interface SingleWeekHabitRowProps {
     index: number 
 };
 
-class GridMatrix {
-
-    private data: any[]; 
-
-    constructor(public nRows: number, public nCols: number) {
-        this.data = new Array(nRows * nCols); 
-        this.zero(); 
-    }
-
-    getElement1D(i: number) {
-        return this.data[i];
-    }
-
-    setElement1D(i: number, value: any) {
-        this.data[i] = value;
-    }
-
-    getElement2D(i: number, j: number) {
-        return this.data[i*this.nCols + j];
-    }
-
-    setElement2D(i: number, j: number, value: any) {
-        this.data[i*this.nCols + j] = value;
-    }
-
-    zero() {
-        this.data.fill(0); 
-    }
-
-}
-
 const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
 
     const { state } = useRootContext(); 
@@ -48,7 +17,6 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
     const { data, index } = props; 
 
     let delayUnit = 1000 / (windowSize-1) + index * 30; 
-    // let grid = new GridMatrix(numHabits, 7); 
     
     return (
         <Row justify="start" align="middle" className="single-week-habit-row">

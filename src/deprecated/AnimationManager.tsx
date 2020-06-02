@@ -1,9 +1,8 @@
 import * as React from "react";
 import _ from "lodash"; 
-import { interpolateRgb } from "d3-interpolate"; 
-import { easeCubic, easeSinIn } from 'd3-ease'; 
-import { reducer, reducerInitialState } from "../reducers/reducerAnimation"; 
-import { AnimationProvider } from "../contexts/animationContext"; 
+import { reducer, reducerInitialState } from "./reducerAnimation"; 
+import { AnimationProvider } from "./animationContext"; 
+import AnimationInterpolator from "./AnimationInterpolator"; 
 
 const activeColor = "#6ded81" ; 
 const inactiveColor = "#eeeae8";
@@ -26,6 +25,7 @@ const AnimationManager: React.FC<AnimationManagerProps> = (props) => {
     
     return (
         <AnimationProvider value={{ state, dispatch }}>
+            <AnimationInterpolator/>
             {props.children}
         </AnimationProvider>    
     );

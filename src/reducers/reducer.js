@@ -1,112 +1,80 @@
 import _ from "lodash";
 import moment from "moment"; 
-
-function weekIndexMapper(dayIndex) {
-    return ['MON','TUE','WED','THU','FRI','SAT','SUN'][dayIndex]; 
-}
-
-function clamp(v, vmin, vmax) {
-    // clamps a value to a specified range 
-    return  v >= vmin && v <= vmax ?    v : 
-            v < vmin ?                  vmin :   
-                                        vmax; 
-}
+import { 
+    HabitData, 
+    HabitTable, 
+    computeWeekAlignedWindowAroundDate, 
+    shiftWindowDays, 
+    Week, 
+    WeeksWindower
+} from "../utils/time"; 
 
 let numHabits = 10; 
 let habitHistoryLength = 34; 
-
-const activeColor = "#6ded81" ; 
-const inactiveColor = "#eeeae8";
-
-const colorTransitionDuration = 250; 
-const scaleDuration = 1250; 
-const opacityDuration = 1250;
-const translateDuration = 1500;
-
-let nextSunday = (date) => {
-    // sets date to the next sunday if it is not already sunday 
-    let day = date.day(); 
-    if (day !== 0) {
-        date.add(7-day);
-    }
-    return date; 
-}; 
 
 let dummyData = () => {
 
     let today = moment(); 
     let startDate = today.subtract(habitHistoryLength - 1, 'days'); 
 
-    const data = []; 
+    const table = new HabitTable(); 
     for (let i of _.range(0, numHabits)) {
-        let row = []; 
+        let data = new HabitData(); 
+        let curr = startDate.clone(); 
         for (let j of _.range(0, habitHistoryLength)) {
-            row.push(Math.random() < .5 ? 1 : 0); 
+            if (Math.random() < .5) {
+                data.set(curr, 1); 
+            }
+            curr.day(1); 
         }
-        data.push(row); 
+        table.add(`Habit-${i}`, data); 
     }
 
-    return { data, day0: startDate }; 
+    return table; 
 }; 
 
-let shiftWindowDays = (state, nDays) => {
-    let { windowStartIndex, windowEndIndex, windowStartDate, windowEndDate } = state; 
-    let newWindowStartIndex = windowStartIndex - nDays; 
-    let newWindowEndIndex = windowEndIndex - nDays; 
-    let newWindowStartDate = windowStartDate.clone().add(nDays, 'days'); 
-    let newWindowEndDate = windowEndDate.clone().add(nDays, 'days'); 
-    return { 
-        windowStartIndex: newWindowStartIndex, 
-        windowEndIndex: newWindowEndIndex, 
-        windowStartDate: newWindowStartDate, 
-        windowEndDate: newWindowEndDate
-    }; 
-}
-
-// IMPORTANT ASSUMPTION: the habitTable stores dates in reverse order 
-// i.e. the lowest index corresponds to the most recent date 
-const { data, day0 } = dummyData(); 
-const weekData = data.map(row => row.slice(0, 7)); 
-const dateEnd = nextSunday(moment()); 
-const windowStart = dateEnd.clone().subtract(6, 'days'); 
+const numWeeks  = 1; 
+const windowSize = numWeeks * 7; 
+const table = dummyData(); 
+const week = new Week(1); // a week that starts on monday 
+const weeksWindower = new WeeksWindower(table.getMaxDate(), numWeeks, week); 
+const dateMin = table.getMinDate(); 
+const dateMax = table.getMaxDate(); 
 
 export const reducerInitialState = {
-    "cellWidth": 40, 
-    "cellHeight": 40, 
-    "period": 7, 
-    "windowSize": 7, 
-    "minScale": .1, 
-    "maxScale": 1, 
-    "singleWeekViewOffset": 6, 
-    "singleWeekXAnchors": null, 
-    "numHabits": numHabits, 
-    
-    "habitTable": data,                             // current users history for all habits (each row is a habit with cols being days)
-    "weekData": weekData,                           // the data for the current week  
 
-    "dateMin": day0,                                // the first date we have habitTable data 
-    "dateMax": dateEnd,                             // the last date of the current week
+    // TODO:    get rid of singleWeekViewXAnchors and calculate 
+    //          this value some other way. It's brittle to have this
+    //          rely upon the DOM 
 
-    "windowStartDate": windowStart,                 // the first day (sunday) in the current selected week  
-    "windowEndDate": dateEnd,                       // the last day (saturday) in the current selected week 
-    "windowStartIndex": 0,                          // the index into habitTable of the first day (sunday) in the current selected week 
-    "windowEndIndex": 6,                            // the index into habitTable of the last day (saturday) in the current selected week 
-    
-    "animations": {
-        'singleWeekView-circles-opacity': [],
-        'singleWeekView-circles-fill': [],
-        'singleWeekView-circles-transform': []
-    }, 
-    "queuedAnimations": []
+    // TODO:    the cellHeight and cellWidth should start as null 
+    //          values and be assigned based on a hook 
+
+    "cellWidth": 40,                                // the width of grid cells for habit tracking
+    "cellHeight": 40,                               // the height of grid cells for habit tracking
+    "windowSize": windowSize,                       // the temporal width (in days) of current time period (summarized in view) 
+    "singleWeekViewOffset": 6,                      // the span property value used to define the spacing for the view grid 
+    "singleWeekXAnchors": null,                     // the x positions (within the grid coord system) of the 
+                                                    // labels (day/month/day-of-week) on the time axis. this 
+                                                    // information is used to align the cols of the habit table. 
+    "numHabits": numHabits,                         // number of rows in the habit table 
+    "habitTable": table,                            // an instance of HabitTable 
+    "dateMin": dateMin,                             // the earliest date for which we have a habit observation (depends on user)
+    "dateMax": dateMax,                             // the latest date for which we have a habit observation (depends on user)
+    "windowStartDate": weeksWindower.start,         // the first day (sunday) in the current selected week (changes with user interaction)
+    "windowEndDate": weeksWindower.end,             // the last day (saturday) in the current selected week (changes with user interaction)
+
 }; 
 
 export function reducer(state, [type, payload]) {
 
     const mutators = { 
-        
-        'set period': () => {
-            return { ...state, period: payload };  
-        },
+        'set date range': () => {
+            let [dateMin, dateMax] = payload; 
+            const windowCount = Math.ceil(dateMax.diff(dateMin, 'weeks', true));
+            return { ...state, dateMin, dateMax, windowCount }; 
+        }, 
+
         'set windowSize': () => {
             return { ...state, windowSize: payload };  
         }, 
@@ -125,8 +93,8 @@ export function reducer(state, [type, payload]) {
                 return { ...state }; 
             } else {
                 // can shift the window backwards. shift both indices and 
-                let { windowStartIndex, windowEndIndex, windowStartDate, windowEndDate } = shiftWindowDays(state, -7); 
-                return { ...state, windowStartIndex, windowEndIndex, windowStartDate, windowEndDate };
+                let { windowStartDate, windowEndDate } = shiftWindowDays(state.windowStartDate, state.windowEndDate, -7); 
+                return { ...state, windowStartDate, windowEndDate };
             }
         },
         'shift week forwards': () => {
@@ -135,17 +103,10 @@ export function reducer(state, [type, payload]) {
                 return { ...state }; 
             } else {
                 // can shift the window forwards
-                let { windowStartIndex, windowEndIndex, windowStartDate, windowEndDate } = shiftWindowDays(state, 7); 
-                return { ...state, windowStartIndex, windowEndIndex, windowStartDate, windowEndDate }; 
+                let { windowStartDate, windowEndDate } = shiftWindowDays(state.windowStartDate, state.windowEndDate, 7); 
+                return { ...state, windowStartDate, windowEndDate };
             }
-        },
-        // 'trigger animation': () => {
-            // let queuedAnimations = [];
-            // for (let { key, delay, duration, type, startValue, endValue } of payload) {
-            //     queuedAnimations.push({ key, duration, type, startValue, endValue }); 
-            // }
-            // return { ...state, queuedAnimations }; 
-        // }, 
+        }
     }; 
 
     if (mutators[type] === undefined) {
