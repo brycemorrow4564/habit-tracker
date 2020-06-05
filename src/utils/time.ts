@@ -6,27 +6,29 @@ Some utility functions that rely on the moment.js library
 
 type WeekIndex =  0 | 1 | 2 | 3 | 4 | 5 | 6; 
 
-export class HabitData {
+export class Habit {
 
-    private values: Array<number>; 
-    private dateIndex: { [key: string]: number };
-
-    constructor() {
-        // These two date structures allow us to reference / index habits
-        this.values = [];       // stores the raw values of observations
-        this.dateIndex = {};    // maps a date to an index of values 
+    constructor(public value: any) {
+        this.value = value;
     }
+
+}
+
+export class HabitHistory {
+
+    private values: Array<Habit> = [];                  // stores habit objects (wrappers around values)
+    private dateIndex: { [key: string]: number } = {};  // maps a date string to an index of values 
 
     set(date: moment.Moment, value: number) {
         /*
         record an observation for a habit at a given date with 
         a particular value; 
         */ 
-        this.values.push(value); 
+        this.values.push(new Habit(value)); 
         this.dateIndex[date.format()] = this.values.length-1; 
     }
 
-    get(d0: moment.Moment, d1: moment.Moment) {
+    getInWindow(d0: moment.Moment, d1: moment.Moment) {
         /*
         get all observations within a given window of time 
         this is an inclusive range [d0,d1]. This allows us  
@@ -42,7 +44,7 @@ export class HabitData {
                 data.push({ 
                     index: wi, 
                     date: curr, 
-                    value: this.values[this.dateIndex[dateIndexKey]] 
+                    value: this.values[this.dateIndex[dateIndexKey]].value 
                 });
             }
             curr.add(1, 'day'); 
@@ -67,54 +69,6 @@ export class HabitData {
 
 }
 
-export class HabitTable {
-
-    private nameIndex: { [key: string] : number };
-    private habits: Array<HabitData>; 
-
-    constructor() {
-        this.nameIndex = {};    // maps name of habit to data index
-        this.habits = [];       // stores HabitData instances in order they are added to 
-    }
-
-    private getHabitDataByName(name: string) {
-        return this.habits[this.nameIndex[name]]; 
-    }
-
-    add(name: string, habit: HabitData) {
-        this.habits.push(habit); 
-        this.nameIndex[name] = this.habits.length-1; 
-    }
-
-    // delegates to habitData instance 
-    set(name: string, date: moment.Moment, value: number) {
-        this.getHabitDataByName(name).set(date, value); 
-    }
-
-    // delegates to habitData instance 
-    get(name: string, d0: moment.Moment, d1: moment.Moment) {
-        return this.getHabitDataByName(name).get(d0, d1); 
-    }
-
-    // delegates to habitData instance 
-    getMinDate() {
-        /*
-        Returns the earliest date for which we have an observation
-        */
-        return moment.min(this.habits.map(habit => habit.getMinDate())); 
-    }
-
-    // delegates to habitData instance 
-    getMaxDate() {
-        /*
-        Returns the earliest date for which we have an observation
-        */
-        return moment.max(this.habits.map(habit => habit.getMaxDate())); 
-    }
-
-
-}
-
 export class Week {
 
     // labels is the ground-truth for week ordering (sunday -> saturday)
@@ -123,13 +77,8 @@ export class Week {
 
     constructor(public offset: WeekIndex) {
         // 0 -> starts on sunday
-        // 1 -> starts on monday 
         // i -> starts on ith element of Week.labels 
         this.offset = offset; 
-    }
-
-    getOffset() {
-        return this.offset; 
     }
 
     getDay(logicalIndex: number) {
@@ -144,68 +93,137 @@ export class Week {
 
 }
 
-let shiftWindowDays = (windowStartDate: moment.Moment, windowEndDate: moment.Moment, nDays: number) => {
-    return { 
-        windowStartDate: windowStartDate.clone().add(nDays, 'days'), 
-        windowEndDate: windowEndDate.clone().add(nDays, 'days')
-    }; 
-}
-
-class WeeksWindower {
+export class WeeksWindower {
 
     /*
     A class that represents a window of either 1 or 2 weeks. 
     This window can shift to the left and right infinitely
     */
+    private d0: moment.Moment;
+    private d1: moment.Moment; 
 
-    constructor(initWindowEndDate: moment.Moment, 
-                amount: 1 | 2, 
+    constructor(dateInWindow: moment.Moment, 
+                private amount: 1 | 2, 
                 weekStartOffset: Week) {
 
         // compute left bound
-        let d0 = initWindowEndDate.clone(); 
-        let diff = d0.day() - Week.getOffset(); 
+        let d0 = dateInWindow.clone(); 
+        let diff = d0.day() - weekStartOffset.offset; 
         if (diff > 0) {
-            d0.day(-diff); 
+            d0.subtract(diff, 'days'); 
         } else if (diff < 0) {
-            d0.day(-(7+diff)); 
+            d0.subtract(7+diff); 
         }
         // compute right bound 
-        let d1 = d0.clone().add(1, 'weeks'); 
-        // adjustment for 2 week case 
+        let d1 = d0.clone().add(1, 'week').subtract(1, 'day'); 
         if (amount === 2) {
             // adjust left bound to be 1 week to the left 
             // this ensures that current date will be in most 
             // recent week within this window 
-            d0.day(-7);
+            d0.subtract(1, 'week');
         }
 
         // set the left and right bounds to the private 
+        this.d0 = d0; 
+        this.d1 = d1; 
     }
+
+    get start() {
+        return this.d0; 
+    }
+
+    get end() {
+        return this.d1; 
+    }
+
+    shiftBackwards() {
+        // shifts both points amount weeks into the past 
+        this.d0.subtract(this.amount, 'weeks'); 
+        this.d1.subtract(this.amount, 'weeks'); 
+    }
+
+    shiftForwards() {
+        // shifts both points amount weeks into the future 
+        this.d0.add(this.amount, 'weeks'); 
+        this.d1.add(this.amount, 'weeks'); 
+    }
+    
+    window() {
+        /*
+        Iterates through all days in the window 
+        */
+        let d = this.d0.clone();
+        let dates = []; 
+        while (this.d1.diff(d, 'days') >= 0) {
+            dates.push(d.clone()); 
+            d.add(1, 'day'); 
+        }
+        return dates; 
+    }
+
 }
 
-let computeWeekAlignedWindowAroundDate = (date, numWeeks, weekStartOffset) => {
-    let d0, d1; 
-    if (numWeeks === 1 | numWeeks === 2) {
-        // compute left bound
-        d0 = date.clone(); 
-        let diff = d0.day() - weekStartOffset; 
-        if (diff > 0) {
-            d0.day(-diff); 
-        } else if (diff < 0) {
-            d0.day(-(7+diff)); 
-        }
-        // compute right bound 
-        d1 = d0.clone().add(1, 'weeks'); 
-        // adjustment for 2 week case 
-        if (numWeeks === 2) {
-            // adjust left bound to be 1 week to the left 
-            // this ensures that current date will be in most 
-            // recent week within this window 
-            d0.day(-7);
-        }
-    } else {
-        throw Error("unrecognized number of weeks");  
+export class HabitTable {
+
+    private names: Array<string>; 
+    private namesIndex: Array<number>; 
+    private nameIndex: { [key: string] : number };
+    private habits: Array<HabitHistory>; 
+
+    constructor() {
+        this.names = [];        // stores ids in order added 
+        this.namesIndex = [];   // the order of names by index 
+        this.nameIndex = {};    // maps name of habit to data index
+        this.habits = [];       // stores HabitHistory instances in order they are added to 
     }
-    return { d0, d1 }; 
+
+    private getHabitRowByName(name: string) {
+        return this.habits[this.nameIndex[name]]; 
+    }
+
+    add(name: string, habit: HabitHistory) {
+        this.names.push(name); 
+        this.namesIndex.push(this.names.length-1); 
+        this.habits.push(habit); 
+        this.nameIndex[name] = this.habits.length-1; 
+    }
+
+    set(name: string, date: moment.Moment, value: number) {
+        this.getHabitRowByName(name).set(date, value); 
+    }
+
+    get(name: string, d0: moment.Moment, d1: moment.Moment) {
+        return this.getHabitRowByName(name).getInWindow(d0, d1); 
+    }
+
+    // getAll(weeksWindower: WeeksWindower) {
+    //     for (let name of this.names) {
+    //         let vals = this.get(name, weeksWindower.start, weeksWindower.end); 
+    //     }
+    // }
+
+    getNames() {
+        return this.namesIndex.map(i => this.names[i]); 
+    }
+
+    getMinDate() {
+        /*
+        Returns the earliest date for which we have an observation
+        */
+        return moment.min(this.habits.map(habit => habit.getMinDate())); 
+    }
+
+    getMaxDate() {
+        /*
+        Returns the earliest date for which we have an observation
+        */
+        return moment.max(this.habits.map(habit => habit.getMaxDate())); 
+    }
+
+
+    size() {
+        return this.names.length;
+    }
+
+
 }

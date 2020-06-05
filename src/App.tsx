@@ -22,14 +22,14 @@ function App() {
   */
 
   const [ state, dispatch ] = React.useReducer(reducer, reducerInitialState);
-  const [backgroundInit, setBackgroundInit] = React.useState<Boolean>(false); 
+  const [backgroundInit, setBackgroundInit] = React.useState<Boolean>(true); 
 
   // set background property of html element with an image
-  React.useEffect(() => {
-    let elem = document.querySelector('html') as HTMLElement; 
-    elem.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${mountainImage})`; 
-    setBackgroundInit(true); 
-  }, []); 
+  // React.useEffect(() => {
+  //   let elem = document.querySelector('html') as HTMLElement; 
+  //   elem.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${mountainImage})`; 
+  //   setBackgroundInit(true); 
+  // }, []); 
 
   return (
     <RootProvider value={{ state, dispatch }}>

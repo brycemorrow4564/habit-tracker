@@ -79,8 +79,3 @@ export function clamp(v: number, vmin: number, vmax: number) {
                                       vmax; 
 }
 
-export function getSlideCount(dateMin: moment.Moment, dateMax: moment.Moment, windowSize: number) {
-  let numWeeksPerWindow = windowSize / 7; 
-  return Math.ceil(dateMax.diff(dateMin, 'weeks', true) / numWeeksPerWindow);
-}
-

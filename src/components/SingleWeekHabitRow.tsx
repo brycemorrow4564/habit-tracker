@@ -13,7 +13,7 @@ export interface SingleWeekHabitRowProps {
 const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
 
     const { state } = useRootContext(); 
-    const { singleWeekViewOffset, cellWidth, cellHeight, windowSize, singleWeekXAnchors, numHabits } = state; 
+    const { singleWeekViewOffset, cellWidth, cellHeight, windowSize, singleWeekXAnchors, habitTable } = state; 
     const { data, index } = props; 
 
     let delayUnit = 1000 / (windowSize-1) + index * 30; 
