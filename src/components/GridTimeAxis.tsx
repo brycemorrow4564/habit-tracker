@@ -1,7 +1,6 @@
 import * as React from "react"; 
 import { LeftCircleOutlined, RightCircleOutlined } from "@ant-design/icons";  
 import { scaleLinear } from "d3-scale";
-import useDimensions from "react-use-dimensions"; 
 import _ from "lodash"; 
 import moment from "moment"; 
 import { Row, Col } from "antd"; 
@@ -26,10 +25,7 @@ const currentDayBackground = cssLinearGradientPropertyGenerator('transparent', c
 const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
 
   const { state, dispatch } = useRootContext(); 
-  const { 
-    singleWeekViewOffset,
-    weeksWindower
-  } = state; 
+  const { weeksWindower } = state; 
 
   const today = moment(); 
   const window = weeksWindower.window();
@@ -41,7 +37,7 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
         <GridRowLayout
         left={
           <Row justify="end" align="middle" style={{ height: '100%' }}>
-            <Col span={10} style={{ background: colors.primary.dark, height: '100%' }}>
+            <Col span={12} style={{ background: colors.primary.dark, height: '100%' }}>
               <div style={{ display: 'flex', flexDirection: "column", justifyContent: 'space-between', height: '100%', paddingTop: '1em' }}>
                 <Row justify="end" align="middle">
                   <Col span={6}>
@@ -56,9 +52,9 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
                       </Row>
                   </Col>
                 </Row>
-                <Row justify="space-around" align="bottom">
+                <Row justify="start" align="bottom">
                   <Col span={6}>
-                      <p style={{ color: colors.primary.light }}>Habits</p>
+                      <p style={{ color: colors.primary.light, marginBottom: 4, marginLeft: 8 }}>Habits</p>
                   </Col>
                 </Row>
               </div>

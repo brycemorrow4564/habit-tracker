@@ -34,13 +34,14 @@ let dummyHabitTable = () => {
 const numWeeks  = 2; 
 const windowSize = numWeeks * 7; 
 const table = dummyHabitTable(); 
-const week = new Week(2); // a week that starts on monday 
+const week = new Week(1); // a week that starts on monday 
 const weeksWindower = new WeeksWindower(table.getMaxDate(), numWeeks, week); 
 
 export const reducerInitialState = {
 
     // TODO:    the cellHeight and cellWidth should start as null 
     //          values and be assigned based on a hook 
+    
     "singleWeekViewOffset": 4, 
     "cellWidth": null,                              // the width of grid cells for habit tracking
     "cellHeight": null,                             // the height of grid cells for habit tracking

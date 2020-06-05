@@ -6,7 +6,26 @@ Some utility functions that rely on the moment.js library
 
 type WeekIndex =  0 | 1 | 2 | 3 | 4 | 5 | 6; 
 
+export class HabitList {
+
+}; 
+
 export class Habit {
+
+    /*
+    * A habit can have a label 
+    * each habit derives its color from its label 
+    * each habit is associated with a HabitHistory
+    */ 
+
+    private label: string | null = null;
+
+    constructor(private name: string) {
+        this.name = name; 
+    }
+}; 
+
+export class HabitObservation {
 
     constructor(public value: any) {
         this.value = value;
@@ -16,7 +35,7 @@ export class Habit {
 
 export class HabitHistory {
 
-    private values: Array<Habit> = [];                  // stores habit objects (wrappers around values)
+    private values: Array<HabitObservation> = [];       // stores habit objects (wrappers around values)
     private dateIndex: { [key: string]: number } = {};  // maps a date string to an index of values 
 
     set(date: moment.Moment, value: number) {
@@ -24,7 +43,7 @@ export class HabitHistory {
         record an observation for a habit at a given date with 
         a particular value; 
         */ 
-        this.values.push(new Habit(value)); 
+        this.values.push(new HabitObservation(value)); 
         this.dateIndex[date.format()] = this.values.length-1; 
     }
 
