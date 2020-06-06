@@ -18,15 +18,28 @@ export interface HabitListProps {
 
 const HabitList: React.FC<HabitListProps> = (props) => {
 
+  const itemRefs = React.useRef<{ [key: string]: any }>({}); 
   const { state, dispatch } = useRootContext(); 
   const { habitTable } = state; 
+
+  React.useEffect(() => {
+    if (itemRefs && itemRefs.current) {
+      let yAnchors = []; 
+      for (let habit of Object.keys(itemRefs.current)) {
+        let el: HTMLElement = itemRefs.current[habit];
+        let { offsetTop } = el; 
+        yAnchors.push(offsetTop); 
+      }
+      dispatch(['update y anchors', yAnchors]); 
+    }
+  }, [itemRefs]); 
 
   return (
       <React.Fragment>
           <Row justify="end" align="middle" style={{ height: '100%' }}>
             <Col span={12} style={{ background: colors.primary.dark, height: '100%' }}>
               <List
-              style={{ margin: 8 }}
+              className="habit-card-list"
               footer={
                 <Row justify="space-around" align="middle">
                     <Col>
@@ -39,8 +52,19 @@ const HabitList: React.FC<HabitListProps> = (props) => {
                   </Row>
               }
               dataSource={habitTable ? habitTable.getNames() : []}
-              renderItem={item => <List.Item style={{ background: colors.background, marginBottom: 2 }}>{`${item}`}</List.Item>}
-              />
+              renderItem={(item) => <List.Item 
+                                    className="habit-card"
+                                    style={{ 
+                                      background: colors.background, 
+                                      marginBottom: 2 
+                                    }}
+                                    extra={
+                                      <div ref={ref => {
+                                        // @ts-ignore
+                                        return itemRefs.current[item] = ref;
+                                      }}/>
+                                    }>{`${item}`}</List.Item>
+              }/>
             </Col>
           </Row>
       </React.Fragment>

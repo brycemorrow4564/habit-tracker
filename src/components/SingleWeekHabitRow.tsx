@@ -4,59 +4,46 @@ import { Row, Col } from "antd";
 import CircleScalable from './CircleScalable';
 import { ReactComponent as FireSvg } from '../assets/fire19.svg';
 import { useRootContext } from "../contexts/context"; 
+import { HabitHistory, HabitTable, WeeksWindower } from "../utils/time"; 
 
 export interface SingleWeekHabitRowProps {
-    data: number[], 
-    index: number 
+    habitName: string
 };
 
 const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
 
+    const { habitName } = props;
     const { state } = useRootContext(); 
-    const { singleWeekViewOffset, cellWidth, cellHeight, windowSize, singleWeekXAnchors, habitTable } = state; 
-    const { data, index } = props; 
+    const { 
+        habitTable, 
+        weeksWindower, 
+        xAnchors, 
+        yAnchors
+    } = state; 
 
-    let delayUnit = 1000 / (windowSize-1) + index * 30; 
+    let data: Array<{ index: number, date: moment.Moment, value: any }> = habitTable.get(habitName, weeksWindower.start, weeksWindower.end); 
     
     return (
-        <Row justify="start" align="middle" className="single-week-habit-row">
-            
-            {/* Habit Label */}
-            <Col span={singleWeekViewOffset}>
-                <Row justify="end" align="middle" style={{ height: cellHeight, width: "100%", paddingRight: '1em' }}>
-                <Col span={24}>
-                    <p className="habit-name-labels">{`Habit ${index+1}`}</p>
-                </Col>
-                </Row>
-            </Col>
-
-            {/* Habit history visualization */}
-            <Col span={24 - 2 * singleWeekViewOffset}>
-
-            {!singleWeekXAnchors ? null : (
-                <svg style={{ height: cellHeight, width: '100%', display: 'block' }}>
-                    {data.map((d, i) => {
-                        return (
-                            <CircleScalable
-                            
-                            rowIndex={index}
-                            colIndex={i}
-
-                            cx={singleWeekXAnchors[i]}
-                            cy={cellHeight / 2}
-                            r={cellWidth / 2 - 1}
-                            value={d}
-                            delay={delayUnit * i}
-                            
-                            />
-                        )
-                    })}
+        <Row className="single-week-habit-row">
+            <Col span={24}>
+            {(
+                <svg style={{ height: 50, width: '100%', display: 'block' }}>
+                    {data.map(({ value, index }, i) => (
+                        <CircleScalable
+                        rowIndex={index}
+                        colIndex={i}
+                        cx={40*i}
+                        cy={yAnchors ? yAnchors[0] : 0}
+                        r={10}
+                        value={value}
+                        delay={0} />
+                    ))}
                 </svg> 
             )}
             </Col> 
 
             {/* Streak Visualization */}
-            <Col span={singleWeekViewOffset}>
+            {/* <Col span={singleWeekViewOffset}>
                 <Row justify="start" align="top">
                     <Col>
                         <FireSvg className={'streak-icon'} style={{ height: 20, width: 20 }}/>
@@ -67,7 +54,7 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
                         </svg>
                     </Col>
                 </Row>
-            </Col>
+            </Col> */}
 
         </Row>
     ); 

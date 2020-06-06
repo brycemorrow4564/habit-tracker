@@ -57,13 +57,19 @@ export class HabitHistory {
         let data = []; 
         let curr = d0.clone(); 
         let wi = 0; 
-        while (d1.diff(curr, 'days') >= 0) {
+        while (!d1.isSame(curr, 'days')) {
             let dateIndexKey = curr.format(); 
             if (dateIndexKey in this.dateIndex) {
                 data.push({ 
-                    index: wi, 
+                    index: wi,  // numerical index into date array representation of window 
                     date: curr, 
                     value: this.values[this.dateIndex[dateIndexKey]].value 
+                });
+            } else {
+                data.push({ 
+                    index: wi,  // numerical index into date array representation of window 
+                    date: curr, 
+                    value: 0
                 });
             }
             curr.add(1, 'day'); 
@@ -196,23 +202,25 @@ export class HabitTable {
         this.habits = [];       // stores HabitHistory instances in order they are added to 
     }
 
-    private getHabitRowByName(name: string) {
+    private getHabitHistory(name: string) {
         return this.habits[this.nameIndex[name]]; 
     }
 
     add(name: string, habit: HabitHistory) {
+        // Add a habit and associated data 
         this.names.push(name); 
         this.namesIndex.push(this.names.length-1); 
         this.habits.push(habit); 
         this.nameIndex[name] = this.habits.length-1; 
     }
 
-    set(name: string, date: moment.Moment, value: number) {
-        this.getHabitRowByName(name).set(date, value); 
-    }
+    // set(name: string, date: moment.Moment, value: number) {
+    //     this.getHabitRowByName(name).set(date, value); 
+    // }
 
     get(name: string, d0: moment.Moment, d1: moment.Moment) {
-        return this.getHabitRowByName(name).getInWindow(d0, d1); 
+        const history: HabitHistory = this.getHabitHistory(name); 
+        return history.getInWindow(d0, d1); 
     }
 
     // getAll(weeksWindower: WeeksWindower) {

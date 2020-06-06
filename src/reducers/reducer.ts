@@ -12,10 +12,11 @@ let habitHistoryLength = 34;
 
 let dummyHabitTable = () => {
 
-    let today = moment(); 
-    let startDate = today.subtract(habitHistoryLength - 1, 'days'); 
+    let today: moment.Moment = moment(); 
+    let startDate: moment.Moment = today.subtract(habitHistoryLength - 1, 'days'); 
 
-    const table = new HabitTable(); 
+    const table: HabitTable = new HabitTable(); 
+
     for (let i of _.range(0, numHabits)) {
         let data = new HabitHistory(); 
         let curr = startDate.clone(); 
@@ -31,13 +32,13 @@ let dummyHabitTable = () => {
     return table; 
 }; 
 
-const numWeeks  = 2; 
-const windowSize = numWeeks * 7; 
-const table = dummyHabitTable(); 
-const week = new Week(1); // a week that starts on monday 
-const weeksWindower = new WeeksWindower(table.getMaxDate(), numWeeks, week); 
+const numWeeks: 1 | 2 = 2; 
+const windowSize: 7 | 14 = (numWeeks * 7) as 7 | 14; 
+const table: HabitTable = dummyHabitTable(); 
+const week: Week = new Week(1); // a week that starts on monday 
+const weeksWindower: WeeksWindower = new WeeksWindower(table.getMaxDate(), numWeeks, week); 
 
-export const reducerInitialState = {
+export const reducerInitialState: ReducerState = {
 
     // TODO:    the cellHeight and cellWidth should start as null 
     //          values and be assigned based on a hook 
@@ -45,15 +46,32 @@ export const reducerInitialState = {
     "singleWeekViewOffset": 4, 
     "cellWidth": null,                              // the width of grid cells for habit tracking
     "cellHeight": null,                             // the height of grid cells for habit tracking
-    "windowSize": windowSize,                       // the temporal width (in days) of current time period (summarized in view) 
+    "windowSize": windowSize as 7 | 14,             // the temporal width (in days) of current time period (summarized in view) 
     "habitTable": _.cloneDeep(table),               // an instance of HabitTable 
     "weeksWindower": _.cloneDeep(weeksWindower),    // an instance of WeeksWindower 
-
+    "yAnchors": [], 
+    "xAnchors": []
 }; 
 
-export function reducer(state, [type, payload]) {
+export interface ReducerState {
+    singleWeekViewOffset: number, 
+    cellWidth: number | null, 
+    cellHeight: number | null, 
+    windowSize: 7 | 14, 
+    habitTable: HabitTable, 
+    weeksWindower: WeeksWindower, 
+    yAnchors: number[], 
+    xAnchors: number[]
+}
 
-    const mutators = { 
+export type ReducerAction = [string, any]; 
+
+export function reducer(state: ReducerState, action: ReducerAction) {
+
+    let type: string = action[0]; 
+    let payload: any = action[1]; 
+
+    const mutators: { [key: string]: any } = { 
         'shift window': () => {
             let forwards = payload; 
             let weeksWindower = _.cloneDeep(state.weeksWindower); 
@@ -63,6 +81,12 @@ export function reducer(state, [type, payload]) {
                 weeksWindower.shiftBackwards(); 
             }
             return { ...state, weeksWindower }; 
+        }, 
+        'update x anchors': () => {
+            return { ...state, xAnchors: payload }; 
+        },
+        'update y anchors': () => {
+            return { ...state, yAnchors: payload }; 
         }
     }; 
 
