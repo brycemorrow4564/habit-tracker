@@ -30,7 +30,7 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
         left={<HabitList/>}
         center={
           <div className="habit-table-viz-grid" style={{ background: colors.primary.dark }}>
-            <div style={{ background: colors.background, paddingRight: '.5em' }}>
+            <div style={{ background: colors.primary.dark, paddingRight: '.5em' }}>
               {habitTable.getNames().map((habitName: string, i: number) => (<SingleWeekHabitRow 
                                                                             key={habitName}
                                                                             habitName={habitName} 
@@ -41,9 +41,6 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
         right={null}/>
         
         </div>
-        
-
-        
         
       </React.Fragment>
   );

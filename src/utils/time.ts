@@ -1,4 +1,5 @@
 import moment from "moment"; 
+import { ExceptionMap } from "antd/lib/result";
 
 /*
 Some utility functions that rely on the moment.js library
@@ -33,18 +34,40 @@ export class HabitObservation {
 
 }
 
+function removeIth(arr: any[], i: number) {
+    return arr.splice(i, 1); 
+}
+
 export class HabitHistory {
 
-    private values: Array<HabitObservation> = [];       // stores habit objects (wrappers around values)
-    private dateIndex: { [key: string]: number } = {};  // maps a date string to an index of values 
+    /*
+    Sparse representation of a history for a single habit 
+    */
+
+    private values: Array<HabitObservation> = [];       // stores habit observation objects 
+    private mapDate: Map<string, number> = new Map();   // maps date string to index of values 
+
+    // setByIndex(index: number, value: number) {
+    //     /*
+    //     record an observation for a habit at a given date with 
+    //     a particular value; 
+    //     */
+    //     this.values[index].value = value;   
+    // }
 
     set(date: moment.Moment, value: number) {
         /*
         record an observation for a habit at a given date with 
         a particular value; 
         */ 
-        this.values.push(new HabitObservation(value)); 
-        this.dateIndex[date.format()] = this.values.length-1; 
+        let dateIndexKey: string = date.format(); 
+        if (!this.mapDate.has(dateIndexKey)) {
+            this.values.push(new HabitObservation(value)); 
+            this.mapDate.set(dateIndexKey, this.values.length - 1); 
+        } else {
+            let valueIndex: number = this.mapDate.get(dateIndexKey) as number; 
+            this.values[valueIndex].value = value; 
+        }
     }
 
     getInWindow(d0: moment.Moment, d1: moment.Moment) {
@@ -56,25 +79,17 @@ export class HabitHistory {
         */
         let data = []; 
         let curr = d0.clone(); 
-        let end = d1.clone().add(1, 'day')
-        let wi = 0; 
-        while (!curr.isSame(end, 'days')) {
+        let end = d1.clone().add(1, 'day'); // add 1 day to last day to get end day for looping 
+        for (let wi = 0; !curr.isSame(end, 'days'); wi++, curr.add(1, 'day')) {
             let dateIndexKey = curr.format(); 
-            if (dateIndexKey in this.dateIndex) {
+            if (this.mapDate.has(dateIndexKey)) {
+                let vi: number = this.mapDate.get(dateIndexKey) as number; 
                 data.push({ 
                     index: wi,  // numerical index into date array representation of window 
                     date: curr.clone(), 
-                    value: this.values[this.dateIndex[dateIndexKey]].value 
-                });
-            } else {
-                data.push({ 
-                    index: wi,  // numerical index into date array representation of window 
-                    date: curr.clone(), 
-                    value: 0
+                    value: this.values[vi].value
                 });
             }
-            curr.add(1, 'day'); 
-            wi += 1; 
         }
         return data; 
     }
@@ -83,14 +98,14 @@ export class HabitHistory {
         /*
         Returns the earliest date for which we have an observation
         */
-        return moment.min(Object.keys(this.dateIndex).map(timeStr => moment(timeStr))); 
+        return moment.min([...this.mapDate.keys()].map(timeStr => moment(timeStr))); 
     }
 
     getMaxDate() {
         /*
         Returns the latest date for which we have an observation
         */
-        return moment.max(Object.keys(this.dateIndex).map(timeStr => moment(timeStr))); 
+        return moment.max([...this.mapDate.keys()].map(timeStr => moment(timeStr))); 
     }
 
 }
@@ -154,12 +169,12 @@ export class WeeksWindower {
         this.d1 = d1; 
     }
 
-    get start() {
-        return this.d0; 
+    start() {
+        return this.d0.clone(); 
     }
 
-    get end() {
-        return this.d1; 
+    end() {
+        return this.d1.clone(); 
     }
 
     shiftBackwards() {
@@ -178,9 +193,10 @@ export class WeeksWindower {
         /*
         Iterates through all days in the window 
         */
-        let d = this.d0.clone();
+        let d = this.start(); 
+        let end = this.end(); 
         let dates = []; 
-        while (this.d1.diff(d, 'days') >= 0) {
+        while (!d.isSame(end, 'days')) {
             dates.push(d.clone()); 
             d.add(1, 'day'); 
         }
@@ -192,13 +208,11 @@ export class WeeksWindower {
 export class HabitTable {
 
     private names: Array<string>; 
-    private namesIndex: Array<number>; 
     private nameIndex: { [key: string] : number };
     private habits: Array<HabitHistory>; 
 
     constructor() {
-        this.names = [];        // stores ids in order added 
-        this.namesIndex = [];   // the order of names by index 
+        this.names = [];        // stores habit ids in order added to table initially 
         this.nameIndex = {};    // maps name of habit to data index
         this.habits = [];       // stores HabitHistory instances in order they are added to 
     }
@@ -210,28 +224,23 @@ export class HabitTable {
     add(name: string, habit: HabitHistory) {
         // Add a habit and associated data 
         this.names.push(name); 
-        this.namesIndex.push(this.names.length-1); 
         this.habits.push(habit); 
         this.nameIndex[name] = this.habits.length-1; 
     }
 
-    // set(name: string, date: moment.Moment, value: number) {
-    //     this.getHabitRowByName(name).set(date, value); 
-    // }
+    setByIndex(ri: number, ci: number, value: number, weeksWindower: WeeksWindower) {
+        let history: HabitHistory = this.getHabitHistory(this.names[ri]);
+        let d: moment.Moment = weeksWindower.start().add(ci, 'days'); 
+        history.set(d, value); 
+    }
 
     get(name: string, d0: moment.Moment, d1: moment.Moment) {
         const history: HabitHistory = this.getHabitHistory(name); 
         return history.getInWindow(d0, d1); 
     }
 
-    // getAll(weeksWindower: WeeksWindower) {
-    //     for (let name of this.names) {
-    //         let vals = this.get(name, weeksWindower.start, weeksWindower.end); 
-    //     }
-    // }
-
     getNames() {
-        return this.namesIndex.map(i => this.names[i]); 
+        return this.names; 
     }
 
     getMinDate() {
@@ -247,7 +256,6 @@ export class HabitTable {
         */
         return moment.max(this.habits.map(habit => habit.getMaxDate())); 
     }
-
 
     size() {
         return this.names.length;

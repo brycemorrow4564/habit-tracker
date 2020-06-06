@@ -18,15 +18,17 @@ let dummyHabitTable = () => {
     const table: HabitTable = new HabitTable(); 
 
     for (let i of _.range(0, numHabits)) {
-        let data = new HabitHistory(); 
+        let history = new HabitHistory(); 
         let curr = startDate.clone(); 
         for (let j of _.range(0, habitHistoryLength)) {
             if (Math.random() < .5) {
-                data.set(curr.clone(), 1); 
+                history.set(curr.clone(), 1); 
+            } else {
+                history.set(curr.clone(), 0); 
             }
             curr.add(1, 'day'); 
         }
-        table.add(`habit-${i}`, data); 
+        table.add(`habit-${i}`, history); 
     }
 
     return table; 
@@ -95,7 +97,14 @@ export function reducer(state: ReducerState, action: ReducerAction) {
         'update axis item dimensions': () => {
             let [widths, timeAxisItemSpacing] = payload; 
             return { ...state, colWidths: widths, timeAxisItemSpacing }; 
-        }   
+        }, 
+        'set value habit table': () => {
+            let [ri, ci, value] = payload; 
+            let habitTable = _.cloneDeep(state.habitTable); 
+            let weeksWindower = _.cloneDeep(state.weeksWindower); 
+            habitTable.setByIndex(ri, ci, value, weeksWindower); 
+            return { ...state, habitTable, weeksWindower }; 
+        }
     }; 
 
     if (mutators[type] === undefined) {

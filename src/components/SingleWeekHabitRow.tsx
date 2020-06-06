@@ -5,6 +5,7 @@ import CircleScalable from './CircleScalable';
 import { ReactComponent as FireSvg } from '../assets/fire19.svg';
 import { useRootContext } from "../contexts/context"; 
 import { HabitHistory, HabitTable, WeeksWindower } from "../utils/time"; 
+import { colors } from "../utils/color";
 
 export interface SingleWeekHabitRowProps {
     habitName: string, 
@@ -25,7 +26,7 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
     } = state; 
 
     const ready: boolean = rowHeights.length && colWidths.length; 
-    const data: Array<{ index: number, date: moment.Moment, value: any }> = habitTable.get(habitName, weeksWindower.start, weeksWindower.end); 
+    const data: Array<{ index: number, date: moment.Moment, value: any }> = habitTable.get(habitName, weeksWindower.start(), weeksWindower.end()); 
     
     const zeros: Array<number> = data.map(e => 0); 
     // @ts-ignore
@@ -39,15 +40,15 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
     return !ready ? null : (
         <Row className="single-week-habit-row">
             <Col span={24}>
-                <svg className="habit-row-viz" style={{ height: rowHeights[rowIndex], width: '100%', display: 'block' }}>
+                <svg className="habit-row-viz" style={{ height: rowHeights[rowIndex], width: '100%', display: 'block', background: colors.primary.dark }}>
                     {data.map(({ date, value, index }, i) => (
                         <CircleScalable
                         key={`${date.format()}-${index}`}
-                        rowIndex={index}
+                        rowIndex={rowIndex}
                         colIndex={i}
                         cx={xs[i]}
                         cy={rowHeights[rowIndex] / 2}
-                        r={10}
+                        r={20}
                         value={value}
                         delay={0} />
                     ))}

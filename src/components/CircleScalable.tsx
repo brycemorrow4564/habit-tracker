@@ -128,6 +128,7 @@ const CircleScalable: React.FC<CircleScalableProps> = (props) => {
             // a click event created a request to change the underlying data 
             // the data has been changed and now we should transition the color 
             // fill of the circle to represent this. 
+            debugger;
             setLocalValue(value);
             requestAnimationFrame(ticked);
         }
@@ -146,8 +147,7 @@ const CircleScalable: React.FC<CircleScalableProps> = (props) => {
             fill={inactiveColor}
             transform={transformStr}
             fillOpacity={opacityBackground}
-            // onClick={() =>  dispatch(['set dataRowCol', [rowIndex, colIndex, 1]])}
-            />
+            onClick={() =>  dispatch(['set value habit table', [rowIndex, colIndex, 1]])}/>
             {/* green foreground */}
             <circle
             cx={0}
@@ -157,7 +157,7 @@ const CircleScalable: React.FC<CircleScalableProps> = (props) => {
             transform={transformStrActive}
             fillOpacity={opacityBackground}
             pointerEvents={value === 1 ? 'visiblePoint' : 'none'}
-            // onClick={() =>  dispatch(['set dataRowCol', [rowIndex, colIndex, 0]])}
+            onClick={() =>  dispatch(['set value habit table', [rowIndex, colIndex, 0]])}
             /> 
         </React.Fragment>
         

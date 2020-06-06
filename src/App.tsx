@@ -33,7 +33,7 @@ function App() {
 
   return (
     <RootProvider value={{ state, dispatch }}>
-      {backgroundInit ? <SingleWeekView/> : null}
+      {backgroundInit ? <div style={{ width: '100%', height: '100%' }}><SingleWeekView/></div> : null}
     </RootProvider>    
   );
 }
