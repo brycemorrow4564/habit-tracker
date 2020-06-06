@@ -51,6 +51,13 @@
     padding-left: .5em;
 }
 
+.habit-row-viz {
+    background: white;
+}
+
+.single-week-habit-row {
+    margin-bottom: 2px;
+}
 
 
 /* 
@@ -114,9 +121,6 @@
     margin-top: 2em; 
 }
 
-.single-week-habit-row {
-    margin-bottom: 1em;
-}
 
 
 

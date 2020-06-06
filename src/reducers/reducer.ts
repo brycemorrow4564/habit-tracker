@@ -49,8 +49,9 @@ export const reducerInitialState: ReducerState = {
     "windowSize": windowSize as 7 | 14,             // the temporal width (in days) of current time period (summarized in view) 
     "habitTable": _.cloneDeep(table),               // an instance of HabitTable 
     "weeksWindower": _.cloneDeep(weeksWindower),    // an instance of WeeksWindower 
-    "yAnchors": [], 
-    "xAnchors": []
+    "dy": 0,
+    "rowHeights": 0, 
+    "rowMarginBottom": 0 
 }; 
 
 export interface ReducerState {
@@ -60,8 +61,9 @@ export interface ReducerState {
     windowSize: 7 | 14, 
     habitTable: HabitTable, 
     weeksWindower: WeeksWindower, 
-    yAnchors: number[], 
-    xAnchors: number[]
+    dy: number, 
+    rowHeights: number, 
+    rowMarginBottom: number, 
 }
 
 export type ReducerAction = [string, any]; 
@@ -82,11 +84,12 @@ export function reducer(state: ReducerState, action: ReducerAction) {
             }
             return { ...state, weeksWindower }; 
         }, 
-        'update x anchors': () => {
-            return { ...state, xAnchors: payload }; 
+        'update dy': () => {
+            return { ...state, dy: payload }; 
         },
-        'update y anchors': () => {
-            return { ...state, yAnchors: payload }; 
+        'update list item dimensions': () => {
+            let [heights, marginBottom] = payload; 
+            return { ...state, rowHeights: heights, rowMarginBottom: marginBottom }; 
         }
     }; 
 

@@ -7,39 +7,41 @@ import { useRootContext } from "../contexts/context";
 import { HabitHistory, HabitTable, WeeksWindower } from "../utils/time"; 
 
 export interface SingleWeekHabitRowProps {
-    habitName: string
+    habitName: string, 
+    rowIndex: number
 };
 
 const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
 
-    const { habitName } = props;
+    const { habitName, rowIndex } = props;
     const { state } = useRootContext(); 
     const { 
         habitTable, 
         weeksWindower, 
         xAnchors, 
-        yAnchors
+        yAnchors, 
+        dy, 
+        rowHeights, 
+        rowMarginBottom
     } = state; 
 
     let data: Array<{ index: number, date: moment.Moment, value: any }> = habitTable.get(habitName, weeksWindower.start, weeksWindower.end); 
-    
+
     return (
         <Row className="single-week-habit-row">
             <Col span={24}>
-            {(
-                <svg style={{ height: 50, width: '100%', display: 'block' }}>
+                <svg className="habit-row-viz" style={{ height: rowHeights[rowIndex], width: '100%', display: 'block' }}>
                     {data.map(({ value, index }, i) => (
                         <CircleScalable
                         rowIndex={index}
                         colIndex={i}
                         cx={40*i}
-                        cy={yAnchors ? yAnchors[0] : 0}
+                        cy={rowHeights[rowIndex] / 2}
                         r={10}
                         value={value}
                         delay={0} />
                     ))}
-                </svg> 
-            )}
+                </svg>
             </Col> 
 
             {/* Streak Visualization */}

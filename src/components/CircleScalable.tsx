@@ -6,7 +6,7 @@ import { easeCubic, easeSinIn, easePolyOut } from 'd3-ease';
 import { useRootContext } from "../contexts/context"; 
 import { Animation, AnimationType, useAnimationRegistrar } from "../deprecated/animationManagerHooks"; 
 
-const minOpacity = .15; 
+const minOpacity = 1; 
 
 export interface CircleScalableProps {
     cx: number,         // x coord of origin 
@@ -19,14 +19,14 @@ export interface CircleScalableProps {
 };
 
 const activeColor = "#6ded81" ; 
-const inactiveColor = "rgba(232, 229, 227, .5)";
+const inactiveColor = "rgba(232, 229, 227, .75)";
 
 const scaleDuration = 500; 
 const opacityDuration = 250;
 const translateDuration = 250;
 const innerGrowDuration = 325;
 
-const minScale = .1; 
+const minScale = 1; 
 const maxScale = 1; 
 
 const CircleScalable: React.FC<CircleScalableProps> = (props) => {
@@ -36,51 +36,55 @@ const CircleScalable: React.FC<CircleScalableProps> = (props) => {
 
     const [localValue, setLocalValue]                       = React.useState<number>(value); 
     const [opacityBackground, setOpacityBackground]         = React.useState<number>(minOpacity); 
-    // const [opacityForeground, setOpacityForeground]         = React.useState<number>(minOpacity); 
     const [transformStr, setTransformStr]                   = React.useState<string>(`  translate(${cx},${cy}) 
                                                                                         scale(${minScale})`); 
     const [transformStrActive, setTransformStrActive]       = React.useState<string>(`  ${transformStr}
                                                                                         scale(${value === 0 ? 0 : 1})`); 
 
+
     React.useEffect(() => {
 
-        let startTime: number = 0;
-        let frame: number = 0;
+    }, [cx, cy, minScale]);                                                                                      
 
-        function ticked(timestamp: number) {
-            if (!startTime) startTime = timestamp;
+    // React.useEffect(() => {
 
-            const elapsed = timestamp - startTime;
-            const scaleT = Math.min(1, elapsed / scaleDuration);
-            const translateT = Math.min(1, elapsed / translateDuration); 
-            const opacityT = Math.min(1, elapsed / opacityDuration);
+    //     let startTime: number = 0;
+    //     let frame: number = 0;
 
-            if (elapsed < Math.max(...[scaleDuration, translateDuration, opacityDuration])) {
-                // if the elapsed time is less than the duration, continue the animation
-                const transformStr = getTransformString(scaleT, translateT);
-                setTransformStr(transformStr); 
-                setTransformStrActive(`${transformStr} scale(${value === 0 ? 0 : 1})`);
-                setOpacityBackground(easeSinIn(opacityT) * (1-minOpacity) + minOpacity); 
-                frame = requestAnimationFrame(ticked);
-            }
-        };
+    //     function ticked(timestamp: number) {
+    //         if (!startTime) startTime = timestamp;
 
-        function getTransformString(scaleT: number, translateT: number): string {
-            let tScaleNorm = easeSinIn(scaleT); 
-            let tTranslateNorm = easeCubic(translateT); 
-            let scaleRange: number =  maxScale - minScale;
-            return `translate(${cx},${cy}) 
-                    scale(${scaleRange * tScaleNorm + minScale})`;
-        }
+    //         const elapsed = timestamp - startTime;
+    //         const scaleT = Math.min(1, elapsed / scaleDuration);
+    //         const translateT = Math.min(1, elapsed / translateDuration); 
+    //         const opacityT = Math.min(1, elapsed / opacityDuration);
 
-        setTimeout(() => {
-            requestAnimationFrame(ticked);
-        }, delay);
+    //         if (elapsed < Math.max(...[scaleDuration, translateDuration, opacityDuration])) {
+    //             // if the elapsed time is less than the duration, continue the animation
+    //             const transformStr = getTransformString(scaleT, translateT);
+    //             setTransformStr(transformStr); 
+    //             setTransformStrActive(`${transformStr} scale(${value === 0 ? 0 : 1})`);
+    //             setOpacityBackground(easeSinIn(opacityT) * (1-minOpacity) + minOpacity); 
+    //             frame = requestAnimationFrame(ticked);
+    //         }
+    //     };
 
-        return () => cancelAnimationFrame(frame); 
+    //     function getTransformString(scaleT: number, translateT: number): string {
+    //         let tScaleNorm = easeSinIn(scaleT); 
+    //         let tTranslateNorm = easeCubic(translateT); 
+    //         let scaleRange: number =  maxScale - minScale;
+    //         return `translate(${cx},${cy}) 
+    //                 scale(${scaleRange * tScaleNorm + minScale})`;
+    //     }
+
+    //     setTimeout(() => {
+    //         requestAnimationFrame(ticked);
+    //     }, delay);
+
+    //     return () => cancelAnimationFrame(frame); 
         
 
-    }, [minScale, maxScale, delay]); 
+    // }, [minScale, maxScale, delay]); 
 
     // Whenever the corresponding value for a circle was updated in the store 
     // we initiate a transition to an active / inactive color state. 
@@ -136,8 +140,8 @@ const CircleScalable: React.FC<CircleScalableProps> = (props) => {
             fill={inactiveColor}
             transform={transformStr}
             fillOpacity={opacityBackground}
-            
-            onClick={() =>  dispatch(['set dataRowCol', [rowIndex, colIndex, 1]])}/>
+            // onClick={() =>  dispatch(['set dataRowCol', [rowIndex, colIndex, 1]])}
+            />
             {/* green foreground */}
             <circle
             cx={0}
@@ -147,7 +151,8 @@ const CircleScalable: React.FC<CircleScalableProps> = (props) => {
             transform={transformStrActive}
             fillOpacity={opacityBackground}
             pointerEvents={value === 1 ? 'visiblePoint' : 'none'}
-            onClick={() =>  dispatch(['set dataRowCol', [rowIndex, colIndex, 0]])}/> 
+            // onClick={() =>  dispatch(['set dataRowCol', [rowIndex, colIndex, 0]])}
+            /> 
         </React.Fragment>
         
     ); 
