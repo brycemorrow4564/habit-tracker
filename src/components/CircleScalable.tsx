@@ -29,6 +29,11 @@ const innerGrowDuration = 325;
 const minScale = 1; 
 const maxScale = 1; 
 
+// @ts-ignore
+let getTransform = ({ cx, cy, minScale }) => (`translate(${cx},${cy}) scale(${minScale})`); 
+// @ts-ignore
+let getActiveTransform = ({ transformStr, value }) => `${transformStr} scale(${value === 0 ? 0 : 1})` 
+
 const CircleScalable: React.FC<CircleScalableProps> = (props) => {
 
     const { dispatch } = useRootContext(); 
@@ -36,15 +41,16 @@ const CircleScalable: React.FC<CircleScalableProps> = (props) => {
 
     const [localValue, setLocalValue]                       = React.useState<number>(value); 
     const [opacityBackground, setOpacityBackground]         = React.useState<number>(minOpacity); 
-    const [transformStr, setTransformStr]                   = React.useState<string>(`  translate(${cx},${cy}) 
-                                                                                        scale(${minScale})`); 
-    const [transformStrActive, setTransformStrActive]       = React.useState<string>(`  ${transformStr}
-                                                                                        scale(${value === 0 ? 0 : 1})`); 
+    const [transformStr, setTransformStr]                   = React.useState<string>(getTransform({ cx, cy, minScale })); 
+    const [transformStrActive, setTransformStrActive]       = React.useState<string>(getActiveTransform({ transformStr, value })); 
 
+    // React.useEffect(() => {
 
-    React.useEffect(() => {
+    //     let transformStr = getTransform({ cx, cy, minScale })
+    //     setTransformStr(transformStr); 
+    //     setTransformStrActive(getActiveTransform({ transformStr, value })); 
 
-    }, [cx, cy, minScale]);                                                                                      
+    // }, [cx, cy, minScale]);                                                                                      
 
     // React.useEffect(() => {
 

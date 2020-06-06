@@ -39,9 +39,6 @@ const week: Week = new Week(1); // a week that starts on monday
 const weeksWindower: WeeksWindower = new WeeksWindower(table.getMaxDate(), numWeeks, week); 
 
 export const reducerInitialState: ReducerState = {
-
-    // TODO:    the cellHeight and cellWidth should start as null 
-    //          values and be assigned based on a hook 
     
     "singleWeekViewOffset": 4, 
     "cellWidth": null,                              // the width of grid cells for habit tracking
@@ -50,8 +47,10 @@ export const reducerInitialState: ReducerState = {
     "habitTable": _.cloneDeep(table),               // an instance of HabitTable 
     "weeksWindower": _.cloneDeep(weeksWindower),    // an instance of WeeksWindower 
     "dy": 0,
-    "rowHeights": 0, 
-    "rowMarginBottom": 0 
+    "rowHeights": [], 
+    "rowMarginBottom": 0, 
+    "colWidths": [], 
+    "timeAxisItemSpacing": 0
 }; 
 
 export interface ReducerState {
@@ -62,8 +61,10 @@ export interface ReducerState {
     habitTable: HabitTable, 
     weeksWindower: WeeksWindower, 
     dy: number, 
-    rowHeights: number, 
+    rowHeights: number[], 
     rowMarginBottom: number, 
+    colWidths: number[], 
+    timeAxisItemSpacing: number
 }
 
 export type ReducerAction = [string, any]; 
@@ -90,7 +91,11 @@ export function reducer(state: ReducerState, action: ReducerAction) {
         'update list item dimensions': () => {
             let [heights, marginBottom] = payload; 
             return { ...state, rowHeights: heights, rowMarginBottom: marginBottom }; 
-        }
+        }, 
+        'update axis item dimensions': () => {
+            let [widths, timeAxisItemSpacing] = payload; 
+            return { ...state, colWidths: widths, timeAxisItemSpacing }; 
+        }   
     }; 
 
     if (mutators[type] === undefined) {

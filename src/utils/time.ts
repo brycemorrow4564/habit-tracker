@@ -56,19 +56,20 @@ export class HabitHistory {
         */
         let data = []; 
         let curr = d0.clone(); 
+        let end = d1.clone().add(1, 'day')
         let wi = 0; 
-        while (!d1.isSame(curr, 'days')) {
+        while (!curr.isSame(end, 'days')) {
             let dateIndexKey = curr.format(); 
             if (dateIndexKey in this.dateIndex) {
                 data.push({ 
                     index: wi,  // numerical index into date array representation of window 
-                    date: curr, 
+                    date: curr.clone(), 
                     value: this.values[this.dateIndex[dateIndexKey]].value 
                 });
             } else {
                 data.push({ 
                     index: wi,  // numerical index into date array representation of window 
-                    date: curr, 
+                    date: curr.clone(), 
                     value: 0
                 });
             }

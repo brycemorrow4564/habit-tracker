@@ -92,7 +92,7 @@ const HabitList: React.FC<HabitListProps> = (props) => {
                                       extra={
                                         <div ref={ref => {
                                           // @ts-ignore
-                                          return itemRefs.current[item] = ref;
+                                          itemRefs.current[item] = ref;
                                         }}/>
                                       }>{`${item}`}</List.Item>
                 }/>

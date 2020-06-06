@@ -26,10 +26,25 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
 
   const { state, dispatch } = useRootContext(); 
   const { weeksWindower } = state; 
+  const axisRef = React.useRef<any>(null); 
+  const axisItemRefs = React.useRef<any[]>([]); 
 
   const today = moment(); 
   const window = weeksWindower.window();
   timeAxisColorScale.domain([0, window.length]); 
+
+  // TODO: logic of this effect needs to occur on resize as well
+  React.useEffect(() => {
+    if (axisItemRefs && axisItemRefs.current && axisRef && axisRef.current) {
+      // get the width of the the content-box 
+      let globalWidth: number = (axisRef.current as HTMLElement).getBoundingClientRect().width; 
+      // get the width of each axis element 
+      let widths: Array<number> = axisItemRefs.current.map((el: HTMLElement) => el.getBoundingClientRect().width); 
+      // compute space between elements (pixels)
+      let timeAxisItemSpacing: number = (globalWidth - widths.reduce((acc,cur) => (acc + cur), 0)) / (widths.length-1);
+      dispatch(['update axis item dimensions', [widths, timeAxisItemSpacing]]);
+    }
+  }, [axisItemRefs, axisRef]); 
 
   return (
       <React.Fragment>
@@ -62,43 +77,60 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
           </Row>
         }
         center={
-          <Row justify="space-around" align="middle" className="axis-row" style={{ background: colors.primary.dark }}>
-            {window.map((d: moment.Moment, i: number) => (
-              <Col className={'grid-time-label-box'}>
-                <div style={{ background: timeAxisColorScale(i%7) }}>
+          <div className="axis-row">
 
-                  {/* Name of month */}
-                  <Row justify="center" align="middle">
-                    <Col>
-                      <p className="grid-time-axis-label grid-time-axis-month">{d.format('MMM')}</p>
-                    </Col>
-                  </Row>
-                  
-                  {/* Day of month */}
-                  <Row justify="center" align="middle">
-                    <Col>
-                    <p className="grid-time-axis-label grid-time-axis-day">{d.format('D')}</p>
-                    </Col>
-                  </Row>
-                  
-                  {/* Label for day of week */}
-                  <Row justify="center" align="middle">
-                    <Col>
-                    <p className="grid-time-axis-label grid-time-axis-day-of-week">{d.format('ddd').toUpperCase()}</p>
-                    </Col>
-                  </Row>
-                  
-                  {/* Indicates which day is the current day */}
-                  <Row justify="center" align="middle">
-                    <Col span={24}>
-                      {<div className='current-day-indicator' style={{ borderColor: colors.primary.mid, background: currentDayBackground, opacity: today.isSame(d, 'days') ? 1 : 0 }} />}
-                    </Col>
-                  </Row>
+            <div ref={axisRef}>
 
-                </div>
-              </Col>
-            ))}
-          </Row>
+              <Row justify="space-around" align="middle" style={{ background: colors.primary.dark }}>
+                {window.map((d: moment.Moment, i: number) => (
+                  <Col key={d.format()} className={'grid-time-label-box'}>
+                    
+                    <div style={{ height: '100%', width: '100%' }} ref={ref => {
+                      // @ts-ignore
+                      axisItemRefs.current[i] = ref;
+                    }}>
+
+                      <div style={{ background: timeAxisColorScale(i%7) }}>
+
+                        {/* Name of month */}
+                        <Row justify="center" align="middle">
+                          <Col>
+                            <p className="grid-time-axis-label grid-time-axis-month">{d.format('MMM')}</p>
+                          </Col>
+                        </Row>
+
+                        {/* Day of month */}
+                        <Row justify="center" align="middle">
+                          <Col>
+                          <p className="grid-time-axis-label grid-time-axis-day">{d.format('D')}</p>
+                          </Col>
+                        </Row>
+
+                        {/* Label for day of week */}
+                        <Row justify="center" align="middle">
+                          <Col>
+                          <p className="grid-time-axis-label grid-time-axis-day-of-week">{d.format('ddd').toUpperCase()}</p>
+                          </Col>
+                        </Row>
+
+                        {/* Indicates which day is the current day */}
+                        <Row justify="center" align="middle">
+                          <Col span={24}>
+                            {<div className='current-day-indicator' style={{ borderColor: colors.primary.mid, background: currentDayBackground, opacity: today.isSame(d, 'days') ? 1 : 0 }} />}
+                          </Col>
+                        </Row>
+
+                      </div>
+
+                    </div>
+                    
+                  </Col>
+                ))}
+              </Row>
+          
+            </div>
+
+          </div>
         }
         right={
           <Row justify="start" align="middle" style={{ height: '100%' }}>
