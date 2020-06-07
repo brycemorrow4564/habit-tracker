@@ -55,6 +55,10 @@
     background: white;
 } */
 
+.habit-list-wrapper .ant-list-item-extra {
+    margin: 0; 
+}
+
 .single-week-habit-row {
     margin-bottom: 2px;
 }

@@ -1,10 +1,10 @@
 import * as React from "react"; 
-import { PlusCircleOutlined, CheckOutlined } from "@ant-design/icons";  
+import { PlusCircleOutlined, EditOutlined } from "@ant-design/icons";  
 import { scaleLinear } from "d3-scale";
 import useDimensions from "react-use-dimensions"; 
 import _ from "lodash"; 
 import moment from "moment"; 
-import { Row, Col, List, Input } from "antd"; 
+import { Row, Col, List, Input, Tag } from "antd"; 
 import { colors } from "../utils/color";
 import { useRootContext } from "../contexts/context"; 
 
@@ -70,34 +70,44 @@ const HabitList: React.FC<HabitListProps> = (props) => {
       <React.Fragment>
           <Row justify="end" align="middle" style={{ height: '100%' }}>
             <Col span={12} style={{ background: colors.primary.dark, height: '100%' }}>
-              <div ref={listRef}>
-                <List
-                className="habit-card-list"
-                footer={
-                  <Row justify="space-around" align="middle">
-                    <Col>
-                      <PlusCircleOutlined 
-                      style={{ color: colors.primary.light }}
-                      translate={0} 
-                      onClick={() => dispatch(['create habit', null])}/>
-                      <p style={{ display: 'inline-block', color: colors.primary.light, marginLeft: '.3em' }}>New Habit</p>
+              <div className="habit-list-wrapper" ref={listRef}>
+                {(habitTable.getNames() as string[]).map(item => (
+                  <Row key={item}>
+                    <Col span={24} style={{ marginBottom: 2 }}>
+                      <div style={{ background: colors.background }}>
+                        <div className="habit-card">
+                          <p style={{ marginBottom: 0, fontSize: 16, fontWeight: 500 }}>{item}</p>
+                          <div ref={ref => itemRefs.current[item] = ref}/>
+                          <Row justify="space-between" align="middle">
+                            <Col>
+                              <p style={{ color: '#999999', marginBottom: 0 }}>daily</p>
+                            </Col>
+                            <Col>
+                              <Tag color={"volcano"} style={{ marginRight: 0 }}>{"thing"}</Tag>
+                            </Col>
+                          </Row>
+                        </div>
+                      </div>
                     </Col>
-                  </Row>
-                }
-                dataSource={habitTable ? habitTable.getNames() : []}
-                renderItem={(item) => <List.Item 
-                                      className="habit-card"
-                                      style={{ 
-                                        background: colors.background, 
-                                        marginBottom: 2 
-                                      }}
-                                      extra={
-                                        <div ref={ref => {
-                                          // @ts-ignore
-                                          itemRefs.current[item] = ref;
-                                        }}/>
-                                      }>{`${item}`}</List.Item>
-                }/>
+                  </Row>)
+                )}
+                <Row>
+                  <Col span={24}>
+                    <div style={{ background: colors.background }}>
+                      <div className="habit-card">
+                        <Row justify="space-around" align="middle">
+                          <Col>
+                            <PlusCircleOutlined 
+                            style={{ color: colors.primary.dark }}
+                            translate={0} 
+                            onClick={() => dispatch(['create habit', null])}/>
+                            <p style={{ display: 'inline-block', color: colors.primary.dark, marginLeft: '.3em' }}>New Habit</p>
+                          </Col>
+                        </Row>
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
               </div>
             </Col>
           </Row>

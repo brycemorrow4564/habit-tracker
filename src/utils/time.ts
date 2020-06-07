@@ -81,18 +81,19 @@ export class HabitHistory {
         return data; 
     }
 
+    // TODO: if we bring these back, need to ensure map is non-empty or return null
     getMinDate() {
         /*
         Returns the earliest date for which we have an observation
         */
-        return this.map.size ? moment.min([...this.map.keys()].map(timeStr => moment(timeStr))) : null; 
+        return moment.min([...this.map.keys()].map(timeStr => moment(timeStr))); 
     }
 
     getMaxDate() {
         /*
         Returns the latest date for which we have an observation
         */
-        return this.map.size ? moment.max([...this.map.keys()].map(timeStr => moment(timeStr))) : null; 
+        return moment.max([...this.map.keys()].map(timeStr => moment(timeStr))); 
     }
 
 }
