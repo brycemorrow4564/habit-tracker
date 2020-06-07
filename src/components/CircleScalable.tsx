@@ -128,7 +128,6 @@ const CircleScalable: React.FC<CircleScalableProps> = (props) => {
             // a click event created a request to change the underlying data 
             // the data has been changed and now we should transition the color 
             // fill of the circle to represent this. 
-            debugger;
             setLocalValue(value);
             requestAnimationFrame(ticked);
         }

@@ -23,8 +23,6 @@ let dummyHabitTable = () => {
         for (let j of _.range(0, habitHistoryLength)) {
             if (Math.random() < .5) {
                 history.set(curr.clone(), 1); 
-            } else {
-                history.set(curr.clone(), 0); 
             }
             curr.add(1, 'day'); 
         }
@@ -53,6 +51,7 @@ export const reducerInitialState: ReducerState = {
     "rowMarginBottom": 0, 
     "colWidths": [], 
     "timeAxisItemSpacing": 0
+
 }; 
 
 export interface ReducerState {
@@ -104,6 +103,11 @@ export function reducer(state: ReducerState, action: ReducerAction) {
             let weeksWindower = _.cloneDeep(state.weeksWindower); 
             habitTable.setByIndex(ri, ci, value, weeksWindower); 
             return { ...state, habitTable, weeksWindower }; 
+        }, 
+        'create habit': () => {
+            let habitTable = _.cloneDeep(state.habitTable); 
+            habitTable.addNewHabit(`habit-${habitTable.size()}`); 
+            return { ...state, habitTable }; 
         }
     }; 
 

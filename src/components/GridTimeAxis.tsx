@@ -31,6 +31,7 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
 
   const today = moment(); 
   const window = weeksWindower.window();
+
   timeAxisColorScale.domain([0, window.length]); 
 
   // TODO: logic of this effect needs to occur on resize as well
@@ -47,7 +48,7 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
   }, [axisItemRefs, axisRef]); 
 
   return (
-      <React.Fragment>
+      <div style={{ marginBottom: '.2em' }}>
 
         <GridRowLayout
         left={
@@ -134,7 +135,7 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
         }
         right={
           <Row justify="start" align="middle" style={{ height: '100%' }}>
-            <Col span={10} style={{ background: colors.primary.dark, height: '100%' }}>
+            <Col span={12} style={{ background: colors.primary.dark, height: '100%' }}>
               <div style={{ display: 'flex', flexDirection: "column", justifyContent: 'space-between', height: '100%', paddingTop: '1em' }}>
                 <Row justify="start" align="middle">
                   <Col span={6}>
@@ -159,7 +160,7 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
           </Row>
         }/>
 
-      </React.Fragment>
+      </div>
   );
 }
 

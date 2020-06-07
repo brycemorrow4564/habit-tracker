@@ -44,16 +44,7 @@ export class HabitHistory {
     Sparse representation of a history for a single habit 
     */
 
-    private values: Array<HabitObservation> = [];       // stores habit observation objects 
-    private mapDate: Map<string, number> = new Map();   // maps date string to index of values 
-
-    // setByIndex(index: number, value: number) {
-    //     /*
-    //     record an observation for a habit at a given date with 
-    //     a particular value; 
-    //     */
-    //     this.values[index].value = value;   
-    // }
+    private map: Map<string, HabitObservation> = new Map();   // maps date string to habitobservation
 
     set(date: moment.Moment, value: number) {
         /*
@@ -61,13 +52,12 @@ export class HabitHistory {
         a particular value; 
         */ 
         let dateIndexKey: string = date.format(); 
-        if (!this.mapDate.has(dateIndexKey)) {
-            this.values.push(new HabitObservation(value)); 
-            this.mapDate.set(dateIndexKey, this.values.length - 1); 
-        } else {
-            let valueIndex: number = this.mapDate.get(dateIndexKey) as number; 
-            this.values[valueIndex].value = value; 
-        }
+        let hasKey: boolean = this.map.has(dateIndexKey);
+        if (hasKey && value === 0) {
+            this.map.delete(dateIndexKey); 
+        } else if (!hasKey && value == 1) {
+            this.map.set(dateIndexKey, new HabitObservation(value)); 
+        } 
     }
 
     getInWindow(d0: moment.Moment, d1: moment.Moment) {
@@ -82,14 +72,11 @@ export class HabitHistory {
         let end = d1.clone().add(1, 'day'); // add 1 day to last day to get end day for looping 
         for (let wi = 0; !curr.isSame(end, 'days'); wi++, curr.add(1, 'day')) {
             let dateIndexKey = curr.format(); 
-            if (this.mapDate.has(dateIndexKey)) {
-                let vi: number = this.mapDate.get(dateIndexKey) as number; 
-                data.push({ 
-                    index: wi,  // numerical index into date array representation of window 
-                    date: curr.clone(), 
-                    value: this.values[vi].value
-                });
-            }
+            data.push({ 
+                index: wi,      
+                date: curr.clone(), 
+                value: this.map.has(dateIndexKey) ? (this.map.get(dateIndexKey) as HabitObservation).value : 0
+            });
         }
         return data; 
     }
@@ -98,14 +85,14 @@ export class HabitHistory {
         /*
         Returns the earliest date for which we have an observation
         */
-        return moment.min([...this.mapDate.keys()].map(timeStr => moment(timeStr))); 
+        return moment.min([...this.map.keys()].map(timeStr => moment(timeStr))); 
     }
 
     getMaxDate() {
         /*
         Returns the latest date for which we have an observation
         */
-        return moment.max([...this.mapDate.keys()].map(timeStr => moment(timeStr))); 
+        return moment.max([...this.map.keys()].map(timeStr => moment(timeStr))); 
     }
 
 }
@@ -194,7 +181,7 @@ export class WeeksWindower {
         Iterates through all days in the window 
         */
         let d = this.start(); 
-        let end = this.end(); 
+        let end = this.end().add(1, 'day'); 
         let dates = []; 
         while (!d.isSame(end, 'days')) {
             dates.push(d.clone()); 
@@ -225,7 +212,14 @@ export class HabitTable {
         // Add a habit and associated data 
         this.names.push(name); 
         this.habits.push(habit); 
-        this.nameIndex[name] = this.habits.length-1; 
+        this.nameIndex[name] = this.habits.length - 1; 
+    }
+
+    addNewHabit(name: string) {
+        // Add a new habit and with initial data as zeros
+        this.names.push(name); 
+        this.habits.push(new HabitHistory())
+        this.nameIndex[name] = this.habits.length - 1; 
     }
 
     setByIndex(ri: number, ci: number, value: number, weeksWindower: WeeksWindower) {
@@ -260,6 +254,5 @@ export class HabitTable {
     size() {
         return this.names.length;
     }
-
 
 }

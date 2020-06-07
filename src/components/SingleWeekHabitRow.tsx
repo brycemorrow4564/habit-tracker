@@ -35,7 +35,13 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
         return acc
     }, []) : zeros.slice(); 
     const x1s: Array<number> = colWidths.length ? x0s.map((cur,i) => cur + colWidths[i]) : zeros.slice(); 
-    const xs = data.map((d,i) => (x0s[i]+x1s[i])/2); 
+    const xs = x0s.map((d,i) => (x0s[i]+x1s[i])/2); 
+    console.log(x0s)
+    for (let x of xs) {
+        if (Number.isNaN(x) || x === undefined) {
+            debugger;
+        }
+    }
 
     return !ready ? null : (
         <Row className="single-week-habit-row">

@@ -1,10 +1,10 @@
 import * as React from "react"; 
-import { PlusCircleOutlined } from "@ant-design/icons";  
+import { PlusCircleOutlined, CheckOutlined } from "@ant-design/icons";  
 import { scaleLinear } from "d3-scale";
 import useDimensions from "react-use-dimensions"; 
 import _ from "lodash"; 
 import moment from "moment"; 
-import { Row, Col, List } from "antd"; 
+import { Row, Col, List, Input } from "antd"; 
 import { colors } from "../utils/color";
 import { useRootContext } from "../contexts/context"; 
 
@@ -18,6 +18,7 @@ export interface HabitListProps {
 
 const HabitList: React.FC<HabitListProps> = (props) => {
 
+  // const [addingNewHabit, setAddingNewHabit] = React.useState(false); 
   const listRef = React.useRef<any>(null); 
   const itemRefs = React.useRef<{ [key: string]: any }>({}); 
   const [listHeight, setListHeight] = React.useState<number>(0); 
@@ -77,7 +78,7 @@ const HabitList: React.FC<HabitListProps> = (props) => {
                       <PlusCircleOutlined 
                       style={{ color: colors.primary.light }}
                       translate={0} 
-                      onClick={() => false}/>
+                      onClick={() => dispatch(['create habit', null])}/>
                       <p style={{ display: 'inline-block', color: colors.primary.light, marginLeft: '.3em' }}>New Habit</p>
                     </Col>
                   </Row>
