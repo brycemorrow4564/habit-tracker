@@ -1,29 +1,43 @@
 import moment from "moment"; 
-import { ExceptionMap } from "antd/lib/result";
-
-/*
-Some utility functions that rely on the moment.js library
-*/
 
 type WeekIndex =  0 | 1 | 2 | 3 | 4 | 5 | 6; 
 
-export class HabitList {
+export enum HabitFrequencies { Daily, Weekly, BiWeekly };
 
-}; 
-
-export class Habit {
+export class HabitRegistry {
 
     /*
-    * A habit can have a label 
-    * each habit derives its color from its label 
-    * each habit is associated with a HabitHistory
-    */ 
+    Maps habit name to multiple habitg properties. Once habits
+    are registered, their property values can be mutated. 
+    */
 
-    private label: string | null = null;
+    private map: Map<string,number> = new Map();        // maps habit name to index into property arrays
+    private frequencies: Array<HabitFrequencies> = [];  // frequency of each habit 
+    private groups: Array<string | undefined> = [];     // the group name of the habit or null if there is no group
 
-    constructor(private name: string) {
-        this.name = name; 
+    register(name: string, freq: HabitFrequencies, group?: string) {
+        if (this.map.has(name)) {
+            throw Error("duplicate habit registration"); 
+        }
+        this.map.set(name, this.frequencies.length); 
+        this.frequencies.push(freq); 
+        this.groups.push(group); 
     }
+
+    setFreq(name: string, freq: HabitFrequencies) {
+        if (!this.map.has(name)) {
+            throw Error("tried to set habit frequency on non-registered habit");
+        }
+        this.frequencies[this.map.get(name) as number] = freq; 
+    }
+
+    setGroup(name: string, group: string) {
+        if (!this.map.has(name)) {
+            throw Error("tried to set habit frequency on non-registered habit");
+        }
+        this.groups[this.map.get(name) as number] = group; 
+    }
+
 }; 
 
 export class HabitObservation {
@@ -34,10 +48,6 @@ export class HabitObservation {
 
 }
 
-function removeIth(arr: any[], i: number) {
-    return arr.splice(i, 1); 
-}
-
 export class HabitHistory {
 
     /*
@@ -46,12 +56,16 @@ export class HabitHistory {
 
     private map: Map<string, HabitObservation> = new Map();   // maps date string to habitobservation
 
+    private dateToKey(d: moment.Moment) {
+        return d.format('MM-DD-YY'); 
+    }
+
     set(date: moment.Moment, value: number) {
         /*
         record an observation for a habit at a given date with 
         a particular value; 
         */ 
-        let dateIndexKey: string = date.format(); 
+        let dateIndexKey: string = this.dateToKey(date);  
         let hasKey: boolean = this.map.has(dateIndexKey);
         if (hasKey && value === 0) {
             this.map.delete(dateIndexKey); 
@@ -67,16 +81,15 @@ export class HabitHistory {
         to get the relevant information out of the habit 
         table based on the current time window of analysis 
         */
+
         let data = []; 
         let curr = d0.clone(); 
         let end = d1.clone().add(1, 'day'); // add 1 day to last day to get end day for looping 
         for (let wi = 0; !curr.isSame(end, 'days'); wi++, curr.add(1, 'day')) {
-            let dateIndexKey = curr.format(); 
-            data.push({ 
-                index: wi,      
-                date: curr.clone(), 
-                value: this.map.has(dateIndexKey) ? (this.map.get(dateIndexKey) as HabitObservation).value : 0
-            });
+            let dateIndexKey = this.dateToKey(curr);  
+            let date = curr.clone(); 
+            let value = this.map.has(dateIndexKey) ? (this.map.get(dateIndexKey) as HabitObservation).value : 0; 
+            data.push({ index: wi, date, value });
         }
         return data; 
     }
