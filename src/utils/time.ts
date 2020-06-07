@@ -85,14 +85,14 @@ export class HabitHistory {
         /*
         Returns the earliest date for which we have an observation
         */
-        return moment.min([...this.map.keys()].map(timeStr => moment(timeStr))); 
+        return this.map.size ? moment.min([...this.map.keys()].map(timeStr => moment(timeStr))) : null; 
     }
 
     getMaxDate() {
         /*
         Returns the latest date for which we have an observation
         */
-        return moment.max([...this.map.keys()].map(timeStr => moment(timeStr))); 
+        return this.map.size ? moment.max([...this.map.keys()].map(timeStr => moment(timeStr))) : null; 
     }
 
 }

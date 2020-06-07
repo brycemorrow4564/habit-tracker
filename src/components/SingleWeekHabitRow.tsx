@@ -25,7 +25,9 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
         timeAxisItemSpacing
     } = state; 
 
-    const ready: boolean = rowHeights.length && colWidths.length; 
+    const ready: boolean = rowHeights.length && 
+                           colWidths.length &&
+                           rowIndex < rowHeights.length; 
     const data: Array<{ index: number, date: moment.Moment, value: any }> = habitTable.get(habitName, weeksWindower.start(), weeksWindower.end()); 
     
     const zeros: Array<number> = data.map(e => 0); 
@@ -36,12 +38,6 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
     }, []) : zeros.slice(); 
     const x1s: Array<number> = colWidths.length ? x0s.map((cur,i) => cur + colWidths[i]) : zeros.slice(); 
     const xs = x0s.map((d,i) => (x0s[i]+x1s[i])/2); 
-    console.log(x0s)
-    for (let x of xs) {
-        if (Number.isNaN(x) || x === undefined) {
-            debugger;
-        }
-    }
 
     return !ready ? null : (
         <Row className="single-week-habit-row">

@@ -79,7 +79,6 @@ const AnimationInterpolator: React.FC<AnimationInterpolatorProps> = (props) => {
             } else {
                 // information on all running animation groups
                 // let animationGroupList = _.cloneDeep(runningList); 
-                console.log("we in deep homie"); 
                 let newUnq = _.cloneDeep(unq); 
                 let newQ = _.cloneDeep(q); 
 
@@ -129,7 +128,6 @@ const AnimationInterpolator: React.FC<AnimationInterpolatorProps> = (props) => {
 
         if (triggerCount > 0 && key !== lastKey) {
             // start the animation loop 
-            console.log('triggering'); 
             setLastKey(key); 
             setFrame(requestAnimationFrame(_.partial(ticked, true)));
         }

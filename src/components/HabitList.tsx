@@ -61,9 +61,10 @@ const HabitList: React.FC<HabitListProps> = (props) => {
       let marginBottomStr = elStyle.getPropertyValue('margin-bottom'); // ASSUMING UNITS ARE IN PIXELS. THIS IS BRITTLE 
       let marginBottom = parseInt(marginBottomStr.slice(0, marginBottomStr.length-2)); // remove 'px' suffix, cast to number
 
+      
       dispatch(['update list item dimensions', [heights, marginBottom]]);
     }
-  }, [listRef]); 
+  }, [listRef, habitTable]); 
 
   return (
       <React.Fragment>
