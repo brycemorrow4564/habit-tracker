@@ -28,8 +28,10 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
     const ready: boolean = rowHeights.length && 
                            colWidths.length &&
                            rowIndex < rowHeights.length; 
+                           
     const data: Array<{ index: number, date: moment.Moment, value: any }> = habitTable.get(habitName, weeksWindower.start(), weeksWindower.end()); 
-    
+    const streak: Array<[number,number]> = habitTable.streak(habitName, weeksWindower.start(), weeksWindower.end()); 
+
     const zeros: Array<number> = data.map(e => 0); 
     // @ts-ignore
     const x0s: Array<number> = colWidths.length ? colWidths.reduce((acc,cur,i) => {
@@ -39,10 +41,15 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
     const x1s: Array<number> = colWidths.length ? x0s.map((cur,i) => cur + colWidths[i]) : zeros.slice(); 
     const xs = x0s.map((d,i) => (x0s[i]+x1s[i])/2); 
 
+    const HEIGHT = 6; 
+
     return !ready ? null : (
         <Row className="single-week-habit-row">
             <Col span={24}>
                 <svg className="habit-row-viz" style={{ height: rowHeights[rowIndex], width: '100%', display: 'block', background: colors.primary.dark }}>
+                    
+                    {streak.map(([i0,i1]) => <rect width={xs[i1]-xs[i0]} height={HEIGHT} x={xs[i0]-HEIGHT} y={rowHeights[rowIndex] / 2} fill="green"/>)}
+                    
                     {data.map(({ date, value, index }, i) => (
                         <CircleScalable
                         key={`${date.format()}-${index}`}
@@ -50,7 +57,7 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
                         colIndex={i}
                         cx={xs[i]}
                         cy={rowHeights[rowIndex] / 2}
-                        r={20}
+                        r={(rowHeights[rowIndex] / 2) * .7}
                         value={value}
                         delay={0} />
                     ))}

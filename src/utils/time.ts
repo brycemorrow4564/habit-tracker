@@ -94,6 +94,31 @@ export class HabitHistory {
         return data; 
     }
 
+    streakInWindow(d0: moment.Moment, d1: moment.Moment): Array<[number, number]> {
+        /*
+        get a list of all streaks in window 
+        */
+        let stack: Array<number> = []; 
+        let streaks: Array<[number, number]> = []; 
+        let curr: moment.Moment = d0.clone(); 
+        let end: moment.Moment = d1.clone().add(1, 'day');  // add 1 day to last day to get end day for looping 
+        let endCurrentStreak = () => {
+            if (stack.length > 1) {
+                streaks.push([stack[0], stack[stack.length-1]]); 
+            }
+            stack = []; 
+        }
+        for (let wi = 0; !curr.isSame(end, 'days'); wi += 1, curr.add(1, 'day')) {
+            if (this.map.has(this.dateToKey(curr))) {
+                stack.push(wi); 
+            } else {
+                endCurrentStreak();
+            }
+        }
+        endCurrentStreak();
+        return streaks; 
+    }
+
     // TODO: if we bring these back, need to ensure map is non-empty or return null
     getMinDate() {
         /*
@@ -245,6 +270,11 @@ export class HabitTable {
     get(name: string, d0: moment.Moment, d1: moment.Moment) {
         const history: HabitHistory = this.getHabitHistory(name); 
         return history.getInWindow(d0, d1); 
+    }
+
+    streak(name: string, d0: moment.Moment, d1: moment.Moment): Array<[number, number]> {
+        const history: HabitHistory = this.getHabitHistory(name); 
+        return history.streakInWindow(d0, d1); 
     }
 
     getNames() {
