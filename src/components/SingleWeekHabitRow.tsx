@@ -41,14 +41,14 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
     const x1s: Array<number> = colWidths.length ? x0s.map((cur,i) => cur + colWidths[i]) : zeros.slice(); 
     const xs = x0s.map((d,i) => (x0s[i]+x1s[i])/2); 
 
-    const HEIGHT = 6; 
+    const HEIGHT = 10; 
 
     return !ready ? null : (
         <Row className="single-week-habit-row">
             <Col span={24}>
                 <svg className="habit-row-viz" style={{ height: rowHeights[rowIndex], width: '100%', display: 'block', background: colors.primary.dark }}>
                     
-                    {streak.map(([i0,i1]) => <rect width={xs[i1]-xs[i0]} height={HEIGHT} x={xs[i0]-HEIGHT} y={rowHeights[rowIndex] / 2} fill="green"/>)}
+                    {streak.map(([i0,i1]) => <rect fill="#6ded81" width={xs[i1]-xs[i0]} height={HEIGHT} x={xs[i0]-HEIGHT} y={rowHeights[rowIndex] / 2}/>)}
                     
                     {data.map(({ date, value, index }, i) => (
                         <CircleScalable
