@@ -25,11 +25,10 @@ const currentDayBackground = cssLinearGradientPropertyGenerator('transparent', c
 const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
 
   const { state, dispatch } = useRootContext(); 
-  const { weeksWindower } = state; 
+  const { weeksWindower, today } = state; 
   const axisRef = React.useRef<any>(null); 
   const axisItemRefs = React.useRef<any[]>([]); 
 
-  const today = moment(); 
   const window = weeksWindower.window();
 
   timeAxisColorScale.domain([0, window.length]); 

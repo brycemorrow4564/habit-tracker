@@ -203,6 +203,10 @@ export class WeeksWindower {
         return this.d1.clone(); 
     }
 
+    getDateByWindowIndex(wi: number): moment.Moment {
+        return this.start().add(wi, 'days'); 
+    }
+
     shiftBackwards() {
         // shifts both points amount weeks into the past 
         this.d0.subtract(this.amount, 'weeks'); 

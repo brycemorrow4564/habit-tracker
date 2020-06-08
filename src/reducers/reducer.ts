@@ -47,6 +47,7 @@ const weeksWindower: WeeksWindower = new WeeksWindower(table.getMaxDate(), numWe
 
 export const reducerInitialState: ReducerState = {
     
+    "today": moment(),                              // the current day 
     "singleWeekViewOffset": 4, 
     "cellWidth": null,                              // the width of grid cells for habit tracking
     "cellHeight": null,                             // the height of grid cells for habit tracking
@@ -63,6 +64,7 @@ export const reducerInitialState: ReducerState = {
 }; 
 
 export interface ReducerState {
+    today: moment.Moment, 
     singleWeekViewOffset: number, 
     cellWidth: number | null, 
     cellHeight: number | null, 

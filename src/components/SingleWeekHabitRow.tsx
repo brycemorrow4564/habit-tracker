@@ -22,7 +22,8 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
         rowHeights, 
         rowMarginBottom, 
         colWidths, 
-        timeAxisItemSpacing
+        timeAxisItemSpacing,
+        today
     } = state; 
 
     const ready: boolean = rowHeights.length && 
@@ -43,23 +44,48 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
 
     const HEIGHT = 10; 
 
+    // Compute streak 
+    let currentStreakEndArr: Array<number | null> = data.map(({ date, index, value }) => date.isSame(today, 'days') && value === 1 ? index : null).filter(e => e !== null); 
+    let hasCurrStreak: boolean = currentStreakEndArr.length === 1; 
+    let streakCount: number = 0; 
+    if (hasCurrStreak) {
+        let streakEndIndex: number = currentStreakEndArr[0] as number; 
+        let si: number = streakEndIndex - 1; 
+        streakCount = 1; 
+        while (si >= 0) {
+            if (data[si].value === 1) {
+                streakCount += 1; 
+                si -= 1; 
+            } else {
+                break;
+            }
+        }
+    }
+    
     return !ready ? null : (
         <Row className="single-week-habit-row">
             <Col span={24}>
                 <svg className="habit-row-viz" style={{ height: rowHeights[rowIndex], width: '100%', display: 'block', background: colors.primary.dark }}>
                     
+                    {/* links */}
                     {streak.map(([i0,i1]) => <rect fill="#6ded81" width={xs[i1]-xs[i0]} height={HEIGHT} x={xs[i0]-HEIGHT} y={rowHeights[rowIndex] / 2}/>)}
                     
+                    {/*  */}
                     {data.map(({ date, value, index }, i) => (
-                        <CircleScalable
-                        key={`${date.format()}-${index}`}
-                        rowIndex={rowIndex}
-                        colIndex={i}
-                        cx={xs[i]}
-                        cy={rowHeights[rowIndex] / 2}
-                        r={(rowHeights[rowIndex] / 2) * .7}
-                        value={value}
-                        delay={0} />
+                        <React.Fragment>
+                            <CircleScalable
+                            key={`${date.format()}-${index}`}
+                            rowIndex={rowIndex}
+                            colIndex={i}
+                            cx={xs[i]}
+                            cy={rowHeights[rowIndex] / 2}
+                            r={(rowHeights[rowIndex] / 2) * .7}
+                            value={value}
+                            delay={0} />
+                            
+                            {!(date.isSame(today, 'days') && hasCurrStreak) ? null : <text fontSize={22} fill="#fff" x={xs[i]} y={rowHeights[rowIndex] / 2}>{`${streakCount}`}</text>}
+
+                        </React.Fragment>
                     ))}
                 </svg>
             </Col> 
