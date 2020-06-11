@@ -2,11 +2,11 @@ import * as React from "react";
 import _ from "lodash"; 
 import { useAnimationContext } from "./animationContext"; 
 
-export interface AnimationInterpolatorProps {
+export interface TweeningTimerProps {
 
 };
 
-const AnimationInterpolator: React.FC<AnimationInterpolatorProps> = (props) => {
+const TweeningTimer: React.FC<TweeningTimerProps> = (props) => {
 
     const { state, dispatch } = useAnimationContext();
     const { queueCount, running } = state; 
@@ -42,4 +42,4 @@ const AnimationInterpolator: React.FC<AnimationInterpolatorProps> = (props) => {
 
 };
 
-export default AnimationInterpolator; 
+export default TweeningTimer; 

@@ -5,7 +5,7 @@ import { scaleLinear } from "d3-scale";
 import { easeCubic, easeSinIn, easePolyOut } from 'd3-ease'; 
 import { useRootContext } from "../contexts/context"; 
 import { Tweenable, TweenableType } from "../tween-engine/tween"; 
-import { useTweenValue } from "../tween-engine/hooks"; 
+import { useTweenValue, TweenFacade } from "../tween-engine/hooks"; 
 
 const minOpacity = 1; 
 
@@ -93,9 +93,12 @@ const CircleScalable: React.FC<CircleScalableProps> = (props) => {
     // -------------------------------------------------------------------
     
     // const trigger = useTweenTrigger(); 
-    let  { paramaterizeTweenable, startTweenable } = useTweenValue(TweenableType.cssTransformString, 'scale(1)'); 
-
-    // -------------------------------------------------------------------
+    let tweenValue: TweenFacade = useTweenValue(TweenableType.cssTransformString, 'scale(1)'); 
+    const testref = React.useRef(false); 
+    if (testref.current) {
+        console.log(tweenValue.value()); 
+    }
+    // -------------------------------------------------------------------    
 
     return (
         <React.Fragment>
@@ -118,10 +121,8 @@ const CircleScalable: React.FC<CircleScalableProps> = (props) => {
             fillOpacity={opacityBackground}
             pointerEvents={value === 1 ? 'visiblePoint' : 'none'}
             onClick={() =>  {
-
-                paramaterizeTweenable('scale(0)', 2000); 
-                startTweenable(); 
-
+                testref.current = true; 
+                tweenValue.paramaterize('scale(0)', 2000).start(); 
                 dispatch(['set value habit table', [rowIndex, colIndex, 0]])
             }}
             /> 

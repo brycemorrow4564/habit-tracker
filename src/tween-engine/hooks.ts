@@ -2,35 +2,48 @@ import * as React from "react";
 import { useAnimationContext } from "./animationContext"; 
 import { Tweenable, TweenableType } from "./tween"; 
 
-// export function useTweenTrigger() {
+export class TweenFacade {
 
-//     const { dispatch } = useAnimationContext();
+    private state: any = null; 
+    private dispatch: any = null; 
 
-//     let start = (tweenable: Tweenable) => {
-        
-//     }
+    constructor(private uid: number) {
+        this.uid = uid; 
+    }
 
-//     return { start }; 
-// }
+    decorate(state: any, dispatch: any): TweenFacade{
+        this.state = state; 
+        this.dispatch = dispatch;
+        return this; 
+    }
+
+    paramaterize(toValue: any, duration: number): TweenFacade {
+        this.dispatch(['PARAMATERIZE TWEENABLE', [this.uid, toValue, duration]]); 
+        return this; 
+    }
+
+    start(): TweenFacade {
+        this.dispatch(['RUN ALL', this.uid]); 
+        return this; 
+    }
+
+    value() {
+        return this.state.q && this.state.q[this.uid] ? this.state.q[this.uid].getValue() : null; 
+    }
+    
+}
 
 export function useTweenValue(aType: TweenableType, aValue: any) {
 
     const { state, dispatch } = useAnimationContext();
     const { queueCount } = state; 
     const [initQueueCount, setInitQueueCount] = React.useState<number>(queueCount); 
+    const [facade, setFacade] = React.useState<TweenFacade>(new TweenFacade(initQueueCount)); 
 
     React.useEffect(() => {
         dispatch(['REGISTER TWEENABLE', [initQueueCount, aType, aValue]]); 
     }, []);
 
-    let paramaterizeTweenable = (toValue: any, duration: number) => {
-        dispatch(['PARAMATERIZE TWEENABLE', [initQueueCount, toValue, duration]]); 
-    };
-
-    let startTweenable = () => {
-        dispatch(['RUN ALL', initQueueCount]); 
-    };
-
-    return { paramaterizeTweenable, startTweenable }; 
+    return facade.decorate(state, dispatch); 
 
 }; 
