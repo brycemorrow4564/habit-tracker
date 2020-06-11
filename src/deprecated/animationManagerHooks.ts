@@ -2,8 +2,8 @@ import * as React from "react";
 import _ from "lodash"
 import { interpolateRgb, interpolateTransformCss } from "d3-interpolate"; 
 import { easeSinIn } from "d3-ease"; 
-import { useAnimationContext } from "./animationContext"; 
-import AnimationInterpolator from "./AnimationInterpolator";
+import { useAnimationContext } from "../tween-engine/animationContext"; 
+import AnimationInterpolator from "../tween-engine/AnimationInterpolator";
 
 type AnimationInterpolator = (t: number) => string | number;
 

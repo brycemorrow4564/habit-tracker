@@ -6,6 +6,8 @@ import SingleWeekHabitRow from '../components/SingleWeekHabitRow';
 import GridTimeAxis from "../components/GridTimeAxis"; 
 import GridRowLayout from "../components/GridRowLayout";
 import HabitList from "../components/HabitList";  
+import TweenManager from "../tween-engine/TweenManager"; 
+import AnimationInterpolator from "../tween-engine/AnimationInterpolator"; 
 import { colors } from "../utils/color"; 
 
 export interface SingleWeekViewProps {
@@ -22,25 +24,31 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
   return (
       <React.Fragment>
 
-        <div style={{ background: colors.primary.dark }}> 
+        <TweenManager>
 
-        <GridTimeAxis/>
+          <AnimationInterpolator/>
 
-        <GridRowLayout
-        left={<HabitList/>}
-        center={
-          <div className="habit-table-viz-grid" style={{ background: colors.primary.dark }}>
-            <div style={{ background: colors.primary.dark, paddingRight: '.5em' }}>
-              {habitTable.getNames().map((habitName: string, i: number) => (<SingleWeekHabitRow 
-                                                                            key={habitName}
-                                                                            habitName={habitName} 
-                                                                            rowIndex={i}/>))}
+          <div style={{ background: colors.primary.dark }}> 
+
+          <GridTimeAxis/>
+
+          <GridRowLayout
+          left={<HabitList/>}
+          center={
+            <div className="habit-table-viz-grid" style={{ background: colors.primary.dark }}>
+              <div style={{ background: colors.primary.dark, paddingRight: '.5em' }}>
+                {habitTable.getNames().map((habitName: string, i: number) => (<SingleWeekHabitRow 
+                                                                              key={habitName}
+                                                                              habitName={habitName} 
+                                                                              rowIndex={i}/>))}
+              </div>
             </div>
+          }
+          right={null}/>
+
           </div>
-        }
-        right={null}/>
-        
-        </div>
+
+        </TweenManager>
         
       </React.Fragment>
   );

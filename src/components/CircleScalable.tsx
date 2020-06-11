@@ -4,7 +4,8 @@ import { interpolateRgb } from "d3-interpolate";
 import { scaleLinear } from "d3-scale"; 
 import { easeCubic, easeSinIn, easePolyOut } from 'd3-ease'; 
 import { useRootContext } from "../contexts/context"; 
-import { Animation, AnimationType, useAnimationRegistrar } from "../deprecated/animationManagerHooks"; 
+import { Tweenable, TweenableType } from "../tween-engine/tween"; 
+import { useTweenValue } from "../tween-engine/hooks"; 
 
 const minOpacity = 1; 
 
@@ -43,54 +44,6 @@ const CircleScalable: React.FC<CircleScalableProps> = (props) => {
     const [opacityBackground, setOpacityBackground]         = React.useState<number>(minOpacity); 
     const [transformStr, setTransformStr]                   = React.useState<string>(getTransform({ cx, cy, minScale })); 
     const [transformStrActive, setTransformStrActive]       = React.useState<string>(getActiveTransform({ transformStr, value })); 
-
-    // React.useEffect(() => {
-
-    //     let transformStr = getTransform({ cx, cy, minScale })
-    //     setTransformStr(transformStr); 
-    //     setTransformStrActive(getActiveTransform({ transformStr, value })); 
-
-    // }, [cx, cy, minScale]);                                                                                      
-
-    // React.useEffect(() => {
-
-    //     let startTime: number = 0;
-    //     let frame: number = 0;
-
-    //     function ticked(timestamp: number) {
-    //         if (!startTime) startTime = timestamp;
-
-    //         const elapsed = timestamp - startTime;
-    //         const scaleT = Math.min(1, elapsed / scaleDuration);
-    //         const translateT = Math.min(1, elapsed / translateDuration); 
-    //         const opacityT = Math.min(1, elapsed / opacityDuration);
-
-    //         if (elapsed < Math.max(...[scaleDuration, translateDuration, opacityDuration])) {
-    //             // if the elapsed time is less than the duration, continue the animation
-    //             const transformStr = getTransformString(scaleT, translateT);
-    //             setTransformStr(transformStr); 
-    //             setTransformStrActive(`${transformStr} scale(${value === 0 ? 0 : 1})`);
-    //             setOpacityBackground(easeSinIn(opacityT) * (1-minOpacity) + minOpacity); 
-    //             frame = requestAnimationFrame(ticked);
-    //         }
-    //     };
-
-    //     function getTransformString(scaleT: number, translateT: number): string {
-    //         let tScaleNorm = easeSinIn(scaleT); 
-    //         let tTranslateNorm = easeCubic(translateT); 
-    //         let scaleRange: number =  maxScale - minScale;
-    //         return `translate(${cx},${cy}) 
-    //                 scale(${scaleRange * tScaleNorm + minScale})`;
-    //     }
-
-    //     setTimeout(() => {
-    //         requestAnimationFrame(ticked);
-    //     }, delay);
-
-    //     return () => cancelAnimationFrame(frame); 
-        
-
-    // }, [minScale, maxScale, delay]); 
 
     // Whenever the corresponding value for a circle was updated in the store 
     // we initiate a transition to an active / inactive color state. 
@@ -136,6 +89,14 @@ const CircleScalable: React.FC<CircleScalableProps> = (props) => {
 
     }, [localValue, value]); 
 
+    // ANIMATION TESTING
+    // -------------------------------------------------------------------
+    
+    // const trigger = useTweenTrigger(); 
+    let  { paramaterizeTweenable, startTweenable } = useTweenValue(TweenableType.cssTransformString, 'scale(1)'); 
+
+    // -------------------------------------------------------------------
+
     return (
         <React.Fragment>
             {/* grey background */}
@@ -156,7 +117,13 @@ const CircleScalable: React.FC<CircleScalableProps> = (props) => {
             transform={transformStrActive}
             fillOpacity={opacityBackground}
             pointerEvents={value === 1 ? 'visiblePoint' : 'none'}
-            onClick={() =>  dispatch(['set value habit table', [rowIndex, colIndex, 0]])}
+            onClick={() =>  {
+
+                paramaterizeTweenable('scale(0)', 2000); 
+                startTweenable(); 
+
+                dispatch(['set value habit table', [rowIndex, colIndex, 0]])
+            }}
             /> 
         </React.Fragment>
         

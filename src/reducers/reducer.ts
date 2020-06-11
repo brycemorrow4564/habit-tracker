@@ -123,8 +123,7 @@ export function reducer(state: ReducerState, action: ReducerAction) {
     }; 
 
     if (mutators[type] === undefined) {
-        console.log("UNDEFINED MUTATOR KEY: ", type); 
-        debugger; 
+        throw Error("UNDEFINED MUTATOR KEY: " + type); 
     }
 
     return mutators[type](); 

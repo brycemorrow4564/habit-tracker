@@ -45,6 +45,7 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
     const HEIGHT = 10; 
 
     // Compute streak 
+    // TODO: integrate this logic with the HabitTable implementation 
     let currentStreakEndArr: Array<number | null> = data.map(({ date, index, value }) => date.isSame(today, 'days') && value === 1 ? index : null).filter(e => e !== null); 
     let hasCurrStreak: boolean = currentStreakEndArr.length === 1; 
     let streakCount: number = 0; 
@@ -61,6 +62,8 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
             }
         }
     }
+
+    
     
     return !ready ? null : (
         <Row className="single-week-habit-row">
