@@ -72,7 +72,7 @@ export function nextSunday(date: moment.Moment) {
   return date; 
 }; 
 
-export function clamp(v: number, vmin: number, vmax: number) {
+export function clamp(v: number, [vmin, vmax]: [number, number]) {
   // clamps a value to a specified range 
   return  v >= vmin && v <= vmax ?    v : 
           v < vmin ?                  vmin :   

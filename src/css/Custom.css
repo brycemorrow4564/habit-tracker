@@ -59,6 +59,11 @@
     margin-bottom: 2px;
 }
 
+.habit-row-viz {
+    background: #000;
+    border-bottom: 2px solid#fff; 
+}
+
 circle {
     stroke: #fff;
     stroke-width: 2;

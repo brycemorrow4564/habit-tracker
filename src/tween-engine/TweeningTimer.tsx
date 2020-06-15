@@ -17,26 +17,27 @@ const TweeningTimer: React.FC<TweeningTimerProps> = (props) => {
    
     localRunningRef.current = running; 
 
-    React.useEffect(() => {
+    let ticked = (timestampIndex: number, timestamp: number) => {
+        if (localRunningRef.current) {
+            console.log('STEPPING', timestamp, timestampIndex);
+            dispatch(['STEP TIME', [timestamp, timestampIndex]]); 
+            localFrameRef.current = requestAnimationFrame(_.partial(ticked, timestampIndex+1));
+        } else {
+            cancelAnimationFrame(localFrameRef.current); 
+        }
+    };
 
-        let ticked = (timestamp: number) => {
-            if (localRunningRef.current) {
-                dispatch(['STEP TIME', timestamp]); 
-                localFrameRef.current = requestAnimationFrame(ticked);
-            } else {
-                cancelAnimationFrame(localFrameRef.current); 
-            }
-        };
+    React.useEffect(() => {
 
         if (queueCount && queueCount !== localQueueCountRef.current) {
             localQueueCountRef.current = queueCount; 
             localRunningRef.current = true; 
-            localFrameRef.current = requestAnimationFrame(ticked);
+            localFrameRef.current = requestAnimationFrame(_.partial(ticked, 0));
         }
 
         return () => cancelAnimationFrame(localFrameRef.current);
 
-    }, [queueCount, localQueueCountRef, localRunningRef]); 
+    }, [queueCount]); 
     
     return null;
 

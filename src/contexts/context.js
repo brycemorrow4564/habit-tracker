@@ -1,8 +1,17 @@
 import * as React from "react"; 
 
-export const RootContext = React.createContext();
-export const RootProvider = RootContext.Provider;
+// https://hswolff.com/blog/how-to-usecontext-with-usereducer/
+
+// export const RootContext = React.createContext();
+// export const RootProvider = RootContext.Provider;
+
+export const StateContext = React.createContext();
+export const DispatchContext = React.createContext();
+export const StateProvider = StateContext.Provider; 
+export const DispatchProvider = DispatchContext.Provider;
 
 export function useRootContext() {
-    return React.useContext(RootContext); 
+    const dispatch = React.useContext(DispatchContext);
+    const state = React.useContext(StateContext);
+    return { state, dispatch }; 
 }

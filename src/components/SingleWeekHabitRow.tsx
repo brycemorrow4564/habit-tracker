@@ -4,7 +4,8 @@ import { Row, Col } from "antd";
 import CircleScalable from './CircleScalable';
 import { ReactComponent as FireSvg } from '../assets/fire19.svg';
 import { useRootContext } from "../contexts/context"; 
-import { HabitHistory, HabitTable, WeeksWindower } from "../utils/time"; 
+import { ReducerState } from "../reducers/reducer"; 
+import TweenProvider from "../tween-engine/TweenProvider"; 
 import { colors } from "../utils/color";
 
 export interface SingleWeekHabitRowProps {
@@ -18,17 +19,17 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
     const { state } = useRootContext(); 
     const { 
         habitTable, 
+        habitRegistry, 
+        labelsColorsBijection, 
         weeksWindower, 
         rowHeights, 
         rowMarginBottom, 
         colWidths, 
         timeAxisItemSpacing,
         today
-    } = state; 
+    }: ReducerState = state; 
 
-    const ready: boolean = rowHeights.length && 
-                           colWidths.length &&
-                           rowIndex < rowHeights.length; 
+    const ready: boolean = (rowHeights.length && colWidths.length && rowIndex < rowHeights.length) as boolean; 
                            
     const data: Array<{ index: number, date: moment.Moment, value: any }> = habitTable.get(habitName, weeksWindower.start(), weeksWindower.end()); 
     const streak: Array<[number,number]> = habitTable.streak(habitName, weeksWindower.start(), weeksWindower.end()); 
@@ -36,6 +37,7 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
     const zeros: Array<number> = data.map(e => 0); 
     // @ts-ignore
     const x0s: Array<number> = colWidths.length ? colWidths.reduce((acc,cur,i) => {
+        // @ts-ignore
         acc[i] = i === 0 ? 0 : acc[i-1] + colWidths[i-1] + timeAxisItemSpacing; 
         return acc
     }, []) : zeros.slice(); 
@@ -43,6 +45,7 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
     const xs = x0s.map((d,i) => (x0s[i]+x1s[i])/2); 
 
     const HEIGHT = 10; 
+    const color = labelsColorsBijection.getMappedValue('labels', habitRegistry.getLabel(habitName));
 
     // Compute streak 
     // TODO: integrate this logic with the HabitTable implementation 
@@ -61,35 +64,43 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
                 break;
             }
         }
-    }
+    }; 
 
-    
+    let svgStyle = { 
+        height: rowHeights[rowIndex], 
+        width: '100%', 
+        display: 'block', 
+        // background: colors.primary.dark 
+    }; 
     
     return !ready ? null : (
         <Row className="single-week-habit-row">
             <Col span={24}>
-                <svg className="habit-row-viz" style={{ height: rowHeights[rowIndex], width: '100%', display: 'block', background: colors.primary.dark }}>
+                <svg className="habit-row-viz" style={svgStyle}>
                     
                     {/* links */}
-                    {streak.map(([i0,i1]) => <rect fill="#6ded81" width={xs[i1]-xs[i0]} height={HEIGHT} x={xs[i0]-HEIGHT} y={rowHeights[rowIndex] / 2}/>)}
+                    {streak.map(([i0,i1]) => <rect key={`${i0}-${i1}`} fill={color} width={xs[i1]-xs[i0]} height={HEIGHT} x={xs[i0]-HEIGHT} y={rowHeights[rowIndex] / 2}/>)}
                     
-                    {/*  */}
-                    {data.map(({ date, value, index }, i) => (
-                        <React.Fragment>
-                            <CircleScalable
-                            key={`${date.format()}-${index}`}
-                            rowIndex={rowIndex}
-                            colIndex={i}
-                            cx={xs[i]}
-                            cy={rowHeights[rowIndex] / 2}
-                            r={(rowHeights[rowIndex] / 2) * .7}
-                            value={value}
-                            delay={0} />
-                            
-                            {!(date.isSame(today, 'days') && hasCurrStreak) ? null : <text fontSize={22} fill="#fff" x={xs[i]} y={rowHeights[rowIndex] / 2}>{`${streakCount}`}</text>}
-
-                        </React.Fragment>
-                    ))}
+                    {/* glyphs */}
+                    <TweenProvider>
+                        {data.map(({ date, value, index }, i) => (
+                            <React.Fragment key={`${date.format()}-${index}`}>
+                                <CircleScalable
+                                
+                                fillColor={color}
+                                rowIndex={rowIndex}
+                                colIndex={i}
+                                cx={xs[i]}
+                                cy={rowHeights[rowIndex] / 2}
+                                r={(rowHeights[rowIndex] / 2) * .7}
+                                value={value}
+                                delay={0} />
+                                
+                                {!(date.isSame(today, 'days') && hasCurrStreak) ? null : <text fontSize={22} fill="#fff" x={xs[i]} y={rowHeights[rowIndex] / 2}>{`${streakCount}`}</text>}
+                            </React.Fragment>
+                        ))}
+                    </TweenProvider>
+                    
                 </svg>
             </Col> 
 

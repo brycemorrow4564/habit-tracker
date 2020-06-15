@@ -6,6 +6,7 @@ import _ from "lodash";
 import moment from "moment"; 
 import { Row, Col, List, Input, Tag } from "antd"; 
 import { colors } from "../utils/color";
+import { ReducerState } from "../reducers/reducer";
 import { useRootContext } from "../contexts/context"; 
 
 /*
@@ -23,7 +24,11 @@ const HabitList: React.FC<HabitListProps> = (props) => {
   const itemRefs = React.useRef<{ [key: string]: any }>({}); 
   const [listHeight, setListHeight] = React.useState<number>(0); 
   const { state, dispatch } = useRootContext(); 
-  const { habitTable, dy } = state; 
+  const { 
+    habitTable, 
+    labelsColorsBijection, 
+    habitRegistry 
+  }: ReducerState = state; 
 
   React.useEffect(() => {
     if (listRef && listRef.current) {
@@ -83,7 +88,7 @@ const HabitList: React.FC<HabitListProps> = (props) => {
                               <p style={{ color: '#999999', marginBottom: 0 }}>daily</p>
                             </Col>
                             <Col>
-                              <Tag color={"volcano"} style={{ marginRight: 0 }}>{"thing"}</Tag>
+                              <Tag color={labelsColorsBijection.getMappedValue('labels', habitRegistry.getLabel(item))} style={{ marginRight: 0 }}>{"thing"}</Tag>
                             </Col>
                           </Row>
                         </div>

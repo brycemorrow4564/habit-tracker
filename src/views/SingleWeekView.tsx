@@ -7,7 +7,6 @@ import GridTimeAxis from "../components/GridTimeAxis";
 import GridRowLayout from "../components/GridRowLayout";
 import HabitList from "../components/HabitList";  
 import { colors } from "../utils/color";  
-import TweenProvider from "../tween-engine/TweenProvider"; 
 
 export interface SingleWeekViewProps {
 
@@ -22,8 +21,6 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
 
   return (
       <React.Fragment>
-
-        <TweenProvider>
 
           <div style={{ background: colors.primary.dark }}> 
 
@@ -44,8 +41,6 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
           right={null}/>
 
           </div>
-
-        </TweenProvider>
         
       </React.Fragment>
   );
