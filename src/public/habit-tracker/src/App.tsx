@@ -36,6 +36,19 @@ function App() {
 
   // }, []); 
 
+  React.useEffect(() => {
+    async function callExpress() {
+      try {
+        let response = await fetch('/api/say-hello/bryce')
+                              .then(res => res.json());
+        alert('Hi this is a response from the backend: ' + response.message);
+      } catch (err) {
+        alert(err);
+      }
+    }
+    callExpress(); 
+  }, []); 
+
   return (
     <StateProvider value={state}>
       <DispatchProvider value={dispatch}>

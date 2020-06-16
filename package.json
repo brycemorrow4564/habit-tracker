@@ -1,62 +1,27 @@
 {
-  "name": "habit-tracker",
-  "version": "0.1.0",
-  "private": true,
-  "proxy": "http://localhost:3001",
+  "name": "habit-tracker-fullstack",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
   "dependencies": {
-    "@ant-design/icons": "^4.1.0",
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.5.0",
-    "@testing-library/user-event": "^7.2.1",
-    "@types/jest": "^24.9.1",
-    "@types/lodash": "^4.14.151",
-    "@types/node": "^12.12.39",
-    "@types/react": "^16.8.11",
-    "@types/react-dom": "^16.9.8",
-    "antd": "^4.2.4",
-    "d3-ease": "^1.0.6",
-    "d3-interpolate": "^1.4.0",
-    "d3-scale": "^3.2.1",
-    "lodash": "^4.17.15",
-    "moment": "^2.26.0",
-    "node-sass": "^4.14.1",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1",
-    "react-transition-group": "^4.4.1",
-    "react-use-dimensions": "^1.2.1",
-    "typescript": "^3.7.5"
+    "@overnightjs/core": "^1.7.4",
+    "@overnightjs/logger": "^1.1.12",
+    "@types/express": "^4.17.6",
+    "@types/express-pino-logger": "^4.0.2",
+    "@types/mongodb": "^3.5.22",
+    "@types/node": "^14.0.13",
+    "express-pino-logger": "^5.0.0",
+    "http-status-codes": "^1.4.0",
+    "mongodb": "^3.5.9",
+    "nodemon": "^2.0.4",
+    "ts-node": "^8.10.2",
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.5"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "server": "node-env-run server --exec nodemon | pino-colada", 
-    "dev": "run-p server start"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-dev": "nodemon --config \"./util/nodemon.json\"/"
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "devDependencies": {
-    "body-parser": "^1.19.0",
-    "express": "^4.17.1",
-    "express-pino-logger": "^5.0.0",
-    "node-env-run": "^3.0.2",
-    "nodemon": "^2.0.4",
-    "npm-run-all": "^4.1.5",
-    "pino-colada": "^1.6.1"
-  }
+  "author": "Bryce Morrow",
+  "license": "ISC"
 }
