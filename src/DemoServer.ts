@@ -41,7 +41,32 @@ class DemoServer extends Server {
             const db: _mongodb.Db = client.db(DemoServer.DATABASE_NAME);
             const success: boolean = controller.setDatabaseConnection(db); 
             if (success) {
+                
                 console.log("MONGODB INITIALIZED"); 
+
+                db.createCollection("habits", {
+                    validator: {
+                        $jsonSchema: {
+                            bsonType: "object",
+                            required: [ "user_id", "habit_id", "color" ],
+                            properties: {
+                                habit_id: {
+                                    bsonType: "string",
+                                    description: "must be a string and is required"
+                                },
+                                user_id: {
+                                    bsonType: "string",
+                                    description: "must be a string and is required"
+                                },
+                                color: {
+                                    bsonType: "string",
+                                    description: "must be a string and is required"
+                                }
+                            }
+                        }
+                    }
+                });
+                
             } 
         });
 

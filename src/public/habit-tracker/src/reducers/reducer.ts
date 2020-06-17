@@ -10,39 +10,10 @@ import {
     KeyedBijection
 } from "../utils/time"; 
 
-let numHabits = 5; 
-let habitHistoryLength = 14; 
-
-let dummyHabitTable = (registry: HabitRegistry) => {
-
-    let today: moment.Moment = moment(); 
-    let startDate: moment.Moment = today.subtract(habitHistoryLength - 1, 'days'); 
-
-    const table: HabitTable = new HabitTable(); 
-
-    for (let i of _.range(0, numHabits)) {
-        let history = new HabitHistory(); 
-        let curr = startDate.clone(); 
-        for (let j of _.range(0, habitHistoryLength)) {
-            if (Math.random() < .5) {
-                history.set(curr.clone(), 1); 
-            }
-            curr.add(1, 'day'); 
-        }
-        let name = `habit-${i}`
-        table.add(name, history); 
-        registry.register(name, 
-                        Math.random() < .5 ? HabitFrequencies.Daily : HabitFrequencies.Weekly,
-                        Math.random() < .5 ? 'fitness' : 'hygiene');
-    }
-
-    return table; 
-}; 
-
 const numWeeks: 1 | 2 = 2; 
 const windowSize: 7 | 14 = (numWeeks * 7) as 7 | 14; 
 const registry: HabitRegistry = new HabitRegistry(); 
-const table: HabitTable = dummyHabitTable(registry);
+const table: HabitTable = new HabitTable();
 let colors: Array<string> = ["#66c2a5","#fc8d62","#8da0cb","#e78ac3","#a6d854","#ffd92f","#e5c494","#b3b3b3"]; 
 const labels: Array<string> = registry.getLabels();
 const labelColors: Array<string> = labels.map((d,i) => colors[i]); 
@@ -51,6 +22,8 @@ const week: Week = new Week(1); // a week that starts on monday
 const weeksWindower: WeeksWindower = new WeeksWindower(table.getMaxDate(), numWeeks, week); 
 
 export const reducerInitialState: ReducerState = {
+
+    "user_id": "bam4564", 
     
     "today": moment(),                              // the current day 
     "singleWeekViewOffset": 4, 
@@ -70,6 +43,9 @@ export const reducerInitialState: ReducerState = {
 }; 
 
 export interface ReducerState {
+
+    user_id: string,                    // the username of the current user 
+
     today: moment.Moment, 
     singleWeekViewOffset: number, 
     cellWidth: number | null, 
@@ -116,13 +92,27 @@ const mutators: { [key: string]: any } = {
         habitTable.setByIndex(ri, ci, value, state.weeksWindower); 
         return { ...state, habitTable, weeksWindower }; 
     }, 
-    'create habit': (state: ReducerState, [type, payload]: ReducerAction) => {
+    'create habit': (state: ReducerState, [type, habit]: ReducerAction) => {
         let habitTable = _.cloneDeep(state.habitTable); 
-        habitTable.addNewHabit(`habit-${habitTable.size()}`); 
-        return { ...state, habitTable }; 
-    }
+        let habitRegistry = _.cloneDeep(state.habitRegistry); 
+        let { habit_id, color, user_id } = habit; 
+        habitRegistry.register(habit_id, HabitFrequencies.Daily, 'default'); 
+        habitRegistry.setColor(habit_id, color); 
+        habitTable.addNewHabit(habit_id); 
+        return { ...state, habitTable, habitRegistry }; 
+    }, 
+    'create habits': (state: ReducerState, [type, habits]: ReducerAction) => {
+        let habitTable = _.cloneDeep(state.habitTable); 
+        let habitRegistry = _.cloneDeep(state.habitRegistry); 
+        for (let habit of habits) {
+            let { habit_id, color, user_id } = habit; 
+            habitRegistry.register(habit_id, HabitFrequencies.Daily, 'default'); 
+            habitRegistry.setColor(habit_id, color); 
+            habitTable.addNewHabit(habit_id); 
+        }
+        return { ...state, habitTable, habitRegistry }; 
+    }, 
 }; 
-
 
 export function reducer(state: ReducerState, action: ReducerAction) {
 

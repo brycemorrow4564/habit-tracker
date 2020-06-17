@@ -60,9 +60,6 @@ export class HabitRegistry {
         return this.labels[this.map.get(name) as number]; 
     }
 
-
-
-
 }; 
 
 export class HabitObservation {
@@ -359,9 +356,13 @@ export class KeyedBijection<A extends Indexable, B extends Indexable> {
     ensureValid() {
         if (this.listA.length !== this.listB.length) {
             throw Error("mismatch in sizes between two internal lists"); 
-        } else if (this.listA.length === 0) {
-            throw Error("cannot have bijection between two empty sets"); 
-        } else if (this.keyA.length === 0 || this.keyB.length === 0 || this.keyA === this.keyB) {
+        } 
+        
+        // else if (this.listA.length === 0) {
+        //     throw Error("cannot have bijection between two empty sets"); 
+        // } 
+        
+        else if (this.keyA.length === 0 || this.keyB.length === 0 || this.keyA === this.keyB) {
             throw Error("invalid keys"); 
         } else if (_.uniq(this.listA).length !== this.listA.length || _.uniq(this.listB).length !== this.listB.length) {
             throw Error("at least one set contains duplicate elements"); 

@@ -1,35 +1,61 @@
 import * as _mongodb from "mongodb";
 import { OK, BAD_REQUEST } from 'http-status-codes';
-import { Controller, Get } from '@overnightjs/core';
+import { Controller, Get, Post } from '@overnightjs/core';
 import { Logger } from '@overnightjs/logger';
 import { Request, Response } from 'express';
 import MongoDbConnectionUser from "../util/MongoDbConnectionUser"; 
 
-@Controller('api/say-hello')
+interface Habit {
+    user_id: string, 
+    habit_id: string, 
+    color: string
+}
+
+@Controller('api')
 class DemoController extends MongoDbConnectionUser {
 
     public static readonly SUCCESS_MSG = 'success message ';
 
-    @Get(':user_id')
-    private getHabitNames(req: Request, res: Response) {
+    @Get('habits/get/:user_id')
+    private getHabits(req: Request, res: Response) {
         /*
-        Returns a json object containing a list of all habits
-        for the current user
+        Returns a list of all habit objects for the current user 
         */ 
         try {
             const { user_id } = req.params;
             let db_query = async () => {
-                const db: _mongodb.Db = this.db; 
-                const col: _mongodb.Collection = await db.collection('habits'); 
-                const docs: any = await col.find({ user_id }).project({ habit_id: 1, _id: 0 }).toArray();
-                const habit_ids: Array<string> = docs.map((d: any) => (d.habit_id as string));  
-                return habit_ids; 
+                return await this.db.collection('habits').find({ user_id }).toArray(); 
             }
-            db_query().then((habit_ids) => {
+            db_query().then((habits) => {
                 Logger.Info(DemoController.SUCCESS_MSG);
-                return res.status(OK).json({
-                    habits: habit_ids
-                });
+                return res.status(OK).json({ habits });
+            });
+        } catch (err) {
+            Logger.Err(err, true);
+            return res.status(BAD_REQUEST).json({
+                error: err.message,
+            });
+        }
+    }
+
+    @Get('habits/observations')
+
+    @Post('habits/create/:user_id/:new_habit_id')
+    private createNewHabit(req: Request, res: Response) {
+        /*
+        Creates a new habit for a user 
+        assigns this habit a default color 
+        */ 
+        try {
+            const { user_id, new_habit_id } = req.params;
+            const color = '#00FF00'; 
+            const doc: Habit = { user_id, habit_id: new_habit_id, color };
+            let db_update = async () => {
+                await this.db.collection('habits').insertOne(doc); 
+            }
+            db_update().then(() => {
+                Logger.Info(DemoController.SUCCESS_MSG);
+                return res.status(OK).json(doc);
             });
         } catch (err) {
             Logger.Err(err, true);

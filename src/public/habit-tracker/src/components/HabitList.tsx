@@ -3,11 +3,12 @@ import { PlusCircleOutlined, EditOutlined } from "@ant-design/icons";
 import { scaleLinear } from "d3-scale";
 import useDimensions from "react-use-dimensions"; 
 import _ from "lodash"; 
-import moment from "moment"; 
-import { Row, Col, List, Input, Tag } from "antd"; 
+import { Row, Col } from "antd"; 
 import { colors } from "../utils/color";
 import { ReducerState } from "../reducers/reducer";
 import { useRootContext } from "../contexts/context"; 
+import HabitCard from "./HabitCard"; 
+import HabitCreatorCard from "./HabitCreatorCard"; 
 
 /*
 The time axis for the habit table viewer 
@@ -27,7 +28,8 @@ const HabitList: React.FC<HabitListProps> = (props) => {
   const { 
     habitTable, 
     labelsColorsBijection, 
-    habitRegistry 
+    habitRegistry, 
+    user_id
   }: ReducerState = state; 
 
   React.useEffect(() => {
@@ -71,52 +73,22 @@ const HabitList: React.FC<HabitListProps> = (props) => {
     }
   }, [listRef, habitTable]); 
 
+  const habitCardFromName = (habitName: string) => <HabitCard habitName={habitName} cardRefs={itemRefs} />; 
+
   return (
-      <React.Fragment>
-          <Row justify="end" align="middle" style={{ height: '100%' }}>
-            <Col span={12} style={{ background: colors.primary.dark, height: '100%' }}>
-              <div className="habit-list-wrapper" ref={listRef}>
-                {(habitTable.getNames() as string[]).map(item => (
-                  <Row key={item}>
-                    <Col span={24} style={{ marginBottom: 2 }}>
-                      <div style={{ background: colors.background }}>
-                        <div className="habit-card">
-                          <p style={{ marginBottom: 0, fontSize: 16, fontWeight: 500 }}>{item}</p>
-                          <div ref={ref => itemRefs.current[item] = ref}/>
-                          <Row justify="space-between" align="middle">
-                            <Col>
-                              <p style={{ color: '#999999', marginBottom: 0 }}>daily</p>
-                            </Col>
-                            <Col>
-                              <Tag color={labelsColorsBijection.getMappedValue('labels', habitRegistry.getLabel(item))} style={{ marginRight: 0 }}>{"thing"}</Tag>
-                            </Col>
-                          </Row>
-                        </div>
-                      </div>
-                    </Col>
-                  </Row>)
-                )}
-                <Row>
-                  <Col span={24}>
-                    <div style={{ background: colors.background }}>
-                      <div className="habit-card">
-                        <Row justify="space-around" align="middle">
-                          <Col>
-                            <PlusCircleOutlined 
-                            style={{ color: colors.primary.dark }}
-                            translate={0} 
-                            onClick={() => dispatch(['create habit', null])}/>
-                            <p style={{ display: 'inline-block', color: colors.primary.dark, marginLeft: '.3em' }}>New Habit</p>
-                          </Col>
-                        </Row>
-                      </div>
-                    </div>
-                  </Col>
-                </Row>
-              </div>
-            </Col>
-          </Row>
-      </React.Fragment>
+    <Row justify="end" align="middle" style={{ height: '100%' }}>
+      <Col span={12} style={{ background: colors.primary.dark, height: '100%' }}>
+        <div className="habit-list-wrapper" ref={listRef}>
+
+          {/* List items for each habit */}
+          {habitTable.getNames().map(habitCardFromName)}
+          
+          {/* Small form for adding new habits */}
+          <HabitCreatorCard/>
+          
+        </div>
+      </Col>
+    </Row>
   );
 }
 

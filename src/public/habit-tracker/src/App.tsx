@@ -2,6 +2,7 @@ import * as React from 'react';
 import { StateProvider, DispatchProvider } from './contexts/context'; 
 import { reducer, reducerInitialState } from './reducers/reducer'; 
 import SingleWeekView from "./views/SingleWeekView"; 
+import { getHabits } from "./rest/rest"; 
 import mountainImage from "./assets/mountain.jpg"; 
 
 import './css/App.css';
@@ -23,25 +24,11 @@ function App() {
 
   const [ state, dispatch ] = React.useReducer(reducer, reducerInitialState);
 
-  // set background property of html element with an image
-  // const [backgroundInit, setBackgroundInit] = React.useState<Boolean>(true); 
-  // React.useEffect(() => {
-  //   let elem = document.querySelector('html') as HTMLElement; 
-  //   elem.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${mountainImage})`; 
-  //   setBackgroundInit(true); 
-  // }, []); 
-
-  // React.useEffect(() => {
-  //   requestData(); 
-
-  // }, []); 
-
   React.useEffect(() => {
     async function callExpress() {
       try {
-        let response = await fetch('/api/say-hello/bryce')
-                              .then(res => res.json());
-        alert('Hi this is a response from the backend: ' + response.message);
+        let { habits } = await getHabits(state.user_id); 
+        dispatch(['create habits', habits]); 
       } catch (err) {
         alert(err);
       }
