@@ -1,13 +1,15 @@
 import * as React from "react"; 
-import { LeftCircleOutlined, RightCircleOutlined } from "@ant-design/icons";  
+import { LeftCircleFilled, RightCircleFilled } from "@ant-design/icons";  
 import { scaleLinear } from "d3-scale";
 import _ from "lodash"; 
 import moment from "moment"; 
-import { Row, Col } from "antd"; 
+import { Row, Col, Tabs } from "antd"; 
 import { cssLinearGradientPropertyGenerator } from "../utils/util"; 
 import { colors } from "../utils/color";
-import { useRootContext } from "../contexts/context"; 
+import { useRootContext } from "../contexts/context";
+import Box from "./Box";  
 import GridRowLayout from "./GridRowLayout";
+import "../css/GridTimeAxis.css"; 
 
 /*
 The time axis for the habit table viewer 
@@ -18,9 +20,9 @@ export interface GridTimeAxisProps {
 }
 
 const gi0 = 250;
-const gi1 = 160;
+const gi1 = 120;
 const timeAxisColorScale = scaleLinear().range([`rgba(${gi0},${gi0},${gi0}, 1)`, `rgba(${gi1},${gi1},${gi1}, 1)`]); 
-const currentDayBackground = cssLinearGradientPropertyGenerator('transparent', colors.primary.mid, .075, .03, 65); 
+// const currentDayBackground = cssLinearGradientPropertyGenerator('transparent', colors.primary.mid, .075, .03, 65); 
 
 const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
 
@@ -46,120 +48,128 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
     }
   }, [axisItemRefs, axisRef]); 
 
-  return (
-      <div style={{ marginBottom: '.2em' }}>
-
-        <GridRowLayout
-        left={
-          <Row justify="end" align="middle" style={{ height: '100%' }}>
-            <Col span={12} style={{ background: colors.primary.dark, height: '100%' }}>
-              <div style={{ display: 'flex', flexDirection: "column", justifyContent: 'space-between', height: '100%', paddingTop: '1em' }}>
-                <Row justify="end" align="middle">
-                  <Col span={6}>
-                      <Row justify="space-around" align="middle">
-                        <Col>
-                          <LeftCircleOutlined 
-                          style={{ color: colors.primary.light }}
-                          className="shift-control shift-control-left" 
-                          translate={0} 
-                          onClick={() => dispatch(['shift window', false])}/>
-                        </Col>
-                      </Row>
-                  </Col>
-                </Row>
-                <Row justify="start" align="bottom">
-                  <Col span={6}>
-                      <p style={{ color: colors.primary.light, marginBottom: 4, marginLeft: 8 }}>Habits</p>
-                  </Col>
-                </Row>
-              </div>
-            </Col>
-          </Row>
-        }
-        center={
-          <div className="axis-row">
-
-            <div ref={axisRef}>
-
-              <Row justify="space-around" align="middle" style={{ background: colors.primary.dark }}>
-                {window.map((d: moment.Moment, i: number) => (
-                  <Col key={d.format()} className={'grid-time-label-box'}>
-                    
-                    <div style={{ height: '100%', width: '100%' }} ref={ref => {
-                      // @ts-ignore
-                      axisItemRefs.current[i] = ref;
-                    }}>
-
-                      <div style={{ background: timeAxisColorScale(i%7) }}>
-
-                        {/* Name of month */}
-                        <Row justify="center" align="middle">
-                          <Col>
-                            <p className="grid-time-axis-label grid-time-axis-month">{d.format('MMM')}</p>
-                          </Col>
-                        </Row>
-
-                        {/* Day of month */}
-                        <Row justify="center" align="middle">
-                          <Col>
-                          <p className="grid-time-axis-label grid-time-axis-day">{d.format('D')}</p>
-                          </Col>
-                        </Row>
-
-                        {/* Label for day of week */}
-                        <Row justify="center" align="middle">
-                          <Col>
-                          <p className="grid-time-axis-label grid-time-axis-day-of-week">{d.format('ddd').toUpperCase()}</p>
-                          </Col>
-                        </Row>
-
-                        {/* Indicates which day is the current day */}
-                        <Row justify="center" align="middle">
-                          <Col span={24}>
-                            {<div className='current-day-indicator' style={{ borderColor: colors.primary.mid, background: currentDayBackground, opacity: today.isSame(d, 'days') ? 1 : 0 }} />}
-                          </Col>
-                        </Row>
-
-                      </div>
-
-                    </div>
-                    
-                  </Col>
-                ))}
-              </Row>
-          
-            </div>
-
+  const createAxisItem = (d: moment.Moment, i: number) => {
+    let isCurDay: boolean = today.isSame(d, 'days'); 
+    let itemColors = {
+      'normal': {
+        'backgroundColor': timeAxisColorScale(i%7), 
+        'border': colors.timeaxis_border, 
+        'low': colors.timeaxis_text_normal_low_contrast, 
+        'high': colors.timeaxis_text_normal_high_contrast
+      }, 
+      'current': {
+        'backgroundColor': '#46ab16', 
+        'border': colors.timeaxis_border, 
+        'low': colors.timeaxis_text_current_low_contrast, 
+        'high': colors.timeaxis_text_current_high_contrast
+      }
+    }
+    let styleDef = isCurDay ? itemColors.current : itemColors.normal; 
+    let lowContrastStyle = { color: styleDef.low };
+    let highContrastStyle = { color: styleDef.high };
+    let curDayBackgroundColor = styleDef.backgroundColor;
+    let curDayBorder = styleDef.border; 
+    return (
+      <Col key={d.format()} className={'grid-time-label-box'}>
+        <div style={{ height: '100%', width: '100%' }} ref={ref => {
+          // @ts-ignore
+          axisItemRefs.current[i] = ref;
+        }}>
+          <div style={{ background: curDayBackgroundColor, border: curDayBorder }}>
+            {/* Name of month */}
+            <Box horizontal="center" vertical="middle">
+              <p style={lowContrastStyle} className="grid-time-axis-label grid-time-axis-month">{d.format('MMM')}</p>
+            </Box>
+            {/* Day of month */}
+            <Box horizontal="center" vertical="middle">
+              <p style={highContrastStyle} className="grid-time-axis-label grid-time-axis-day">{d.format('D')}</p>
+            </Box>
+            {/* Label for day of week */}
+            <Box horizontal="center" vertical="middle">
+              <p style={lowContrastStyle} className="grid-time-axis-label grid-time-axis-day-of-week">{d.format('ddd').toUpperCase()}</p>
+            </Box>
           </div>
-        }
-        right={
-          <Row justify="start" align="middle" style={{ height: '100%' }}>
-            <Col span={12} style={{ background: colors.primary.dark, height: '100%' }}>
-              <div style={{ display: 'flex', flexDirection: "column", justifyContent: 'space-between', height: '100%', paddingTop: '1em' }}>
-                <Row justify="start" align="middle">
-                  <Col span={6}>
-                      <Row justify="space-around" align="middle">
-                        <Col>
-                          <RightCircleOutlined 
-                          style={{ color: colors.primary.light }}
-                          className="shift-control shift-control-left" 
-                          translate={0} 
-                          onClick={() => dispatch(['shift window', true])}/>
-                        </Col>
-                      </Row>
-                  </Col>
-                </Row>
-                <Row justify="space-around" align="bottom">
-                  <Col span={6}>
-                      <p></p>
-                  </Col>
-                </Row>
-              </div>
-            </Col>
-          </Row>
-        }/>
+        </div>
+      </Col>
+    );
+  }; 
 
-      </div>
+  const notchStyle = { height: 7, background: colors.timeaxis_background }; 
+  const useBottomBorders: boolean = false; 
+  const notchStyleLeft = useBottomBorders ?   Object.assign(_.clone(notchStyle), { borderLeft: colors.timeaxis_border, borderBottom: colors.timeaxis_border }) : 
+                                              Object.assign(_.clone(notchStyle), { borderLeft: colors.timeaxis_border }); 
+  const notchStyleRight = useBottomBorders ?  Object.assign(_.clone(notchStyle), { borderRight: colors.timeaxis_border, borderBottom: colors.timeaxis_border }) : 
+                                              Object.assign(_.clone(notchStyle), { borderRight: colors.timeaxis_border }); 
+  const shiftButtonStyle = { color: colors.shift_button_color }; 
+
+  return (
+    <div>
+
+      <GridRowLayout
+      left={
+        <Box horizontal="end" vertical="middle" span={12} rowStyle={{ height: '100%' }} colStyle={{ height: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: "column", justifyContent: 'space-between', height: '100%', paddingTop: '1em' }}>
+            {/* Left shift button */}
+            <Box horizontal="end" vertical="middle" span={6}>
+              <Box horizontal="space-around" vertical="middle">
+                <LeftCircleFilled 
+                style={shiftButtonStyle}
+                className="shift-control shift-control-left" 
+                translate={0} 
+                onClick={() => dispatch(['shift window', false])}/>
+              </Box>
+            </Box>
+            {/* Habit list header */}
+            <Box horizontal="start" vertical="bottom" span={24}>
+              <Row justify="space-between" align="bottom">
+                <Col className="habit-list-header" style={{ borderTop: colors.timeaxis_border, borderRight: colors.timeaxis_border, borderLeft: colors.timeaxis_border, background: colors.timeaxis_background }}>
+                  <div>
+                    <p className="habit-list-header-label" style={{ color: colors.habitlist_title_color }}>Habits</p>
+                  </div>
+                </Col>
+                <Col flex={1}>
+                  <div style={{ width: '100%', borderTop: colors.timeaxis_border, background: colors.timeaxis_background }}></div>
+                </Col>
+              </Row>
+            </Box>
+          </div>
+        </Box>
+      }
+      center={
+        <div className="axis-row" style={{ background: colors.timeaxis_background, borderTop: colors.timeaxis_border, borderLeft: colors.timeaxis_border, borderRight: colors.timeaxis_border }}>
+          <div ref={axisRef}>
+            <Row justify="space-around" align="middle">
+              {window.map(createAxisItem)}
+            </Row>
+          </div>
+        </div>
+      }
+      right={
+        <Box horizontal="start" vertical="middle" span={12} rowStyle={{ height: '100%' }} colStyle={{ height: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: "column", justifyContent: 'space-between', height: '100%', paddingTop: '1em' }}>
+            {/* Right shift button */} 
+            <Box horizontal="start" vertical="middle" span={6}>
+              <Box horizontal="space-around" vertical="middle">
+                <RightCircleFilled 
+                style={shiftButtonStyle}
+                className="shift-control shift-control-left" 
+                translate={0} 
+                onClick={() => dispatch(['shift window', true])}/>
+              </Box>
+            </Box>
+            <Box horizontal="space-around" vertical="bottom" span={6}>
+              <p></p> 
+            </Box>
+          </div>
+        </Box>
+      }/>
+
+      <GridRowLayout
+      left={<Box horizontal="end" vertical="middle" span={12} colStyle={notchStyleLeft}/>}
+      center={<Box horizontal="center" vertical="middle" span={24} colStyle={notchStyleRight}/>}
+      right={null}/>
+
+    </div>
   );
 }
 

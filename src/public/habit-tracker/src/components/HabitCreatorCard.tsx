@@ -2,7 +2,7 @@ import * as React from "react";
 import _ from "lodash"; 
 import { PlusCircleOutlined, CheckOutlined } from "@ant-design/icons";  
 import { Row, Col, Input, Button, Form } from "antd"; 
-
+import Box from "./Box"; 
 import { colors } from "../utils/color";
 import { ReducerState } from "../reducers/reducer";
 import { useRootContext } from "../contexts/context"; 
@@ -24,28 +24,13 @@ const HabitCreatorCard: React.FC<HabitCreatorCardProps> = (props) => {
   }; 
 
   const wrapContent = (content: any) => (
-    <Row>
-        <Col span={24}>
-          <div style={{ background: colors.background }}>
-              <div className="habit-card">
-                {content}
-              </div>
+    <Box span={24}>
+      <div style={{ background: colors.grey[2] }}>
+          <div className="habit-card">
+            {content}
           </div>
-        </Col>
-    </Row>
-  ); 
-
-  // Stateful button that when clicked shows form for creating a new habit 
-  const formInactiveContent = wrapContent(
-    <Row justify="space-around" align="middle">
-        <Col>
-        <PlusCircleOutlined 
-        style={{ color: colors.primary.dark }}
-        translate={0} 
-        onClick={() => setFormActive(true)}/>
-        <p style={{ display: 'inline-block', color: colors.primary.dark, marginLeft: '.3em' }}>New Habit</p>
-        </Col>
-    </Row>
+      </div>
+    </Box>
   ); 
 
   let onFinish = (values: any) => {
@@ -71,6 +56,23 @@ const HabitCreatorCard: React.FC<HabitCreatorCardProps> = (props) => {
       }
     }                                                        
   }
+
+  // Stateful button that when clicked shows form for creating a new habit 
+  const formInactiveContent = wrapContent(
+    <Box horizontal="space-around" vertical="middle">
+      <Row justify="space-around" align="middle">
+          <Col>
+            <PlusCircleOutlined 
+            style={{ color: colors.habitlist_title_color }}
+            translate={0} 
+            onClick={() => setFormActive(true)}/>
+          </Col>
+          <Col style={{ marginLeft: 5 }}>
+            <p style={{ color: colors.habitlist_title_color, margin: 0 }}>New Habit</p>
+          </Col>
+      </Row>
+    </Box>
+  ); 
 
   // form for creating a new habit 
   const formActiveContent = wrapContent(

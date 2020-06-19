@@ -2,11 +2,12 @@ import * as React from "react";
 import _ from "lodash"; 
 import { Row, Col } from "antd"; 
 import CircleScalable from './CircleScalable';
-import { ReactComponent as FireSvg } from '../assets/fire19.svg';
 import { useRootContext } from "../contexts/context"; 
 import { ReducerState } from "../reducers/reducer"; 
 import TweenProvider from "../tween-engine/TweenProvider"; 
 import { colors } from "../utils/color";
+
+import "../css/SingleWeekHabitRow.css"; 
 
 export interface SingleWeekHabitRowProps {
     habitName: string, 
@@ -69,8 +70,7 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
     let svgStyle = { 
         height: rowHeights[rowIndex], 
         width: '100%', 
-        display: 'block', 
-        // background: colors.primary.dark 
+        display: 'block'
     }; 
     
     return !ready ? null : (
@@ -103,20 +103,6 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
                     
                 </svg>
             </Col> 
-
-            {/* Streak Visualization */}
-            {/* <Col span={singleWeekViewOffset}>
-                <Row justify="start" align="top">
-                    <Col>
-                        <FireSvg className={'streak-icon'} style={{ height: 20, width: 20 }}/>
-                    </Col>
-                    <Col>
-                        <svg className="streak-amount-container" style={{ height: 20, width: 40 }}>
-                            <text x={0} y={18} className="streak-amount">0</text>
-                        </svg>
-                    </Col>
-                </Row>
-            </Col> */}
 
         </Row>
     ); 

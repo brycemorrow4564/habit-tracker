@@ -8,6 +8,8 @@ import GridRowLayout from "../components/GridRowLayout";
 import HabitList from "../components/HabitList";  
 import { colors } from "../utils/color";  
 
+import "../css/SingleWeekView.css"; 
+
 export interface SingleWeekViewProps {
 
 }
@@ -20,17 +22,17 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
   const today = moment(); 
 
   return (
-      <React.Fragment>
+      <div>
 
-          <div style={{ background: colors.primary.dark }}> 
+          <div style={{ background: colors.body_background }}> 
 
           <GridTimeAxis/>
 
           <GridRowLayout
           left={<HabitList/>}
           center={
-            <div className="habit-table-viz-grid" style={{ background: colors.primary.dark }}>
-              <div style={{ background: colors.primary.dark, paddingRight: '.5em' }}>
+            <div className="habit-table-viz-grid">
+              <div>
                 {habitTable.getNames().map((habitName: string, i: number) => (<SingleWeekHabitRow 
                                                                               key={habitName}
                                                                               habitName={habitName} 
@@ -42,7 +44,7 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
 
           </div>
         
-      </React.Fragment>
+      </div>
   );
 }
 

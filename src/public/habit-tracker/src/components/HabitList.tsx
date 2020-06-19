@@ -4,11 +4,14 @@ import { scaleLinear } from "d3-scale";
 import useDimensions from "react-use-dimensions"; 
 import _ from "lodash"; 
 import { Row, Col } from "antd"; 
+import Box from "./Box"; 
 import { colors } from "../utils/color";
 import { ReducerState } from "../reducers/reducer";
 import { useRootContext } from "../contexts/context"; 
 import HabitCard from "./HabitCard"; 
 import HabitCreatorCard from "./HabitCreatorCard"; 
+
+import "../css/HabitList.css"; 
 
 /*
 The time axis for the habit table viewer 
@@ -75,20 +78,25 @@ const HabitList: React.FC<HabitListProps> = (props) => {
 
   const habitCardFromName = (habitName: string) => <HabitCard habitName={habitName} cardRefs={itemRefs} />; 
 
+  const colStyle = { borderLeft: colors.timeaxis_border, borderRight: colors.timeaxis_border, borderBottom: colors.timeaxis_border, background: colors.timeaxis_background, height: '100%' }; 
+
   return (
-    <Row justify="end" align="middle" style={{ height: '100%' }}>
-      <Col span={12} style={{ background: colors.primary.dark, height: '100%' }}>
+    <Box span={12} horizontal="end" vertical="middle" rowStyle={{ height: '100%' }} colStyle={colStyle}>
         <div className="habit-list-wrapper" ref={listRef}>
 
-          {/* List items for each habit */}
-          {habitTable.getNames().map(habitCardFromName)}
-          
-          {/* Small form for adding new habits */}
-          <HabitCreatorCard/>
-          
+        {/* List items for each habit */}
+        {habitTable.getNames().map(habitCardFromName)}
+
+        {/* Small form for adding new habits */}
+        <HabitCreatorCard/>
+
         </div>
-      </Col>
-    </Row>
+    </Box>
+    // <Row justify="end" align="middle" style={{ height: '100%' }}>
+    //   <Col span={12} style=>
+        
+    //   </Col>
+    // </Row>
   );
 }
 

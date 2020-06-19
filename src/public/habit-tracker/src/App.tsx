@@ -3,13 +3,11 @@ import { StateProvider, DispatchProvider } from './contexts/context';
 import { reducer, reducerInitialState } from './reducers/reducer'; 
 import SingleWeekView from "./views/SingleWeekView"; 
 import { getHabits } from "./rest/rest"; 
-import mountainImage from "./assets/mountain.jpg"; 
+// import mountainImage from "./assets/mountain.jpg"; 
+import { colors } from "./utils/color"; 
 
-import './css/App.css';
-import './css/StreakGlyph.css'; 
-import './css/WeekAxis.css'; 
 import './css/Custom.css'; 
-import './css/Custom.scss';
+import './scss/Custom.scss';
 
 function App() {
 
@@ -36,11 +34,23 @@ function App() {
     callExpress(); 
   }, []); 
 
+  React.useEffect(() => {
+    let coll: HTMLCollectionOf<HTMLBodyElement> = document.getElementsByTagName("body"); 
+    if (!coll.length) {
+      throw Error("unable to find body element"); 
+    } else {
+      let body: HTMLBodyElement = coll[0]; 
+      body.style.background = colors.body_background; 
+    }
+  }, []); 
+
   return (
     <StateProvider value={state}>
       <DispatchProvider value={dispatch}>
         <div style={{ width: '100%', height: '100%' }}>
-          <SingleWeekView/>
+          <div style={{ marginTop: '3em' }}>
+            <SingleWeekView/>
+          </div>
         </div>
       </DispatchProvider>
     </StateProvider>   
