@@ -44,23 +44,48 @@ class DemoServer extends Server {
                 
                 console.log("MONGODB INITIALIZED"); 
 
+                // Collection of habits where each document
+                // stores the meta-data associated with habits  
+                // note: this does not include the set of observations for each habit 
                 db.createCollection("habits", {
                     validator: {
                         $jsonSchema: {
                             bsonType: "object",
-                            required: [ "user_id", "habit_id", "color" ],
+                            required: [ "user_id", "habit_id", "color", "label"],
                             properties: {
                                 habit_id: {
                                     bsonType: "string",
-                                    description: "must be a string and is required"
+                                    description: "habit uid"
                                 },
                                 user_id: {
                                     bsonType: "string",
-                                    description: "must be a string and is required"
+                                    description: "user uid"
                                 },
                                 color: {
                                     bsonType: "string",
-                                    description: "must be a string and is required"
+                                    description: "habit color"
+                                }, 
+                                label: {
+                                    bsonType: "string", 
+                                    description: "habit label"
+                                }, 
+                                observations: {
+                                    bsonType: "array",
+                                    description: "set of observations for habit",
+                                    uniqueItems: true,
+                                    items: {
+                                        bsonType: "object", 
+                                        description: "individual habit observation", 
+                                        required: ["timestamp", "value"], 
+                                        properties: {
+                                            timestamp: {
+                                                bsonType: "date"
+                                            }, 
+                                            value: {
+                                                bsonType: "int"
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }

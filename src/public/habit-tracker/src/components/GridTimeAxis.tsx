@@ -7,7 +7,7 @@ import { Row, Col, Tabs } from "antd";
 import { cssLinearGradientPropertyGenerator } from "../utils/util"; 
 import { colors } from "../utils/color";
 import { useRootContext } from "../contexts/context";
-import Box from "./Box";  
+import Box, { BoxProps } from "./Box";  
 import GridRowLayout from "./GridRowLayout";
 import "../css/GridTimeAxis.css"; 
 
@@ -19,10 +19,14 @@ export interface GridTimeAxisProps {
 
 }
 
+// export interface 
+
 const gi0 = 250;
 const gi1 = 120;
 const timeAxisColorScale = scaleLinear().range([`rgba(${gi0},${gi0},${gi0}, 1)`, `rgba(${gi1},${gi1},${gi1}, 1)`]); 
 // const currentDayBackground = cssLinearGradientPropertyGenerator('transparent', colors.primary.mid, .075, .03, 65); 
+
+// const 
 
 const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
 
@@ -102,12 +106,24 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
                                               Object.assign(_.clone(notchStyle), { borderRight: colors.timeaxis_border }); 
   const shiftButtonStyle = { color: colors.shift_button_color }; 
 
+  const leftBoxProps: BoxProps = { horizontal: 'end', vertical: 'middle', span: 12 }; 
+  const centerBoxProps: BoxProps = { horizontal: 'center', vertical: 'middle', span: 24 }; 
+
+  const timeaxisContainerStyle = { 
+    background: colors.timeaxis_background, 
+    borderTop: colors.timeaxis_border, 
+    borderLeft: colors.timeaxis_border, 
+    borderRight: colors.timeaxis_border 
+  }; 
+
+  // horizontal="" vertical="middle" span={24}
+
   return (
     <div>
 
       <GridRowLayout
       left={
-        <Box horizontal="end" vertical="middle" span={12} rowStyle={{ height: '100%' }} colStyle={{ height: '100%' }}>
+        <Box { ...leftBoxProps } rowStyle={{ height: '100%' }} colStyle={{ height: '100%' }}>
           <div style={{ display: 'flex', flexDirection: "column", justifyContent: 'space-between', height: '100%', paddingTop: '1em' }}>
             {/* Left shift button */}
             <Box horizontal="end" vertical="middle" span={6}>
@@ -122,7 +138,7 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
             {/* Habit list header */}
             <Box horizontal="start" vertical="bottom" span={24}>
               <Row justify="space-between" align="bottom">
-                <Col className="habit-list-header" style={{ borderTop: colors.timeaxis_border, borderRight: colors.timeaxis_border, borderLeft: colors.timeaxis_border, background: colors.timeaxis_background }}>
+                <Col className="habit-list-header" style={{ borderTop: colors.timeaxis_border, borderRight: colors.timeaxis_border, borderLeft: colors.timeaxis_border, borderBottom: colors.habitlist_header_border_bottom, background: colors.timeaxis_background }}>
                   <div>
                     <p className="habit-list-header-label" style={{ color: colors.habitlist_title_color }}>Habits</p>
                   </div>
@@ -136,13 +152,15 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
         </Box>
       }
       center={
-        <div className="axis-row" style={{ background: colors.timeaxis_background, borderTop: colors.timeaxis_border, borderLeft: colors.timeaxis_border, borderRight: colors.timeaxis_border }}>
-          <div ref={axisRef}>
-            <Row justify="space-around" align="middle">
-              {window.map(createAxisItem)}
-            </Row>
+        <Box { ...centerBoxProps } span={24}>
+          <div className="axis-row" style={{ background: colors.timeaxis_background, borderTop: colors.timeaxis_border, borderLeft: colors.timeaxis_border, borderRight: colors.timeaxis_border }}>
+            <div ref={axisRef}>
+              <Row justify="space-around" align="middle">
+                {window.map(createAxisItem)}
+              </Row>
+            </div>
           </div>
-        </div>
+        </Box>
       }
       right={
         <Box horizontal="start" vertical="middle" span={12} rowStyle={{ height: '100%' }} colStyle={{ height: '100%' }}>
@@ -165,8 +183,8 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
       }/>
 
       <GridRowLayout
-      left={<Box horizontal="end" vertical="middle" span={12} colStyle={notchStyleLeft}/>}
-      center={<Box horizontal="center" vertical="middle" span={24} colStyle={notchStyleRight}/>}
+      left={<Box { ...leftBoxProps } colStyle={notchStyleLeft}/>}
+      center={<Box { ...centerBoxProps } colStyle={notchStyleRight}/>}
       right={null}/>
 
     </div>

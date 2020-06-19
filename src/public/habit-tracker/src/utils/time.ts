@@ -5,62 +5,67 @@ type WeekIndex =  0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export enum HabitFrequencies { Daily, Weekly, BiWeekly };
 
-export class HabitRegistry {
+// export class HabitRegistry {
 
-    /*
-    Maps habit name to multiple habitg properties. Once habits
-    are registered, their property values can be mutated. 
-    */
+//     /*
+//     Maps habit name to multiple habitg properties. Once habits
+//     are registered, their property values can be mutated. 
+//     */
 
-    private map: Map<string,number> = new Map();        // maps habit name to index into property arrays
-    private frequencies: Array<HabitFrequencies> = [];  // frequency of each habit 
-    private labels: Array<string> = [];                 // habit label 
-    private colors: Array<string> = [];                 // habit color (derivative of label)
+//     private map: Map<string,number> = new Map();        // maps habit name to index into property arrays
+//     private frequencies: Array<HabitFrequencies> = [];  // frequency of each habit 
+//     private labels: Array<string> = [];                 // habit label 
+//     private colors: Array<string> = [];                 // habit color (derivative of label)
 
-    isRegistered(name: string) {
-        return this.map.has(name); 
-    }
+//     isRegistered(name: string) {
+//         return this.map.has(name); 
+//     }
 
-    ensureRegistered(name: string) {
-        if (!this.isRegistered(name)) {
-            throw Error("tried to set value for unregistered habit");
-        }
-    }
+//     ensureRegistered(name: string) {
+//         if (!this.isRegistered(name)) {
+//             throw Error("tried to set value for unregistered habit");
+//         }
+//     }
 
-    register(name: string, freq: HabitFrequencies, label?: string) {
-        if (this.isRegistered(name)) {
-            throw Error("duplicate habit registration"); 
-        }
-        this.map.set(name, this.frequencies.length); 
-        this.frequencies.push(freq); 
-        this.labels.push(label ? label : ''); 
-    }
+//     register(name: string, freq: HabitFrequencies, label?: string) {
+//         if (this.isRegistered(name)) {
+//             throw Error("duplicate habit registration"); 
+//         }
+//         this.map.set(name, this.frequencies.length); 
+//         this.frequencies.push(freq); 
+//         this.labels.push(label ? label : ''); 
+//     }
 
-    setFreq(name: string, freq: HabitFrequencies) {
-        this.ensureRegistered(name);
-        this.frequencies[this.map.get(name) as number] = freq; 
-    }
+//     setFreq(name: string, freq: HabitFrequencies) {
+//         this.ensureRegistered(name);
+//         this.frequencies[this.map.get(name) as number] = freq; 
+//     }
 
-    setLabel(name: string, label: string) {
-        this.ensureRegistered(name);
-        this.labels[this.map.get(name) as number] = label; 
-    }
+//     setLabel(name: string, label: string) {
+//         this.ensureRegistered(name);
+//         this.labels[this.map.get(name) as number] = label; 
+//     }
 
-    setColor(name: string, color: string) {
-        this.ensureRegistered(name);
-        this.colors[this.map.get(name) as number] = color; 
-    }
+//     setColor(name: string, color: string) {
+//         this.ensureRegistered(name);
+//         this.colors[this.map.get(name) as number] = color; 
+//     }
 
-    getLabels() {
-        return _.uniq(this.labels.filter(g => g !== undefined));     
-    }
+//     getLabels() {
+//         return _.uniq(this.labels.filter(g => g !== undefined));     
+//     }
 
-    getLabel(name: string) {
-        this.ensureRegistered(name); 
-        return this.labels[this.map.get(name) as number]; 
-    }
+//     getLabel(name: string) {
+//         this.ensureRegistered(name); 
+//         return this.labels[this.map.get(name) as number]; 
+//     }
 
-}; 
+//     getColor(name: string) {
+//         this.ensureRegistered(name); 
+//         return this.colors[this.map.get(name) as number]; 
+//     }
+
+// }; 
 
 export class HabitObservation {
 
@@ -80,6 +85,18 @@ export class HabitHistory {
 
     private dateToKey(d: moment.Moment) {
         return d.format('MM-DD-YY'); 
+    }
+
+    constructor(observations?: Array<{ timestamp: Date, value: number }>) {
+        if (observations) {
+            for (let { timestamp, value } of observations) {
+                // convert from javascript date to moment.Moment, then 
+                // lower the precision (drop time info, keep date info)
+                let m: moment.Moment = moment(timestamp).startOf('day'); 
+                // use this converted object to store the value 
+                this.set(m, value); 
+            }
+        }
     }
 
     set(date: moment.Moment, value: number) {

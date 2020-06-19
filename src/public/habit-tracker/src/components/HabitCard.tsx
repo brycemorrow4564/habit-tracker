@@ -38,7 +38,6 @@ const HabitCard: React.FC<HabitCardProps> = (props) => {
                     <Col>
                         <Tag color={
                             'volcano'
-                                // labelsColorsBijection.getMappedValue('labels', habitRegistry.getLabel(habitName))
                         } style={{ marginRight: 0 }}>{"thing"}</Tag>
                     </Col>
                 </Row>

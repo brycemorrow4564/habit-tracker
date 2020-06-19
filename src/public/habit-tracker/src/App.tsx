@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { StateProvider, DispatchProvider } from './contexts/context'; 
-import { reducer, reducerInitialState } from './reducers/reducer'; 
+import { reducer, reducerInitialState, ReducerState } from './reducers/reducer'; 
 import SingleWeekView from "./views/SingleWeekView"; 
-import { getHabits } from "./rest/rest"; 
+import { getHabits, updateHabitObservations } from "./rest/rest"; 
 // import mountainImage from "./assets/mountain.jpg"; 
 import { colors } from "./utils/color"; 
 
@@ -20,19 +20,21 @@ function App() {
     * Calendar view (monthly)   (similar to hey habit but better)
   */
 
-  const [ state, dispatch ] = React.useReducer(reducer, reducerInitialState);
+  const [ state, dispatch ]: [ReducerState, any] = React.useReducer(reducer, reducerInitialState);
 
   React.useEffect(() => {
-    async function callExpress() {
-      try {
-        let { habits } = await getHabits(state.user_id); 
-        dispatch(['create habits', habits]); 
-      } catch (err) {
-        alert(err);
-      }
-    }
-    callExpress(); 
+    getHabits(state.user_id).then(({ habits }) => dispatch(['create habits', habits]));
   }, []); 
+
+  React.useEffect(() => {
+    if (state.habitTableChanges.count) {
+      let { habit_id, timestamp, value } = state.habitTableChanges; 
+      timestamp = new Date(timestamp.toDateString()); 
+      updateHabitObservations(state.user_id, habit_id, timestamp, value).then((v) => {
+        console.log(v); 
+      })
+    }
+  }, [state.habitTableChanges])
 
   React.useEffect(() => {
     let coll: HTMLCollectionOf<HTMLBodyElement> = document.getElementsByTagName("body"); 

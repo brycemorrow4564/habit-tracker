@@ -28,8 +28,9 @@ export const colors: any = (() => {
         'timeaxis_text_normal_high_contrast': colors.grey[7], 
         'timeaxis_text_current_low_contrast': colors.grey[2], 
         'timeaxis_text_current_high_contrast': colors.grey[0], 
-        'shift_button_color': colors.grey[5], 
-        'habitlist_title_color': colors.grey[6]
+        'shift_button_color': colors.grey[3], 
+        'habitlist_title_color': colors.grey[6], 
+        'habitlist_header_border_bottom': 0 // `1px solid ${colors.grey[3]}`
     }; 
 
     const merged = Object.assign(colors, vars); 

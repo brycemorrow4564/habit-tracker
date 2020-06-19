@@ -3,27 +3,40 @@ import moment from "moment";
 import { 
     HabitHistory, 
     HabitTable, 
-    HabitRegistry, 
     HabitFrequencies, 
     Week, 
     WeeksWindower, 
     KeyedBijection
 } from "../utils/time"; 
 
+export interface Habit {
+    user_id: string, 
+    habit_id: string, 
+    color: string, 
+    label: string, 
+    observations: Array<{ timestamp: Date, value: number }>
+};
+
 const numWeeks: 1 | 2 = 2; 
 const windowSize: 7 | 14 = (numWeeks * 7) as 7 | 14; 
-const registry: HabitRegistry = new HabitRegistry(); 
 const table: HabitTable = new HabitTable();
 let colors: Array<string> = ["#66c2a5","#fc8d62","#8da0cb","#e78ac3","#a6d854","#ffd92f","#e5c494","#b3b3b3"]; 
-const labels: Array<string> = registry.getLabels();
+const labels: Array<string> = []; 
 const labelColors: Array<string> = labels.map((d,i) => colors[i]); 
-const labelsColorsBijection: KeyedBijection<string, string> = new KeyedBijection('labels', labels, 'colors', labelColors); 
 const week: Week = new Week(1); // a week that starts on monday 
 const weeksWindower: WeeksWindower = new WeeksWindower(table.getMaxDate(), numWeeks, week); 
 
 export const reducerInitialState: ReducerState = {
 
     "user_id": "bam4564", 
+    "habitIds": [], 
+    "habitMap": new Map(), 
+    "habitTableChanges": {
+        habit_id: '', 
+        count: 0, 
+        timestamp: new Date(), 
+        value: 0
+    },
     
     "today": moment(),                              // the current day 
     "singleWeekViewOffset": 4, 
@@ -32,8 +45,6 @@ export const reducerInitialState: ReducerState = {
     "windowSize": windowSize as 7 | 14,             // the temporal width (in days) of current time period (summarized in view) 
     "habitTable": _.cloneDeep(table),               // an instance of HabitTable 
     "weeksWindower": _.cloneDeep(weeksWindower),    // an instance of WeeksWindower 
-    "habitRegistry": _.cloneDeep(registry), 
-    "labelsColorsBijection": labelsColorsBijection, 
     "dy": 0,
     "rowHeights": [], 
     "rowMarginBottom": 0, 
@@ -44,7 +55,15 @@ export const reducerInitialState: ReducerState = {
 
 export interface ReducerState {
 
-    user_id: string,                    // the username of the current user 
+    user_id: string,                    // username of the current user 
+    habitIds: Array<string>,            // the set of all habit ids for the current user  
+    habitMap: Map<string, Habit>,       // map from habit name to habit object (from server)
+    habitTableChanges: {
+        habit_id: string, 
+        count: number, 
+        timestamp: Date, 
+        value: number
+    },
 
     today: moment.Moment, 
     singleWeekViewOffset: number, 
@@ -56,10 +75,9 @@ export interface ReducerState {
     rowMarginBottom: number, 
     colWidths: number[], 
     timeAxisItemSpacing: number,
-    habitRegistry: HabitRegistry, 
     habitTable: HabitTable, 
-    labelsColorsBijection: KeyedBijection<string, string>, 
     weeksWindower: WeeksWindower,
+
 };
 
 export type ReducerAction = [string, any]; 
@@ -89,28 +107,32 @@ const mutators: { [key: string]: any } = {
     'set value habit table': (state: ReducerState, [type, payload]: ReducerAction) => {
         let [ri, ci, value] = payload; 
         let habitTable = _.cloneDeep(state.habitTable); 
+        let habitTableChanges = {
+            count: state.habitTableChanges.count + 1, 
+            habit_id: state.habitTable.getNames()[ri], 
+            timestamp: state.weeksWindower.start().add(ci, 'days').toDate(), 
+            value 
+        };
         habitTable.setByIndex(ri, ci, value, state.weeksWindower); 
-        return { ...state, habitTable, weeksWindower }; 
+        return { ...state, habitTable, weeksWindower, habitTableChanges }; 
     }, 
     'create habit': (state: ReducerState, [type, habit]: ReducerAction) => {
         let habitTable = _.cloneDeep(state.habitTable); 
-        let habitRegistry = _.cloneDeep(state.habitRegistry); 
-        let { habit_id, color, user_id } = habit; 
-        habitRegistry.register(habit_id, HabitFrequencies.Daily, 'default'); 
-        habitRegistry.setColor(habit_id, color); 
-        habitTable.addNewHabit(habit_id); 
-        return { ...state, habitTable, habitRegistry }; 
+        let habitMap = _.cloneDeep(state.habitMap); 
+        let { habit_id }: Habit = habit; 
+        habitMap.set(habit_id, habit); 
+        habitTable.add(habit_id, new HabitHistory()); 
+        return { ...state, habitTable, habitMap }; 
     }, 
     'create habits': (state: ReducerState, [type, habits]: ReducerAction) => {
         let habitTable = _.cloneDeep(state.habitTable); 
-        let habitRegistry = _.cloneDeep(state.habitRegistry); 
+        let habitMap = _.cloneDeep(state.habitMap); 
         for (let habit of habits) {
-            let { habit_id, color, user_id } = habit; 
-            habitRegistry.register(habit_id, HabitFrequencies.Daily, 'default'); 
-            habitRegistry.setColor(habit_id, color); 
-            habitTable.addNewHabit(habit_id); 
+            let { habit_id, observations }: Habit = habit; 
+            habitMap.set(habit_id, habit); 
+            habitTable.add(habit_id, new HabitHistory(observations)); 
         }
-        return { ...state, habitTable, habitRegistry }; 
+        return { ...state, habitTable, habitMap }; 
     }, 
 }; 
 

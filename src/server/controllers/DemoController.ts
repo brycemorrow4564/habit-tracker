@@ -5,11 +5,12 @@ import { Logger } from '@overnightjs/logger';
 import { Request, Response } from 'express';
 import MongoDbConnectionUser from "../util/MongoDbConnectionUser"; 
 
-interface Habit {
-    user_id: string, 
-    habit_id: string, 
-    color: string
-}
+// this link is helpful in understanding the below query 
+// https://stackoverflow.com/questions/34431435/mongodb-update-an-object-in-nested-array
+// await this.db.collection('habits').updateOne(
+//     { user_id, habit_id, observations: { timestamp } },
+//     { $set: { "observations.$.value" : value } }
+// );
 
 @Controller('api')
 class DemoController extends MongoDbConnectionUser {
@@ -38,24 +39,59 @@ class DemoController extends MongoDbConnectionUser {
         }
     }
 
-    @Get('habits/observations')
-
     @Post('habits/create/:user_id/:new_habit_id')
-    private createNewHabit(req: Request, res: Response) {
+    private createHabit(req: Request, res: Response) {
         /*
         Creates a new habit for a user 
-        assigns this habit a default color 
+        returns a copy of the created document to the user  
         */ 
         try {
             const { user_id, new_habit_id } = req.params;
             const color = '#00FF00'; 
-            const doc: Habit = { user_id, habit_id: new_habit_id, color };
+            const label = 'default'; 
+            const doc = { user_id, habit_id: new_habit_id, color, label, observations: [] };
             let db_update = async () => {
                 await this.db.collection('habits').insertOne(doc); 
             }
             db_update().then(() => {
                 Logger.Info(DemoController.SUCCESS_MSG);
                 return res.status(OK).json(doc);
+            });
+        } catch (err) {
+            Logger.Err(err, true);
+            return res.status(BAD_REQUEST).json({
+                error: err.message,
+            });
+        }
+    }
+
+    @Post('habits/update/:user_id/:habit_id/:timestamp/:value')
+    private updateHabit(req: Request, res: Response) {
+        /*
+        Update a habit observation for a given user 
+        */ 
+        try {
+            const { user_id, habit_id, timestamp, value } = req.params;
+            const num_value: number = parseInt(value); 
+            const date: Date = new Date(timestamp);  
+            let db_update = async () => {
+                if (num_value === 0) {
+                    // if value is 0, we remove the entry from the db
+                    return await this.db.collection('habits').updateOne(
+                        { user_id, habit_id },
+                        { $pull: { observations : { timestamp: date } }}
+                    );
+                } else {
+                    // if value is 1, we add an entry to the db 
+                    return await this.db.collection('habits').updateOne(
+                        { user_id, habit_id },
+                        { $push: { observations : { timestamp: date, value: num_value } } }
+                    ); 
+                }
+            }; 
+            db_update().then(() => {
+                Logger.Info(DemoController.SUCCESS_MSG);
+                return res.status(OK).json({ success: true });
             });
         } catch (err) {
             Logger.Err(err, true);

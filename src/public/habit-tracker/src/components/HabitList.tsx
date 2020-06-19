@@ -30,8 +30,6 @@ const HabitList: React.FC<HabitListProps> = (props) => {
   const { state, dispatch } = useRootContext(); 
   const { 
     habitTable, 
-    labelsColorsBijection, 
-    habitRegistry, 
     user_id
   }: ReducerState = state; 
 

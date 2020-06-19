@@ -1,7 +1,7 @@
 import { easeCubic, easeSinIn, easePolyOut } from 'd3-ease'; 
 import _ from "lodash";
 import { interpolateTransformSvg } from "d3-interpolate"; 
-import { clamp } from "../utils/util"; 
+import { clamp } from "../../utils/util"; 
 
 export enum TweenableType {
     svgTransformString
