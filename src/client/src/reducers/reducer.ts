@@ -5,8 +5,7 @@ import {
     HabitTable, 
     HabitFrequencies, 
     Week, 
-    WeeksWindower, 
-    KeyedBijection
+    WeeksWindower,
 } from "../utils/time"; 
 
 export interface Habit {
@@ -17,12 +16,11 @@ export interface Habit {
     observations: Array<{ timestamp: Date, value: number }>
 };
 
+// let colors: Array<string> = ["#66c2a5","#fc8d62","#8da0cb","#e78ac3","#a6d854","#ffd92f","#e5c494","#b3b3b3"]; 
+
 const numWeeks: 1 | 2 = 2; 
 const windowSize: 7 | 14 = (numWeeks * 7) as 7 | 14; 
 const table: HabitTable = new HabitTable();
-let colors: Array<string> = ["#66c2a5","#fc8d62","#8da0cb","#e78ac3","#a6d854","#ffd92f","#e5c494","#b3b3b3"]; 
-const labels: Array<string> = []; 
-const labelColors: Array<string> = labels.map((d,i) => colors[i]); 
 const week: Week = new Week(1); // a week that starts on monday 
 const weeksWindower: WeeksWindower = new WeeksWindower(table.getMaxDate(), numWeeks, week); 
 
@@ -37,6 +35,10 @@ export const reducerInitialState: ReducerState = {
         timestamp: new Date(), 
         value: 0
     },
+    "xCoords": [], 
+    "createModalVisible": false, 
+    "updateModalVisible": false, 
+    "updateHabitId": null, 
     
     "today": moment(),                              // the current day 
     "singleWeekViewOffset": 4, 
@@ -64,6 +66,13 @@ export interface ReducerState {
         timestamp: Date, 
         value: number
     },
+    xCoords: Array<number>, 
+    createModalVisible: boolean, 
+    updateModalVisible: boolean, 
+    updateHabitId: string | null
+
+
+
 
     today: moment.Moment, 
     singleWeekViewOffset: number, 
@@ -77,6 +86,7 @@ export interface ReducerState {
     timeAxisItemSpacing: number,
     habitTable: HabitTable, 
     weeksWindower: WeeksWindower,
+
 
 };
 
@@ -101,8 +111,7 @@ const mutators: { [key: string]: any } = {
         return { ...state, rowHeights: heights, rowMarginBottom: marginBottom }; 
     }, 
     'update axis item dimensions': (state: ReducerState, [type, payload]: ReducerAction) => {
-        let [widths, timeAxisItemSpacing] = payload; 
-        return { ...state, colWidths: widths, timeAxisItemSpacing }; 
+        return { ...state, xCoords: payload }; 
     }, 
     'set value habit table': (state: ReducerState, [type, payload]: ReducerAction) => {
         let [ri, ci, value] = payload; 
@@ -116,6 +125,7 @@ const mutators: { [key: string]: any } = {
         habitTable.setByIndex(ri, ci, value, state.weeksWindower); 
         return { ...state, habitTable, weeksWindower, habitTableChanges }; 
     }, 
+
     'create habit': (state: ReducerState, [type, habit]: ReducerAction) => {
         let habitTable = _.cloneDeep(state.habitTable); 
         let habitMap = _.cloneDeep(state.habitMap); 
@@ -134,6 +144,27 @@ const mutators: { [key: string]: any } = {
         }
         return { ...state, habitTable, habitMap }; 
     }, 
+    'set update modal visible': (state: ReducerState, [type, updateHabitId]: ReducerAction) => {
+        return { ...state, updateModalVisible: true, updateHabitId }; 
+    }, 
+    'set update modal hidden': (state: ReducerState, [type, _]: ReducerAction) => {
+        return { ...state, updateModalVisible: false }; 
+    }, 
+    'set create modal visible': (state: ReducerState, [type, _]: ReducerAction) => {
+        return { ...state, createModalVisible: true }; 
+    }, 
+    'set create modal hidden': (state: ReducerState, [type, _]: ReducerAction) => {
+        return { ...state, createModalVisible: false }; 
+    }, 
+    'update habit': (state: ReducerState, [type, [oldHabitId, habit]]: ReducerAction) => {
+        let habitTable = _.cloneDeep(state.habitTable); 
+        let habitMap = _.cloneDeep(state.habitMap); 
+        let { habit_id }: Habit = habit; 
+        habitMap.delete(oldHabitId); 
+        habitMap.set(habit_id, habit); 
+        habitTable.renameHabit(oldHabitId, habit_id); 
+        return { ...state, habitTable, habitMap }; 
+    }, 
 }; 
 
 export function reducer(state: ReducerState, action: ReducerAction) {
@@ -142,6 +173,8 @@ export function reducer(state: ReducerState, action: ReducerAction) {
     if (mutators[type] === undefined) {
         throw Error("UNDEFINED MUTATOR KEY: " + type); 
     }
+
+    console.log(type); 
 
     return mutators[type](state, action); 
 

@@ -342,6 +342,22 @@ export class HabitTable {
         return this.names.length;
     }
 
+    renameHabit(oldHabitId: string, newHabitId: string) {
+        let foundOldId = false; 
+        for (let i = 0; i < this.names.length; i++) {
+            if (this.names[i] === oldHabitId) {
+                foundOldId = true; 
+                this.nameIndex[newHabitId] = this.nameIndex[oldHabitId]; 
+                delete this.nameIndex[oldHabitId]; 
+                this.names[i] = newHabitId;
+                break; 
+            }
+        }
+        if (!foundOldId) {
+            throw Error("tried to rename non-existing habit"); 
+        }
+    }
+
 }
 
 type Indexable = number | string; 

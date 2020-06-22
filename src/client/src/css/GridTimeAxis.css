@@ -3,7 +3,9 @@
 }
 
 .axis-row {
-    padding: .4em .5em .3em .5em; 
+    padding-left: 2em;
+    padding-right: 2em; 
+    padding-top: .5em; 
     font-size: 1.1em;
 }
 

@@ -21,7 +21,7 @@ export const colors: any = (() => {
 
     // Create style variables, that will allow us to abstract stylings to the component level 
     const vars = {
-        'body_background': colors.grey[1], 
+        'body_background': colors.blue[3], 
         'timeaxis_background': colors.grey[2], 
         'timeaxis_border': `1px solid ${colors.grey[5]}`, 
         'timeaxis_text_normal_low_contrast': colors.grey[5], 
@@ -30,7 +30,9 @@ export const colors: any = (() => {
         'timeaxis_text_current_high_contrast': colors.grey[0], 
         'shift_button_color': colors.grey[3], 
         'habitlist_title_color': colors.grey[6], 
-        'habitlist_header_border_bottom': 0 // `1px solid ${colors.grey[3]}`
+        'habitlist_header_border_bottom': 0, // `1px solid ${colors.grey[3]}`
+        'left_span': 14, 
+        'right_span': 14
     }; 
 
     const merged = Object.assign(colors, vars); 

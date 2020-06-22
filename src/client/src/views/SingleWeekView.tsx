@@ -6,6 +6,7 @@ import SingleWeekHabitRow from '../components/SingleWeekHabitRow';
 import GridTimeAxis from "../components/GridTimeAxis"; 
 import GridRowLayout from "../components/GridRowLayout";
 import HabitList from "../components/HabitList";  
+import Modals from "../components/Modals"; 
 import { colors } from "../utils/color";  
 
 import "../css/SingleWeekView.css"; 
@@ -23,27 +24,23 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
 
   return (
       <div>
-
           <div style={{ background: colors.body_background }}> 
-
-          <GridTimeAxis/>
-
-          <GridRowLayout
-          left={<HabitList/>}
-          center={
-            <div className="habit-table-viz-grid">
-              <div style={{ borderTop: colors.timeaxis_border }}>
-                {habitTable.getNames().map((habitName: string, i: number) => (<SingleWeekHabitRow 
-                                                                              key={habitName}
-                                                                              habitName={habitName} 
-                                                                              rowIndex={i}/>))}
+            <Modals/>
+            <GridTimeAxis/>
+            <GridRowLayout
+            left={<HabitList/>}
+            center={
+              <div className="habit-table-viz-grid">
+                <div style={{ borderTop: colors.timeaxis_border }}>
+                  {habitTable.getNames().map((habitName: string, i: number) => (<SingleWeekHabitRow 
+                                                                                key={habitName}
+                                                                                habitName={habitName} 
+                                                                                rowIndex={i}/>))}
+                </div>
               </div>
-            </div>
-          }
-          right={null}/>
-
+            }
+            right={null}/>
           </div>
-        
       </div>
   );
 }

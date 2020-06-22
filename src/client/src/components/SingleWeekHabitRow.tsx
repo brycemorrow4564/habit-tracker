@@ -3,7 +3,7 @@ import _ from "lodash";
 import { Row, Col } from "antd"; 
 import CircleScalable from './CircleScalable';
 import { useRootContext } from "../contexts/context"; 
-import { ReducerState } from "../reducers/reducer"; 
+import { ReducerState, Habit } from "../reducers/reducer"; 
 import { colors } from "../utils/color";
 
 import "../css/SingleWeekHabitRow.css"; 
@@ -19,31 +19,20 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
     const { state } = useRootContext(); 
     const { 
         habitTable, 
+        habitMap, 
         weeksWindower, 
         rowHeights, 
         rowMarginBottom, 
-        colWidths, 
+        xCoords, 
         timeAxisItemSpacing,
         today
     }: ReducerState = state; 
 
-    const ready: boolean = (rowHeights.length && colWidths.length && rowIndex < rowHeights.length) as boolean; 
+    const ready: boolean = (rowHeights.length && xCoords.length && rowIndex < rowHeights.length) as boolean; 
                            
     const data: Array<{ index: number, date: moment.Moment, value: any }> = habitTable.get(habitName, weeksWindower.start(), weeksWindower.end()); 
     const streak: Array<[number,number]> = habitTable.streak(habitName, weeksWindower.start(), weeksWindower.end()); 
-
-    const zeros: Array<number> = data.map(e => 0); 
-    // @ts-ignore
-    const x0s: Array<number> = colWidths.length ? colWidths.reduce((acc,cur,i) => {
-        // @ts-ignore
-        acc[i] = i === 0 ? 0 : acc[i-1] + colWidths[i-1] + timeAxisItemSpacing; 
-        return acc
-    }, []) : zeros.slice(); 
-    const x1s: Array<number> = colWidths.length ? x0s.map((cur,i) => cur + colWidths[i]) : zeros.slice(); 
-    const xs = x0s.map((d,i) => (x0s[i]+x1s[i])/2); 
-
     const HEIGHT = 10; 
-    const color: string = 'green'; 
 
     // Compute streak 
     // TODO: integrate this logic with the HabitTable implementation 
@@ -69,6 +58,9 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
         width: '100%', 
         display: 'block'
     }; 
+
+    const habit: Habit = habitMap.get(habitName) as Habit; 
+    const fillColor: string = habit.color; 
     
     return !ready ? null : (
         <Row className="single-week-habit-row">
@@ -76,23 +68,23 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
                 <svg className="habit-row-viz" style={svgStyle}>
                     
                     {/* links */}
-                    {streak.map(([i0,i1]) => <rect key={`${i0}-${i1}`} fill={color} width={xs[i1]-xs[i0]} height={HEIGHT} x={xs[i0]-HEIGHT} y={rowHeights[rowIndex] / 2}/>)}
+                    {streak.map(([i0,i1]) => <rect key={`${i0}-${i1}`} fill={fillColor} width={xCoords[i1]-xCoords[i0]} height={HEIGHT} x={xCoords[i0]-HEIGHT} y={rowHeights[rowIndex] / 2}/>)}
                     
                     {/* glyphs */}
                     {data.map(({ date, value, index }, i) => (
                         <React.Fragment key={`${date.format()}-${index}`}>
                             <CircleScalable
                             
-                            fillColor={color}
+                            fillColor={fillColor}
                             rowIndex={rowIndex}
                             colIndex={i}
-                            cx={xs[i]}
+                            cx={xCoords[i]}
                             cy={rowHeights[rowIndex] / 2}
                             r={(rowHeights[rowIndex] / 2) * .7}
                             value={value}
                             delay={0} />
                             
-                            {!(date.isSame(today, 'days') && hasCurrStreak) ? null : <text fontSize={22} fill="#fff" x={xs[i]} y={rowHeights[rowIndex] / 2}>{`${streakCount}`}</text>}
+                            {!(date.isSame(today, 'days') && hasCurrStreak) ? null : <text fontSize={22} fill="#fff" x={xCoords[i]} y={rowHeights[rowIndex] / 2}>{`${streakCount}`}</text>}
                         </React.Fragment>
                     ))}
                     

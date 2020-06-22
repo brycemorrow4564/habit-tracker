@@ -79,7 +79,7 @@ const HabitList: React.FC<HabitListProps> = (props) => {
   const colStyle = { borderLeft: colors.timeaxis_border, borderRight: colors.timeaxis_border, borderBottom: colors.timeaxis_border, background: colors.timeaxis_background, height: '100%' }; 
 
   return (
-    <Box span={12} horizontal="end" vertical="middle" rowStyle={{ height: '100%' }} colStyle={colStyle}>
+    <Box span={colors.left_span} horizontal="end" vertical="middle" rowStyle={{ height: '100%' }} colStyle={colStyle}>
         <div className="habit-list-wrapper" ref={listRef}>
 
         {/* List items for each habit */}
