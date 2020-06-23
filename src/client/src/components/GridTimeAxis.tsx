@@ -99,7 +99,7 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
     );
   }; 
 
-  const notchStyle = { height: 15, background: colors.timeaxis_background }; 
+  const notchStyle = { height: 8, background: colors.timeaxis_background }; 
   const useBottomBorders: boolean = false; 
   const notchStyleLeft = useBottomBorders ?   Object.assign(_.clone(notchStyle), { borderLeft: colors.timeaxis_border, borderBottom: colors.timeaxis_border }) : 
                                               Object.assign(_.clone(notchStyle), { borderLeft: colors.timeaxis_border }); 
