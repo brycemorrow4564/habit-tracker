@@ -28,30 +28,32 @@ const HabitCard: React.FC<HabitCardProps> = (props) => {
     const { state, dispatch } = useRootContext(); 
     const { habitMap } : ReducerState = state; 
     const habit: Habit = habitMap.get(habitName) as Habit; 
-    const { color, label } : { color: string, label: string } = habit;
 
     const updateHabit = () => {
         dispatch(['set update modal visible', habitName]); 
     }; 
 
     const variants = {
-        active: {
-            width: "14%", 
-            background: color,
-        },
         inactive: {
-            width: "7%", 
-            background: color
+            width: "7.5%", 
+            borderRight: colors.habit_card_inner_border_inactive
+        },
+        active: {
+            width: "15%", 
+            borderTopRightRadius: 6, 
+            borderBottomRightRadius: 6, 
+            borderRight: colors.habit_card_inner_border_active
         }
     };
 
     const iconVariants = {
         active: {
             opacity: 1,
-            transition: { delay: .05 }
+            transition: { duration: .5 }
         },
         inactive: {
-            opacity: 0
+            opacity: 0, 
+            transition: { duration: 0 }
         }
     };
 
@@ -60,7 +62,8 @@ const HabitCard: React.FC<HabitCardProps> = (props) => {
             <div style={{ position: 'relative' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
                     <motion.div 
-                    style={{ height: '100%', position: 'relative', overflow: 'hidden', borderLeft: colors.timeaxis_border, borderTop: colors.timeaxis_border, borderBottom: colors.timeaxis_border }}
+                    style={{ background: habit.color, height: '100%', position: 'relative', overflow: 'hidden', borderLeft: colors.timeaxis_border, borderTop: colors.timeaxis_border, borderBottom: colors.timeaxis_border }}
+                    custom={habit.color}
                     variants={variants}
                     initial="inactive"
                     whileHover="active">
@@ -68,7 +71,7 @@ const HabitCard: React.FC<HabitCardProps> = (props) => {
                             <motion.div
                             variants={iconVariants}
                             initial="inactive">
-                                <EditOutlined style={{ color: getTextColor(color) }} translate={0} onClick={updateHabit}/>
+                                <EditOutlined style={{ color: getTextColor(habit.color) }} translate={0} onClick={updateHabit}/>
                             </motion.div>
                         </Box>
                     </motion.div>

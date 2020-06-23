@@ -58,18 +58,18 @@ class DemoController extends MongoDbConnectionUser {
         }
     }
 
-    @Post('habits/update/meta/:user_id/:old_habit_id/:new_habit_id')
+    @Post('habits/update/meta/:user_id/:old_habit_id/:new_habit_id/:new_color')
     private updateHabit(req: Request, res: Response) {
         /*
         Creates a new habit for a user 
         returns a copy of the created document to the user  
         */ 
         try {
-            const { user_id, old_habit_id, new_habit_id } = req.params;
+            const { user_id, old_habit_id, new_habit_id, new_color } = req.params;
             let db_update = async () => {
                 return await this.db.collection('habits').findOneAndUpdate(
                     { user_id, habit_id: old_habit_id }, 
-                    { $set: { habit_id: new_habit_id }}, 
+                    { $set: { habit_id: new_habit_id, color: new_color }}, 
                     { returnOriginal: false } // returns the updated document instead of original
                 ); 
             }

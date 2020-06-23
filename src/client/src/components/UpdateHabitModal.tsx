@@ -104,8 +104,8 @@ const UpdateHabitModal: React.FC<UpdateHabitModalProps> = (props) => {
 
     let close = () => dispatch(['set update modal hidden']); 
   
-    let updateHabitRest = async ([oldHabitId, newHabitId]: [string, string]) => {
-        let { success, habit } = await updateHabit(user_id, oldHabitId, newHabitId);
+    let updateHabitRest = async (oldHabitId: string, newHabitId: string, newColor: string) => {
+        let { success, habit } = await updateHabit(user_id, oldHabitId, newHabitId, newColor);
         if (success) {
             dispatch(['update habit', [oldHabitId, habit]]);
         } else {
@@ -116,7 +116,8 @@ const UpdateHabitModal: React.FC<UpdateHabitModalProps> = (props) => {
     let onFinish = (values: any) => {
         let oldHabitId: string = updateHabitId as string; 
         let newHabitId: string = values.name; 
-        updateHabitRest([oldHabitId, newHabitId]); 
+        let newHabitColor: string = values.color; 
+        updateHabitRest(oldHabitId, newHabitId, newHabitColor); 
     }; 
 
     let onFinishFailed = (values: any) => {
@@ -124,18 +125,19 @@ const UpdateHabitModal: React.FC<UpdateHabitModalProps> = (props) => {
     }; 
 
     let validator = async (rule: any, value: any) => {
-        if (!value) {
-            return Promise.reject("empty name"); 
-        } else {
-            value = (value as string).trim(); 
-            if (value.length === 0) {
-                return Promise.reject("empty name"); 
-            } else if (habitTable.getNames().includes(value)) {
-                return Promise.reject('duplicate name');
-            } else {
-                return Promise.resolve();    
-            }
-        }                                                        
+        return Promise.resolve(); 
+        // if (!value) {
+        //     return Promise.reject("empty name"); 
+        // } else {
+        //     value = (value as string).trim(); 
+        //     if (value.length === 0) {
+        //         return Promise.reject("empty name"); 
+        //     } else if (habitTable.getNames().includes(value)) {
+        //         return Promise.reject('duplicate name');
+        //     } else {
+        //         return Promise.resolve();    
+        //     }
+        // }                                                        
     };
 
     return (

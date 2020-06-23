@@ -20,14 +20,9 @@ export interface GridTimeAxisProps {
 
 }
 
-// export interface 
-
 const gi0 = 250;
 const gi1 = 120;
 const timeAxisColorScale = scaleLinear().range([`rgba(${gi0},${gi0},${gi0}, 1)`, `rgba(${gi1},${gi1},${gi1}, 1)`]); 
-// const currentDayBackground = cssLinearGradientPropertyGenerator('transparent', colors.primary.mid, .075, .03, 65); 
-
-// const 
 
 const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
 

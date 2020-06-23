@@ -142,7 +142,9 @@ const mutators: { [key: string]: any } = {
         let { habit_id }: Habit = habit; 
         habitMap.delete(oldHabitId); 
         habitMap.set(habit_id, habit); 
-        habitTable.renameHabit(oldHabitId, habit_id); 
+        if (oldHabitId !== habit_id) {
+            habitTable.renameHabit(oldHabitId, habit_id); 
+        }
         return { ...state, habitTable, habitMap }; 
     }, 
 }; 

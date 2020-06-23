@@ -39,7 +39,9 @@ export const colors: any = (() => {
             paddingBottom: 0, 
             paddingLeft: 5
         }, 
-        'glyph_background_color': "#f8f8f8"
+        'glyph_background_color': "#f8f8f8", 
+        'habit_card_inner_border_inactive': `1px solid ${colors.grey[2]}`, 
+        'habit_card_inner_border_active': `1px solid ${colors.grey[4]}`
     }; 
 
     const merged = Object.assign(colors, vars); 

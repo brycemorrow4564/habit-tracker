@@ -14,8 +14,8 @@ export async function createHabit(user_id: string, new_habit_id: string) {
     return habit;  
 }
 
-export async function updateHabit(user_id: string, old_habit_id: string, new_habit_id: string) {
-    let habit: any = await fetch(`/api/habits/update/meta/${encodeURIComponent(user_id)}/${encodeURIComponent(old_habit_id)}/${encodeURIComponent(new_habit_id)}`, { method: 'POST' })
+export async function updateHabit(user_id: string, old_habit_id: string, new_habit_id: string, new_color: string) {
+    let habit: any = await fetch(`/api/habits/update/meta/${encodeURIComponent(user_id)}/${encodeURIComponent(old_habit_id)}/${encodeURIComponent(new_habit_id)}/${encodeURIComponent(new_color)}`, { method: 'POST' })
                             .then(response => response.json()); 
     return habit;  
 }; 
