@@ -38,7 +38,8 @@ export const colors: any = (() => {
             paddingRight: 5, 
             paddingBottom: 0, 
             paddingLeft: 5
-        }
+        }, 
+        'glyph_background_color': "#f8f8f8"
     }; 
 
     const merged = Object.assign(colors, vars); 

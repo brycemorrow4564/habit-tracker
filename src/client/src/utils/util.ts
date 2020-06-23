@@ -1,4 +1,5 @@
 import moment from "moment"; 
+import _ from "lodash"; 
 
 export function cssLinearGradientPropertyGenerator( colorA: string, 
                                                   colorB: string, 
@@ -79,3 +80,16 @@ export function clamp(v: number, [vmin, vmax]: [number, number]) {
                                       vmax; 
 }
 
+export function withoutKeys(obj: { [key: string]: any }, skipKeys: Array<string>, protectiveCopy?: boolean, deep?: boolean) {
+  let copyFn = deep ? _.cloneDeep : _.clone; 
+  let objRef = protectiveCopy ? copyFn(obj) : obj; 
+  const rval: any = {}; 
+  const keys: Array<string> = Object.keys(objRef); 
+  const skipKeysSet: Set<string> = new Set(skipKeys); 
+  for (let k of keys) {
+      if (!skipKeysSet.has(k)) {
+          rval[k] = objRef[k]; 
+      }
+  } 
+  return rval; 
+}

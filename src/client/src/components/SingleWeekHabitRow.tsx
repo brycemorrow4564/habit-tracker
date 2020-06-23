@@ -1,7 +1,7 @@
 import * as React from "react";
 import _ from "lodash"; 
 import { Row, Col } from "antd"; 
-import CircleScalable from './CircleScalable';
+import GridGlyph from './GridGlyph';
 import { useRootContext } from "../contexts/context"; 
 import { ReducerState, Habit } from "../reducers/reducer"; 
 import { colors } from "../utils/color";
@@ -71,7 +71,7 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
                     {/* glyphs */}
                     {data.map(({ date, value, index }, i) => (
                         <React.Fragment key={`${date.format()}-${index}`}>
-                            <CircleScalable
+                            <GridGlyph
                             
                             fillColor={fillColor}
                             rowIndex={rowIndex}
