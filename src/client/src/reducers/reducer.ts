@@ -16,7 +16,7 @@ export interface Habit {
     observations: Array<{ timestamp: Date, value: number }>
 };
 
-// let colors: Array<string> = ["#66c2a5","#fc8d62","#8da0cb","#e78ac3","#a6d854","#ffd92f","#e5c494","#b3b3b3"]; 
+let labelColors: Array<string> = ["#66c2a5","#fc8d62","#8da0cb","#e78ac3","#a6d854","#ffd92f","#e5c494","#b3b3b3"]; 
 
 const numWeeks: 1 | 2 = 2; 
 const windowSize: 7 | 14 = (numWeeks * 7) as 7 | 14; 
@@ -36,22 +36,17 @@ export const reducerInitialState: ReducerState = {
         value: 0
     },
     "xCoords": [], 
+    "rowHeights": [], 
     "createModalVisible": false, 
     "updateModalVisible": false, 
     "updateHabitId": null, 
+    "labelColors": labelColors, 
     
     "today": moment(),                              // the current day 
     "singleWeekViewOffset": 4, 
-    "cellWidth": null,                              // the width of grid cells for habit tracking
-    "cellHeight": null,                             // the height of grid cells for habit tracking
     "windowSize": windowSize as 7 | 14,             // the temporal width (in days) of current time period (summarized in view) 
     "habitTable": _.cloneDeep(table),               // an instance of HabitTable 
     "weeksWindower": _.cloneDeep(weeksWindower),    // an instance of WeeksWindower 
-    "dy": 0,
-    "rowHeights": [], 
-    "rowMarginBottom": 0, 
-    "colWidths": [], 
-    "timeAxisItemSpacing": 0
 
 }; 
 
@@ -69,24 +64,14 @@ export interface ReducerState {
     xCoords: Array<number>, 
     createModalVisible: boolean, 
     updateModalVisible: boolean, 
-    updateHabitId: string | null
-
-
-
-
+    updateHabitId: string | null, 
+    labelColors: Array<string>, 
     today: moment.Moment, 
     singleWeekViewOffset: number, 
-    cellWidth: number | null, 
-    cellHeight: number | null, 
     windowSize: 7 | 14, 
-    dy: number, 
     rowHeights: number[], 
-    rowMarginBottom: number, 
-    colWidths: number[], 
-    timeAxisItemSpacing: number,
     habitTable: HabitTable, 
     weeksWindower: WeeksWindower,
-
 
 };
 
@@ -103,15 +88,11 @@ const mutators: { [key: string]: any } = {
         }
         return { ...state, weeksWindower }; 
     }, 
-    'update dy': (state: ReducerState, [type, payload]: ReducerAction) => {
-        return { ...state, dy: payload }; 
-    },
-    'update list item dimensions': (state: ReducerState, [type, payload]: ReducerAction) => {
-        let [heights, marginBottom] = payload; 
-        return { ...state, rowHeights: heights, rowMarginBottom: marginBottom }; 
-    }, 
     'update axis item dimensions': (state: ReducerState, [type, payload]: ReducerAction) => {
         return { ...state, xCoords: payload }; 
+    }, 
+    'update list item dimensions': (state: ReducerState, [type, payload]: ReducerAction) => {
+        return { ...state, rowHeights: payload }; 
     }, 
     'set value habit table': (state: ReducerState, [type, payload]: ReducerAction) => {
         let [ri, ci, value] = payload; 
@@ -125,7 +106,6 @@ const mutators: { [key: string]: any } = {
         habitTable.setByIndex(ri, ci, value, state.weeksWindower); 
         return { ...state, habitTable, weeksWindower, habitTableChanges }; 
     }, 
-
     'create habit': (state: ReducerState, [type, habit]: ReducerAction) => {
         let habitTable = _.cloneDeep(state.habitTable); 
         let habitMap = _.cloneDeep(state.habitMap); 

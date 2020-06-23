@@ -5,13 +5,6 @@ import { Logger } from '@overnightjs/logger';
 import { Request, Response } from 'express';
 import MongoDbConnectionUser from "../util/MongoDbConnectionUser"; 
 
-// this link is helpful in understanding the below query 
-// https://stackoverflow.com/questions/34431435/mongodb-update-an-object-in-nested-array
-// await this.db.collection('habits').updateOne(
-//     { user_id, habit_id, observations: { timestamp } },
-//     { $set: { "observations.$.value" : value } }
-// );
-
 @Controller('api')
 class DemoController extends MongoDbConnectionUser {
 

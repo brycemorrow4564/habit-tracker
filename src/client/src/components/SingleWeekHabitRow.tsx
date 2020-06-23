@@ -22,9 +22,7 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
         habitMap, 
         weeksWindower, 
         rowHeights, 
-        rowMarginBottom, 
         xCoords, 
-        timeAxisItemSpacing,
         today
     }: ReducerState = state; 
 
@@ -64,7 +62,7 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
     
     return !ready ? null : (
         <Row className="single-week-habit-row">
-            <Col span={24}>
+            <Col span={24} style={colors.gridRowContainerPadding}>
                 <svg className="habit-row-viz" style={svgStyle}>
                     
                     {/* links */}

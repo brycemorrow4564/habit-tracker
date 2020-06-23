@@ -56,7 +56,7 @@ const HabitCard: React.FC<HabitCardProps> = (props) => {
     };
 
     return (
-        <Box key={habitName} colClassName="habit-card-container" span={24}>
+        <Box key={habitName} rowStyle={colors.gridRowContainerPadding} span={24}>
             <div style={{ position: 'relative' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
                     <motion.div 
@@ -73,10 +73,10 @@ const HabitCard: React.FC<HabitCardProps> = (props) => {
                         </Box>
                     </motion.div>
                 </div>
-                <div style={{ background: colors.grey[0], border: colors.timeaxis_border }}>
+                <div ref={ref => cardRefs.current[habitName] = ref} style={{ background: colors.grey[0], border: colors.timeaxis_border }}>
                     <div className="habit-card">
                         <p style={{ marginBottom: 0, fontSize: 16, fontWeight: 500 }}>{habitName}</p>
-                        <div ref={ref => cardRefs.current[habitName] = ref}/>
+                        <div/>
                         {/* <Divider/> */}
                         <Row justify="space-between" align="middle">
                             <Col>

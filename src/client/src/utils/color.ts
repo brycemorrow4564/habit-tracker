@@ -32,7 +32,13 @@ export const colors: any = (() => {
         'habitlist_title_color': colors.grey[6], 
         'habitlist_header_border_bottom': 0, // `1px solid ${colors.grey[3]}`
         'left_span': 14, 
-        'right_span': 14
+        'right_span': 14, 
+        'gridRowContainerPadding': {
+            paddingTop: 5, 
+            paddingRight: 5, 
+            paddingBottom: 0, 
+            paddingLeft: 5
+        }
     }; 
 
     const merged = Object.assign(colors, vars); 

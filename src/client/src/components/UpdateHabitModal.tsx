@@ -1,23 +1,98 @@
 import * as React from "react"; 
-import _ from "lodash"; 
-import { PlusCircleOutlined, CheckOutlined } from "@ant-design/icons";  
+import _, { valuesIn } from "lodash"; 
 import { Row, Col, Input, Button, Form, Modal } from "antd"; 
+import { TwitterPicker } from "react-color"; 
 import Box from "./Box"; 
 import { colors } from "../utils/color";
-import { ReducerState } from "../reducers/reducer";
+import { ReducerState, Habit } from "../reducers/reducer";
 import { useRootContext } from "../contexts/context"; 
-import { updateHabit } from "../rest/rest"; 
+import { updateHabit } from "../rest/rest";
 
 export interface UpdateHabitModalProps { 
 
 };  
 
+export interface ColorSelectionControlProps {
+    value?: string;
+    onChange?: (value: string) => void;
+}
+
+const ColorSelectionControl: React.FC<ColorSelectionControlProps> = ({ value, onChange }) => {
+
+    const { state } = useRootContext(); 
+    const { labelColors }: ReducerState = state; 
+    const [swatchActive, setSwatchActive] = React.useState<boolean>(false); 
+    const [localColor, setLocalColor] = React.useState<string>(value ? value : ''); 
+
+    let handleClick = () => {
+        setSwatchActive(!swatchActive); 
+    };
+
+    let handleClose = () => {
+        setSwatchActive(false); 
+    };
+
+    let handleChange = (color: any) => {
+        if (onChange) {
+            // locally record change 
+            setLocalColor(color.hex); 
+            // pass changed value to the form parent 
+            onChange(color.hex); 
+        }
+    };
+
+    const styles: any = {
+        color: {
+            width: '36px',
+            height: '14px',
+            borderRadius: '2px',
+            background: localColor,
+        },
+        swatch: {
+            padding: '5px',
+            background: '#fff',
+            borderRadius: '1px',
+            boxShadow: '0 0 0 1px rgba(0,0,0,.1)',
+            display: 'inline-block',
+            cursor: 'pointer',
+        },
+        popover: {
+            position: 'absolute',
+            zIndex: '2',
+        },
+        cover: {
+            position: 'fixed',
+            top: '0px',
+            right: '0px',
+            bottom: '0px',
+            left: '0px',
+        },
+    };
+
+    return (
+        <div>
+            <div style={ styles.swatch } onClick={ handleClick }>
+                <div style={ styles.color } />
+            </div>
+            {!swatchActive ? null : (
+                <div style={ styles.popover }>
+                    <div style={ styles.cover } onClick={ handleClose }/>
+                    <TwitterPicker color={ localColor } colors={labelColors} onChange={ handleChange } />
+                </div>
+             )}
+        </div>
+    ); 
+
+}
+
 const UpdateHabitModal: React.FC<UpdateHabitModalProps> = (props) => {
 
     const [form] = Form.useForm();
     const { state, dispatch } = useRootContext(); 
-    const { user_id, habitTable, updateModalVisible, updateHabitId }: ReducerState = state; 
+    const { user_id, habitTable, updateModalVisible, updateHabitId, habitMap, labelColors }: ReducerState = state; 
+
     const [localHabitName, setLocalHabitName] = React.useState<string>(updateHabitId as string); 
+    const color: string = updateHabitId ? (habitMap.get(updateHabitId as string) as Habit).color : '#fff'; 
 
     // Populate form with values based on which of the 
     // habit cards was clicked 
@@ -44,8 +119,8 @@ const UpdateHabitModal: React.FC<UpdateHabitModalProps> = (props) => {
         updateHabitRest([oldHabitId, newHabitId]); 
     }; 
 
-    let onFinishFailed = () => {
-        console.log("FAILURE"); 
+    let onFinishFailed = (values: any) => {
+        console.log("FAILURE", values); 
     }; 
 
     let validator = async (rule: any, value: any) => {
@@ -61,7 +136,7 @@ const UpdateHabitModal: React.FC<UpdateHabitModalProps> = (props) => {
                 return Promise.resolve();    
             }
         }                                                        
-    }
+    };
 
     return (
         <Modal
@@ -75,13 +150,25 @@ const UpdateHabitModal: React.FC<UpdateHabitModalProps> = (props) => {
             form.resetFields(); 
             close();
         }}>
-            <Form name="create-habit" form={form} onFinish={onFinish} onFinishFailed={onFinishFailed}>
+            <Form 
+            name="create-habit" 
+            form={form} 
+            onFinish={onFinish} 
+            onFinishFailed={onFinishFailed}
+            onValuesChange={(values) => console.log(values)}
+            initialValues={{
+                name: updateHabitId, 
+                color: color 
+            }}>
                 <Box horizontal="center" vertical="middle" span={12}>
                     <div>
-                        <Form.Item name="name" label="Habit Name" rules={[{ validator }]}>
-                            <Input size="small" allowClear defaultValue={localHabitName} value={localHabitName} onChange={(e) => {
+                        <Form.Item name="name" label="habit name" rules={[{ validator }]}>
+                            <Input size="small" allowClear value={localHabitName} onChange={(e) => {
                                 setLocalHabitName(e.target.value); 
                             }}/>
+                        </Form.Item>
+                        <Form.Item name="color" label="color">
+                            <ColorSelectionControl/>
                         </Form.Item>
                     </div>
                 </Box>
