@@ -286,11 +286,25 @@ export class HabitTable {
         this.habits = [];       // stores HabitHistory instances in order they are added to 
     }
 
+    private ensureHabitRegistered(habitName: string) {
+        if (!(habitName in this.nameIndex)) {
+            throw Error("tried to retrieve information about an unregistered habit"); 
+        }
+    }
+
+    private ensureHabitNotRegistered(habitName: string) {
+        if (habitName in this.nameIndex) {
+            throw Error("tried to add existing habit"); 
+        }
+    }
+
     private getHabitHistory(name: string) {
+        this.ensureHabitRegistered(name); 
         return this.habits[this.nameIndex[name]]; 
     }
 
     add(name: string, habit: HabitHistory) {
+        this.ensureHabitNotRegistered(name); 
         // Add a habit and associated data 
         this.names.push(name); 
         this.habits.push(habit); 
@@ -298,6 +312,7 @@ export class HabitTable {
     }
 
     addNewHabit(name: string) {
+        this.ensureHabitNotRegistered(name); 
         // Add a new habit and with initial data as zeros
         this.names.push(name); 
         this.habits.push(new HabitHistory())
@@ -358,94 +373,103 @@ export class HabitTable {
         }
     }
 
-}
-
-type Indexable = number | string; 
-type StringToNumMap = { [key: string]: number }; 
-
-export class KeyedBijection<A extends Indexable, B extends Indexable> {
-
-    private indexA: StringToNumMap; 
-    private indexB: StringToNumMap; 
-
-    static indexify = (arr: Array<Indexable>) => arr.reduce((acc: StringToNumMap, cur: Indexable, i: number) => {
-        acc[cur] = i; 
-        return acc; 
-    }, {}); 
-
-    constructor(private keyA: string, 
-                private listA: Array<A>, 
-                private keyB: string, 
-                private listB: Array<B>) {
-        this.keyA = keyA; 
-        this.listA = listA;
-        this.indexA = KeyedBijection.indexify(this.listA);
-        this.keyB = keyB;  
-        this.listB = listB; 
-        this.indexB = KeyedBijection.indexify(this.listB);
-        this.ensureValid(); 
-    }   
-
-    ensureValid() {
-        if (this.listA.length !== this.listB.length) {
-            throw Error("mismatch in sizes between two internal lists"); 
-        } 
-        
-        // else if (this.listA.length === 0) {
-        //     throw Error("cannot have bijection between two empty sets"); 
-        // } 
-        
-        else if (this.keyA.length === 0 || this.keyB.length === 0 || this.keyA === this.keyB) {
-            throw Error("invalid keys"); 
-        } else if (_.uniq(this.listA).length !== this.listA.length || _.uniq(this.listB).length !== this.listB.length) {
-            throw Error("at least one set contains duplicate elements"); 
-        }
-    }
-
-    getValue(setId: string, setValue: A | B): A | B {
-        let isA = setId !== this.keyA; 
-        let isB = setId !== this.keyB; 
-        if (!isA && !isB) {
-            throw Error('unrecognized set key'); 
-        } else {
-            if (isA) {
-                return this.listA[this.indexA[setValue]]; 
-            } else {
-                return this.listB[this.indexB[setValue]]; 
-            }
-        }
-    }
-
-    getMappedValue(fromSetId: string, fromSetValue: A | B): A | B {
-        let isA = fromSetId === this.keyA; 
-        let isB = fromSetId === this.keyB; 
-        if (!isA && !isB) {
-            throw Error('unrecognized set key'); 
-        } else {
-            let index: number, value: A | B; 
-            if (isA) {
-                index = this.indexA[fromSetValue]; 
-                value = this.listB[index]; 
-            } else {
-                index = this.indexB[fromSetValue]; 
-                value = this.listA[index]; 
-            }
-            return value; 
-        }
-    }
-
-    setValue(setId: string, setValue: A | B, newValue: A | B): void {
-        let isA = setId !== this.keyA; 
-        let isB = setId !== this.keyB; 
-        if (!isA && !isB) {
-            throw Error('unrecognized set key'); 
-        } else {
-            if (isA) {
-                this.listA[this.indexA[setValue]] = newValue as A; 
-            } else {
-                this.listB[this.indexB[setValue]] = newValue as B; 
-            }
-        }
+    delete(habitIdToDelete: string) {
+        this.ensureHabitRegistered(habitIdToDelete); 
+        let delIndex = this.nameIndex[habitIdToDelete]; 
+        delete this.nameIndex[habitIdToDelete]; 
+        let filter = (d: any, i: number) => i !== delIndex; 
+        this.names = this.names.filter(filter); 
+        this.habits = this.habits.filter(filter); 
     }
 
 }
+
+// type Indexable = number | string; 
+// type StringToNumMap = { [key: string]: number }; 
+
+// export class KeyedBijection<A extends Indexable, B extends Indexable> {
+
+//     private indexA: StringToNumMap; 
+//     private indexB: StringToNumMap; 
+
+//     static indexify = (arr: Array<Indexable>) => arr.reduce((acc: StringToNumMap, cur: Indexable, i: number) => {
+//         acc[cur] = i; 
+//         return acc; 
+//     }, {}); 
+
+//     constructor(private keyA: string, 
+//                 private listA: Array<A>, 
+//                 private keyB: string, 
+//                 private listB: Array<B>) {
+//         this.keyA = keyA; 
+//         this.listA = listA;
+//         this.indexA = KeyedBijection.indexify(this.listA);
+//         this.keyB = keyB;  
+//         this.listB = listB; 
+//         this.indexB = KeyedBijection.indexify(this.listB);
+//         this.ensureValid(); 
+//     }   
+
+//     ensureValid() {
+//         if (this.listA.length !== this.listB.length) {
+//             throw Error("mismatch in sizes between two internal lists"); 
+//         } 
+        
+//         // else if (this.listA.length === 0) {
+//         //     throw Error("cannot have bijection between two empty sets"); 
+//         // } 
+        
+//         else if (this.keyA.length === 0 || this.keyB.length === 0 || this.keyA === this.keyB) {
+//             throw Error("invalid keys"); 
+//         } else if (_.uniq(this.listA).length !== this.listA.length || _.uniq(this.listB).length !== this.listB.length) {
+//             throw Error("at least one set contains duplicate elements"); 
+//         }
+//     }
+
+//     getValue(setId: string, setValue: A | B): A | B {
+//         let isA = setId !== this.keyA; 
+//         let isB = setId !== this.keyB; 
+//         if (!isA && !isB) {
+//             throw Error('unrecognized set key'); 
+//         } else {
+//             if (isA) {
+//                 return this.listA[this.indexA[setValue]]; 
+//             } else {
+//                 return this.listB[this.indexB[setValue]]; 
+//             }
+//         }
+//     }
+
+//     getMappedValue(fromSetId: string, fromSetValue: A | B): A | B {
+//         let isA = fromSetId === this.keyA; 
+//         let isB = fromSetId === this.keyB; 
+//         if (!isA && !isB) {
+//             throw Error('unrecognized set key'); 
+//         } else {
+//             let index: number, value: A | B; 
+//             if (isA) {
+//                 index = this.indexA[fromSetValue]; 
+//                 value = this.listB[index]; 
+//             } else {
+//                 index = this.indexB[fromSetValue]; 
+//                 value = this.listA[index]; 
+//             }
+//             return value; 
+//         }
+//     }
+
+//     setValue(setId: string, setValue: A | B, newValue: A | B): void {
+//         let isA = setId !== this.keyA; 
+//         let isB = setId !== this.keyB; 
+//         if (!isA && !isB) {
+//             throw Error('unrecognized set key'); 
+//         } else {
+//             if (isA) {
+//                 this.listA[this.indexA[setValue]] = newValue as A; 
+//             } else {
+//                 this.listB[this.indexB[setValue]] = newValue as B; 
+//             }
+//         }
+//     }
+
+// }

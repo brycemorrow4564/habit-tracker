@@ -31,13 +31,13 @@
 }
 
 .grid-time-label-box {
-    padding: .2em .2em 0 0;
+    /* padding: .2em .2em 0 0; */
     flex-grow: 1;
     flex-basis: 0;
 }
 
 .grid-time-label-box:last-child {
-    padding: .2em 0 0 0;
+    /* padding: .2em 0 0 0; */
 }
 
 .habit-list-header {

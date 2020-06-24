@@ -20,6 +20,12 @@ export async function updateHabit(user_id: string, old_habit_id: string, new_hab
     return habit;  
 }; 
 
+export async function deleteHabit(user_id: string, habit_id_to_delete: string) {
+    let resp: any = await fetch(`/api/habits/delete/${encodeURIComponent(user_id)}/${encodeURIComponent(habit_id_to_delete)}`, { method: 'DELETE' })
+                            .then(response => response.json()); 
+    return resp;   
+}
+
 export async function updateHabitObservations(user_id: string, habit_id: string, timestamp: Date, value: number) {
     let habit: any = await fetch(`/api/habits/update/${encodeURIComponent(user_id)}/${encodeURIComponent(habit_id)}/${timestamp.toISOString()}/${encodeURIComponent(value)}`, { method: 'POST' })
                             .then(response => response.json()); 

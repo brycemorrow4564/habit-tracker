@@ -44,7 +44,7 @@ const HabitList: React.FC<HabitListProps> = (props) => {
     }
   }, [listRef, itemRefs, habitTable]); 
 
-  const habitCardFromName = (habitName: string) => <HabitCard habitName={habitName} cardRefs={itemRefs} />; 
+  const habitCardFromName = (habitName: string) => <HabitCard key={habitName} habitName={habitName} cardRefs={itemRefs} />; 
 
   const colStyle = { borderLeft: colors.timeaxis_border, borderRight: colors.timeaxis_border, borderBottom: colors.timeaxis_border, background: colors.timeaxis_background, height: '100%' }; 
 

@@ -6,7 +6,7 @@ import Box from "./Box";
 import { colors } from "../utils/color";
 import { ReducerState, Habit } from "../reducers/reducer";
 import { useRootContext } from "../contexts/context"; 
-import { updateHabit } from "../rest/rest";
+import { updateHabit, deleteHabit } from "../rest/rest";
 
 export interface UpdateHabitModalProps { 
 
@@ -103,13 +103,24 @@ const UpdateHabitModal: React.FC<UpdateHabitModalProps> = (props) => {
     }, [updateModalVisible]); 
 
     let close = () => dispatch(['set update modal hidden']); 
+
+    let deleteHabitRest = async (habitIdToDelete: string) => {
+        let { success } = await deleteHabit(user_id, habitIdToDelete); 
+        if (success) {
+            dispatch(['delete habit', habitIdToDelete]); 
+            console.log("DELETE request to remove habit succeeded"); 
+        } else {
+            console.log("DELETE request to update habit FAILED"); 
+        }
+    }
   
     let updateHabitRest = async (oldHabitId: string, newHabitId: string, newColor: string) => {
         let { success, habit } = await updateHabit(user_id, oldHabitId, newHabitId, newColor);
         if (success) {
+            console.log("POST request to update habit succeeded"); 
             dispatch(['update habit', [oldHabitId, habit]]);
         } else {
-
+            console.log("POST request to update habit FAILED"); 
         }
     }; 
 
@@ -164,6 +175,11 @@ const UpdateHabitModal: React.FC<UpdateHabitModalProps> = (props) => {
             }}>
                 <Box horizontal="center" vertical="middle" span={12}>
                     <div>
+                        <Button danger type={"primary"} onClick={() => {
+                            form.resetFields(); 
+                            close(); 
+                            deleteHabitRest(updateHabitId as string); 
+                        }}>Delete Habit</Button>
                         <Form.Item name="name" label="habit name" rules={[{ validator }]}>
                             <Input size="small" allowClear value={localHabitName} onChange={(e) => {
                                 setLocalHabitName(e.target.value); 

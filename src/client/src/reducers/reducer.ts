@@ -128,7 +128,7 @@ const mutators: { [key: string]: any } = {
         return { ...state, updateModalVisible: true, updateHabitId }; 
     }, 
     'set update modal hidden': (state: ReducerState, [type, _]: ReducerAction) => {
-        return { ...state, updateModalVisible: false }; 
+        return { ...state, updateModalVisible: false, updateHabitId: null }; 
     }, 
     'set create modal visible': (state: ReducerState, [type, _]: ReducerAction) => {
         return { ...state, createModalVisible: true }; 
@@ -145,6 +145,13 @@ const mutators: { [key: string]: any } = {
         if (oldHabitId !== habit_id) {
             habitTable.renameHabit(oldHabitId, habit_id); 
         }
+        return { ...state, habitTable, habitMap }; 
+    }, 
+    'delete habit': (state: ReducerState, [type, habitIdToDelete]: ReducerAction) => {
+        let habitTable = _.cloneDeep(state.habitTable); 
+        let habitMap = _.cloneDeep(state.habitMap); 
+        habitMap.delete(habitIdToDelete); 
+        habitTable.delete(habitIdToDelete);
         return { ...state, habitTable, habitMap }; 
     }, 
 }; 

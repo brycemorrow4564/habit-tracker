@@ -1,6 +1,6 @@
 import * as _mongodb from "mongodb";
 import { OK, BAD_REQUEST } from 'http-status-codes';
-import { Controller, Get, Post } from '@overnightjs/core';
+import { Controller, Get, Post, Delete } from '@overnightjs/core';
 import { Logger } from '@overnightjs/logger';
 import { Request, Response } from 'express';
 import MongoDbConnectionUser from "../util/MongoDbConnectionUser"; 
@@ -84,6 +84,26 @@ class DemoController extends MongoDbConnectionUser {
             });
         }
     }
+
+    @Delete('habits/delete/:user_id/:habit_id_to_delete')
+    private deleteHabitObservations(req: Request, res: Response) {
+        try {
+            const { user_id, habit_id_to_delete } = req.params;
+            let db_update = async () => {
+                return await this.db.collection('habits').deleteOne({ user_id, habit_id: habit_id_to_delete }); 
+            }; 
+            db_update().then(() => {
+                Logger.Info(DemoController.SUCCESS_MSG);
+                return res.status(OK).json({ success: true });
+            });
+        } catch (err) {
+            Logger.Err(err, true);
+            return res.status(BAD_REQUEST).json({
+                error: err.message,
+            });
+        }
+    }
+
 
     @Post('habits/update/:user_id/:habit_id/:timestamp/:value')
     private updateHabitObservations(req: Request, res: Response) {
