@@ -117,21 +117,23 @@ class DemoController extends MongoDbConnectionUser {
             let db_update = async () => {
                 if (num_value === 0) {
                     // if value is 0, we remove the entry from the db
-                    return await this.db.collection('habits').updateOne(
+                    return await this.db.collection('habits').findOneAndUpdate(
                         { user_id, habit_id },
-                        { $pull: { observations : { timestamp: date } }}
+                        { $pull: { observations : { timestamp: date } }}, 
+                        { returnOriginal: false } // returns the updated document instead of original
                     );
                 } else {
                     // if value is 1, we add an entry to the db 
-                    return await this.db.collection('habits').updateOne(
+                    return await this.db.collection('habits').findOneAndUpdate(
                         { user_id, habit_id },
-                        { $push: { observations : { timestamp: date, value: num_value } } }
+                        { $push: { observations : { timestamp: date, value: num_value } } }, 
+                        { returnOriginal: false } // returns the updated document instead of original
                     ); 
                 }
             }; 
-            db_update().then(() => {
+            db_update().then(({ value }) => {
                 Logger.Info(DemoController.SUCCESS_MSG);
-                return res.status(OK).json({ success: true });
+                return res.status(OK).json({ success: true, habit: value });
             });
         } catch (err) {
             Logger.Err(err, true);

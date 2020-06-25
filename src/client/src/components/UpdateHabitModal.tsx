@@ -6,7 +6,7 @@ import Box from "./Box";
 import { colors } from "../utils/color";
 import { ReducerState, Habit } from "../reducers/reducer";
 import { useRootContext } from "../contexts/context"; 
-import { updateHabit, deleteHabit } from "../rest/rest";
+import { updateHabitREST, deleteHabitREST } from "../rest/rest";
 
 export interface UpdateHabitModalProps { 
 
@@ -22,7 +22,6 @@ const ColorSelectionControl: React.FC<ColorSelectionControlProps> = ({ value, on
     const { state } = useRootContext(); 
     const { labelColors }: ReducerState = state; 
     const [swatchActive, setSwatchActive] = React.useState<boolean>(false); 
-    const [localColor, setLocalColor] = React.useState<string>(value ? value : ''); 
 
     let handleClick = () => {
         setSwatchActive(!swatchActive); 
@@ -34,9 +33,6 @@ const ColorSelectionControl: React.FC<ColorSelectionControlProps> = ({ value, on
 
     let handleChange = (color: any) => {
         if (onChange) {
-            // locally record change 
-            setLocalColor(color.hex); 
-            // pass changed value to the form parent 
             onChange(color.hex); 
         }
     };
@@ -46,7 +42,7 @@ const ColorSelectionControl: React.FC<ColorSelectionControlProps> = ({ value, on
             width: '36px',
             height: '14px',
             borderRadius: '2px',
-            background: localColor,
+            background: value,
         },
         swatch: {
             padding: '5px',
@@ -77,9 +73,9 @@ const ColorSelectionControl: React.FC<ColorSelectionControlProps> = ({ value, on
             {!swatchActive ? null : (
                 <div style={ styles.popover }>
                     <div style={ styles.cover } onClick={ handleClose }/>
-                    <TwitterPicker color={ localColor } colors={labelColors} onChange={ handleChange } />
+                    <TwitterPicker color={ value } colors={labelColors} onChange={ handleChange } />
                 </div>
-             )}
+            )}
         </div>
     ); 
 
@@ -89,33 +85,33 @@ const UpdateHabitModal: React.FC<UpdateHabitModalProps> = (props) => {
 
     const [form] = Form.useForm();
     const { state, dispatch } = useRootContext(); 
-    const { user_id, habitTable, updateModalVisible, updateHabitId, habitMap, labelColors }: ReducerState = state; 
+    const { user_id, habitTable, updateModalVisible, updateHabit }: ReducerState = state; 
+    const invalidNamesSet = updateHabit ? new Set(_.difference(habitTable.getNames(), [updateHabit.habit_id])) : []; 
+    const initialColor: string = updateHabit ? updateHabit.color : ''; 
+    const initialName: string = updateHabit ? updateHabit.habit_id : ''; 
+    const initialValues: { [key: string]: any } = { name: initialName, color: initialColor }; 
 
-    const [localHabitName, setLocalHabitName] = React.useState<string>(updateHabitId as string); 
-    const color: string = updateHabitId ? (habitMap.get(updateHabitId as string) as Habit).color : '#fff'; 
-
-    // Populate form with values based on which of the 
-    // habit cards was clicked 
+    // Whenever the form is opened, reset form state to match the state of the clicked card 
     React.useEffect(() => {
-        if (updateModalVisible) {
-            setLocalHabitName(state.updateHabitId); 
+        if (updateModalVisible && updateHabit) {
+            console.log('updating form with', updateHabit); 
+            form.setFieldsValue({ color: updateHabit.color }); 
+            form.setFieldsValue({ name: updateHabit.habit_id }); 
         }
-    }, [updateModalVisible]); 
-
-    let close = () => dispatch(['set update modal hidden']); 
+    }, [updateModalVisible, updateHabit]); 
 
     let deleteHabitRest = async (habitIdToDelete: string) => {
-        let { success } = await deleteHabit(user_id, habitIdToDelete); 
+        let { success, habit } = await deleteHabitREST(user_id, habitIdToDelete); 
         if (success) {
+            console.log("DELETE request to remove habit succeeded, ", habit); 
             dispatch(['delete habit', habitIdToDelete]); 
-            console.log("DELETE request to remove habit succeeded"); 
         } else {
             console.log("DELETE request to update habit FAILED"); 
         }
     }
   
     let updateHabitRest = async (oldHabitId: string, newHabitId: string, newColor: string) => {
-        let { success, habit } = await updateHabit(user_id, oldHabitId, newHabitId, newColor);
+        let { success, habit } = await updateHabitREST(user_id, oldHabitId, newHabitId, newColor);
         if (success) {
             console.log("POST request to update habit succeeded"); 
             dispatch(['update habit', [oldHabitId, habit]]);
@@ -124,67 +120,83 @@ const UpdateHabitModal: React.FC<UpdateHabitModalProps> = (props) => {
         }
     }; 
 
-    let onFinish = (values: any) => {
-        let oldHabitId: string = updateHabitId as string; 
-        let newHabitId: string = values.name; 
-        let newHabitColor: string = values.color; 
-        updateHabitRest(oldHabitId, newHabitId, newHabitColor); 
-    }; 
-
-    let onFinishFailed = (values: any) => {
-        console.log("FAILURE", values); 
+    let hide = () => {
+        dispatch(['set update modal hidden']);  
     }; 
 
     let validator = async (rule: any, value: any) => {
-        return Promise.resolve(); 
-        // if (!value) {
-        //     return Promise.reject("empty name"); 
-        // } else {
-        //     value = (value as string).trim(); 
-        //     if (value.length === 0) {
-        //         return Promise.reject("empty name"); 
-        //     } else if (habitTable.getNames().includes(value)) {
-        //         return Promise.reject('duplicate name');
-        //     } else {
-        //         return Promise.resolve();    
-        //     }
-        // }                                                        
+        let s: string; 
+        if (!_.isString(value)) {
+            return Promise.reject("empty name"); 
+        } else {
+            s = (value as string).trim(); 
+            if (s.length === 0) {
+                return Promise.reject("empty name"); 
+            } else if (s in invalidNamesSet) {
+                return Promise.reject('duplicate name');
+            } else {
+                return Promise.resolve();    
+            }
+        }                                                     
     };
+
+    let callbacks = {
+        modal: {
+            onOk: () => {
+                form.submit();
+            }, 
+            onCancel: () => {
+                hide();  
+            }, 
+            cancelButton: {
+                onClick: () => {
+                    hide(); 
+                    if (updateHabit) {
+                        deleteHabitRest(updateHabit.habit_id); 
+                    }
+                }
+            }
+        }, 
+        form: {
+            onValuesChange: (values: any) => {
+                form.setFieldsValue(values); 
+            }, 
+            onFinish: (values: any) => {
+                console.log("Form submission success", values); 
+                if (updateHabit) {
+                    updateHabitRest(updateHabit.habit_id, values.name, values.color);
+                }
+                hide(); 
+            }, 
+            onFinishFailed: (values: any) => {
+                console.log("Form submission FAILED", values); 
+                hide(); 
+            }
+        }, 
+    }; 
 
     return (
         <Modal
         title="Update Habit"
         visible={updateModalVisible}
-        onOk={() => {
-            form.submit();
-            close(); 
-        }}
-        onCancel={() => {
-            form.resetFields(); 
-            close();
-        }}>
+        onOk={callbacks.modal.onOk}
+        onCancel={callbacks.modal.onCancel}>
             <Form 
             name="create-habit" 
             form={form} 
-            onFinish={onFinish} 
-            onFinishFailed={onFinishFailed}
-            onValuesChange={(values) => console.log(values)}
-            initialValues={{
-                name: updateHabitId, 
-                color: color 
-            }}>
+            initialValues={initialValues}
+            onValuesChange={callbacks.form.onValuesChange}
+            onFinish={callbacks.form.onFinish} 
+            onFinishFailed={callbacks.form.onFinishFailed}>
                 <Box horizontal="center" vertical="middle" span={12}>
                     <div>
-                        <Button danger type={"primary"} onClick={() => {
-                            form.resetFields(); 
-                            close(); 
-                            deleteHabitRest(updateHabitId as string); 
-                        }}>Delete Habit</Button>
+                        {/* Button within modal window that deletes habit */}
+                        <Button danger type={"primary"} onClick={callbacks.modal.cancelButton.onClick}>Delete Habit</Button>
+                        {/* Form item that allows for changing of habit name */}
                         <Form.Item name="name" label="habit name" rules={[{ validator }]}>
-                            <Input size="small" allowClear value={localHabitName} onChange={(e) => {
-                                setLocalHabitName(e.target.value); 
-                            }}/>
+                            <Input size="small" allowClear/>
                         </Form.Item>
+                        {/* Form item that allows for chaning of habit color */}
                         <Form.Item name="color" label="color">
                             <ColorSelectionControl/>
                         </Form.Item>

@@ -14,13 +14,13 @@ export async function createHabit(user_id: string, new_habit_id: string) {
     return habit;  
 }
 
-export async function updateHabit(user_id: string, old_habit_id: string, new_habit_id: string, new_color: string) {
+export async function updateHabitREST(user_id: string, old_habit_id: string, new_habit_id: string, new_color: string) {
     let habit: any = await fetch(`/api/habits/update/meta/${encodeURIComponent(user_id)}/${encodeURIComponent(old_habit_id)}/${encodeURIComponent(new_habit_id)}/${encodeURIComponent(new_color)}`, { method: 'POST' })
                             .then(response => response.json()); 
     return habit;  
 }; 
 
-export async function deleteHabit(user_id: string, habit_id_to_delete: string) {
+export async function deleteHabitREST(user_id: string, habit_id_to_delete: string) {
     let resp: any = await fetch(`/api/habits/delete/${encodeURIComponent(user_id)}/${encodeURIComponent(habit_id_to_delete)}`, { method: 'DELETE' })
                             .then(response => response.json()); 
     return resp;   

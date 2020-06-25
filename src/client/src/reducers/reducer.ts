@@ -39,7 +39,7 @@ export const reducerInitialState: ReducerState = {
     "rowHeights": [], 
     "createModalVisible": false, 
     "updateModalVisible": false, 
-    "updateHabitId": null, 
+    "updateHabit": undefined, 
     "labelColors": labelColors, 
     
     "today": moment(),                              // the current day 
@@ -64,7 +64,7 @@ export interface ReducerState {
     xCoords: Array<number>, 
     createModalVisible: boolean, 
     updateModalVisible: boolean, 
-    updateHabitId: string | null, 
+    updateHabit: Habit | undefined, 
     labelColors: Array<string>, 
     today: moment.Moment, 
     singleWeekViewOffset: number, 
@@ -125,10 +125,10 @@ const mutators: { [key: string]: any } = {
         return { ...state, habitTable, habitMap }; 
     }, 
     'set update modal visible': (state: ReducerState, [type, updateHabitId]: ReducerAction) => {
-        return { ...state, updateModalVisible: true, updateHabitId }; 
+        return { ...state, updateModalVisible: true, updateHabit: _.cloneDeep(state.habitMap.get(updateHabitId)) }; 
     }, 
     'set update modal hidden': (state: ReducerState, [type, _]: ReducerAction) => {
-        return { ...state, updateModalVisible: false, updateHabitId: null }; 
+        return { ...state, updateModalVisible: false }; 
     }, 
     'set create modal visible': (state: ReducerState, [type, _]: ReducerAction) => {
         return { ...state, createModalVisible: true }; 

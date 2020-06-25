@@ -34,18 +34,19 @@ const CreateHabitModal: React.FC<CreateHabitModalProps> = (props) => {
     }; 
 
     let validator = async (rule: any, value: any) => {
-        if (!value) {
-        return Promise.reject("empty name"); 
-        } else {
-        value = (value as string).trim(); 
-        if (value.length === 0) {
+        let s: string; 
+        if (!_.isString(value)) {
             return Promise.reject("empty name"); 
-        } else if (habitTable.getNames().includes(value)) {
-            return Promise.reject('duplicate name');
         } else {
-            return Promise.resolve();    
-        }
-        }                                                        
+            s = (value as string).trim(); 
+            if (s.length === 0) {
+                return Promise.reject("empty name"); 
+            } else if (habitTable.getNames().includes(s)) {
+                return Promise.reject('duplicate name');
+            } else {
+                return Promise.resolve();    
+            }
+        }   
     }
 
     return (
@@ -66,7 +67,6 @@ const CreateHabitModal: React.FC<CreateHabitModalProps> = (props) => {
                         <Form.Item name="name" label="Habit Name" rules={[{ validator }]}>
                             <Input size="small"/>
                         </Form.Item>
-                        
                     </div>
                 </Box>
             </Form>
