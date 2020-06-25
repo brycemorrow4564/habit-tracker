@@ -46,8 +46,9 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
       let containerDims = (axisRef.current as HTMLElement).getBoundingClientRect(); 
       let xs = axisItemRefs.current.map((el: HTMLElement) => {
         let { left, width }: DOMRect = el.getBoundingClientRect(); 
-        return (left + width) - containerDims.left; 
+        return (left + width / 2) - containerDims.left; 
       }); 
+      debugger; 
       dispatch(['update axis item dimensions', xs]);
     }
   }, [axisItemRefs, axisRef]); 
@@ -146,8 +147,13 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
       }
       center={
         <Box { ...centerBoxProps } span={24}>
-          <div className="axis-row" style={{ background: colors.timeaxis_background, borderTop: colors.timeaxis_border, borderLeft: colors.timeaxis_border, borderRight: colors.timeaxis_border }}>
-            <div ref={axisRef}>
+          <div className="axis-row" ref={axisRef} style={{ 
+            background: colors.timeaxis_background, 
+            borderTop: colors.timeaxis_border, 
+            borderLeft: colors.timeaxis_border, 
+            borderRight: colors.timeaxis_border 
+          }}>
+            <div>
               <Row justify="space-between" align="middle">
                 <Col span={11}>
                   <Row justify="space-around" align="middle">
