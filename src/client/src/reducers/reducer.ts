@@ -26,6 +26,7 @@ const weeksWindower: WeeksWindower = new WeeksWindower(table.getMaxDate(), numWe
 
 export const reducerInitialState: ReducerState = {
 
+    "init": false, 
     "user_id": "bam4564", 
     "habitIds": [], 
     "habitMap": new Map(), 
@@ -52,6 +53,7 @@ export const reducerInitialState: ReducerState = {
 
 export interface ReducerState {
 
+    init: boolean, 
     user_id: string,                    // username of the current user 
     habitIds: Array<string>,            // the set of all habit ids for the current user  
     habitMap: Map<string, Habit>,       // map from habit name to habit object (from server)
@@ -122,7 +124,7 @@ const mutators: { [key: string]: any } = {
             habitMap.set(habit_id, habit); 
             habitTable.add(habit_id, new HabitHistory(observations)); 
         }
-        return { ...state, habitTable, habitMap }; 
+        return { ...state, habitTable, habitMap, init: true }; 
     }, 
     'set update modal visible': (state: ReducerState, [type, updateHabitId]: ReducerAction) => {
         return { ...state, updateModalVisible: true, updateHabit: _.cloneDeep(state.habitMap.get(updateHabitId)) }; 

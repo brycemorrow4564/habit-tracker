@@ -36,7 +36,7 @@ const HabitCard: React.FC<HabitCardProps> = (props) => {
 
     const variants = {
         inactive: {
-            width: "7.5%", 
+            width: "8%", 
             // borderRight: colors.habit_card_inner_border_inactive
         },
         active: {

@@ -48,7 +48,6 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
         let { left, width }: DOMRect = el.getBoundingClientRect(); 
         return (left + width / 2) - containerDims.left; 
       }); 
-      debugger; 
       dispatch(['update axis item dimensions', xs]);
     }
   }, [axisItemRefs, axisRef]); 
