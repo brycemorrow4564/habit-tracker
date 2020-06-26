@@ -4,6 +4,7 @@ import { motion } from "framer-motion"
 import { useRootContext } from "../contexts/context"; 
 import { colors } from "../utils/color"; 
 import { withoutKeys } from "../utils/util"; 
+import { ReducerState } from "../reducers/reducer";
 
 export interface CircleScalableProps {
     cx: number,         // x coord of origin 
@@ -53,14 +54,20 @@ const CircleGlyph: React.FC<CircleGlyphProps> = (props) => {
 
 const GridGlyph: React.FC<CircleScalableProps> = (props) => {
 
-    const { dispatch } = useRootContext(); 
+    const { state, dispatch } = useRootContext(); 
+    const { inactiveScaleFactor }: ReducerState = state; 
     const { cx, cy, r, value, rowIndex, colIndex, fillColor } = props; 
 
     const glyph: string = "rect";
 
     const glyphProps = {
         background: {
+            useMotion: true, 
             fill: colors.glyph_background_color, 
+            initial: false, 
+            animate: { scale: value ? 1 : inactiveScaleFactor },
+            transition: { duration: 0.25 },
+            transformTemplate: (transform: any, generatedTransform: any) => `translate(${cx}px,${cy}px) ${generatedTransform}`,
             onClick: () =>  {
                 dispatch(['set value habit table', [rowIndex, colIndex, 1]]);
             }
@@ -68,7 +75,7 @@ const GridGlyph: React.FC<CircleScalableProps> = (props) => {
         foreground: {
             useMotion: true, 
             fill: fillColor, 
-            initial: { scale: value ? 1 : 0 }, 
+            initial: false, 
             animate: { scale: value ? 1 : 0 },
             transition: { duration: 0.25 },
             transformTemplate: (transform: any, generatedTransform: any) => `translate(${cx}px,${cy}px) ${generatedTransform}`,
@@ -83,7 +90,7 @@ const GridGlyph: React.FC<CircleScalableProps> = (props) => {
         case 'circle': 
             content = (
                 <React.Fragment>
-                    <CircleGlyph cx={cx} cy={cy} r={r} { ...glyphProps.background }/>
+                    <CircleGlyph cx={0} cy={0} r={r} { ...glyphProps.background }/>
                     <CircleGlyph cx={0} cy={0} r={r} { ...glyphProps.foreground }/> 
                 </React.Fragment>        
             ); 
@@ -91,7 +98,7 @@ const GridGlyph: React.FC<CircleScalableProps> = (props) => {
         case 'rect':
             content = (
                 <React.Fragment>
-                    <RectGlyph cx={cx} cy={cy} width={r*2} height={r*2} { ...glyphProps.background }/>
+                    <RectGlyph cx={0} cy={0} width={r*2} height={r*2} { ...glyphProps.background }/>
                     <RectGlyph cx={0} cy={0} width={r*2} height={r*2} { ...glyphProps.foreground }/> 
                 </React.Fragment>        
             ); 
