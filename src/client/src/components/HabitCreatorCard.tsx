@@ -32,7 +32,7 @@ const HabitCreatorCard: React.FC<HabitCreatorCardProps> = (props) => {
 
   const wrapContent = (content: any) => (
     <Box span={24}>
-      <div style={{ background: colors.grey[2] }}>
+      <div style={{ background: colors.timeaxis_background }}>
           <motion.div 
           style={Object.assign({ position: 'relative', height: 45, overflow: 'hidden' }, colors.gridRowContainerPadding)}
           onHoverStart={() => setHovering(true)} 
@@ -91,7 +91,7 @@ const HabitCreatorCard: React.FC<HabitCreatorCardProps> = (props) => {
           animate={{ 
             opacity: hovering ? 1 : 0 
           }}>
-            <span style={{ display: 'inline-block' }}>New Habit</span>
+            <span style={{ display: 'inline-block', color: 'white' }}>New Habit</span>
           </motion.div>
 
           <motion.div 

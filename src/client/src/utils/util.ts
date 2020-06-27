@@ -1,5 +1,6 @@
 import moment from "moment"; 
 import _ from "lodash"; 
+import * as d3color from "d3-color"; 
 
 export function cssLinearGradientPropertyGenerator( colorA: string, 
                                                   colorB: string, 
@@ -92,4 +93,10 @@ export function withoutKeys(obj: { [key: string]: any }, skipKeys: Array<string>
       }
   } 
   return rval; 
+}
+
+export function getTextColor(color: string): string {
+  let rgbColor: d3color.RGBColor = d3color.rgb(color);
+  let { r, g, b }: { r: number, g: number, b: number } = rgbColor; 
+  return (r+g+b)/3 > 127.5 ? 'white' : 'black'; 
 }

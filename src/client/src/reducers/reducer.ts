@@ -13,6 +13,7 @@ export interface Habit {
     habit_id: string, 
     color: string, 
     label: string, 
+    frequency: "daily" | "weekly" | "bi-weekly", 
     observations: Array<{ timestamp: Date, value: number }>
 };
 
@@ -44,11 +45,12 @@ export const reducerInitialState: ReducerState = {
     "labelColors": labelColors, 
     
     "today": moment(),                              // the current day 
-    "singleWeekViewOffset": 4, 
+    "singleWeekViewOffset": 5, 
     "windowSize": windowSize as 7 | 14,             // the temporal width (in days) of current time period (summarized in view) 
     "habitTable": _.cloneDeep(table),               // an instance of HabitTable 
     "weeksWindower": _.cloneDeep(weeksWindower),    // an instance of WeeksWindower 
-    "inactiveScaleFactor": .5
+    "inactiveScaleFactor": .5, 
+    "timeAxisMiddleSpacingPercent": .03
 }; 
 
 export interface ReducerState {
@@ -75,6 +77,7 @@ export interface ReducerState {
     habitTable: HabitTable, 
     weeksWindower: WeeksWindower,
     inactiveScaleFactor: number,
+    timeAxisMiddleSpacingPercent: number
 
 };
 

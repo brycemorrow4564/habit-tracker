@@ -1,9 +1,7 @@
 import * as React from "react"; 
 import _ from "lodash"; 
-import { PlusCircleOutlined, CheckOutlined } from "@ant-design/icons";  
-import { Row, Col, Input, Button, Form, Modal } from "antd"; 
+import { Input, Form, Modal } from "antd"; 
 import Box from "./Box"; 
-import { colors } from "../utils/color";
 import { ReducerState } from "../reducers/reducer";
 import { useRootContext } from "../contexts/context"; 
 import { createHabit } from "../rest/rest"; 
@@ -19,52 +17,57 @@ const CreateHabitModal: React.FC<CreateHabitModalProps> = (props) => {
     const { user_id, habitTable, createModalVisible }: ReducerState = state; 
 
     let close = () => dispatch(['set create modal hidden']); 
-  
-    let createHabitRest = async (new_habit_id: string) => {
-      dispatch(['create habit', await createHabit(user_id, new_habit_id)]);
-    }; 
-
-    let onFinish = (values: any) => {
-        let new_habit_id: string = values.name; 
-        createHabitRest(new_habit_id); 
-    }; 
-
-    let onFinishFailed = () => {
-        console.log("FAILURE"); 
-    }; 
-
-    let validator = async (rule: any, value: any) => {
-        let s: string; 
-        if (!_.isString(value)) {
-            return Promise.reject("empty name"); 
-        } else {
-            s = (value as string).trim(); 
-            if (s.length === 0) {
-                return Promise.reject("empty name"); 
-            } else if (habitTable.getNames().includes(s)) {
-                return Promise.reject('duplicate name');
-            } else {
-                return Promise.resolve();    
+    
+    const callbacks = {
+        modal: {
+            onOk: () => {
+                form.submit();
+                close(); 
+            }, 
+            onCancel: () => {
+                form.resetFields(); 
+                close();
             }
-        }   
+        }, 
+        form: {
+            onFinish: (values: any) => {
+                createHabit(user_id, values.name).then((habit) => dispatch(['create habit', habit]));
+            }, 
+            onFinishFailed: () => {
+                console.log("FAILURE"); 
+            }, 
+            validator: async (rule: any, value: any) => {
+                let s: string; 
+                if (!_.isString(value)) {
+                    return Promise.reject("empty name"); 
+                } else {
+                    s = (value as string).trim(); 
+                    if (s.length === 0) {
+                        return Promise.reject("empty name"); 
+                    } else if (habitTable.getNames().includes(s)) {
+                        return Promise.reject('duplicate name');
+                    } else {
+                        return Promise.resolve();    
+                    }
+                }   
+            }
+        }
     }
 
     return (
-        <Modal
-        title="Create Habit"
+        <Modal 
+        title="Create Habit" 
         visible={createModalVisible}
-        onOk={() => {
-            form.submit();
-            close(); 
-        }}
-        onCancel={() => {
-            form.resetFields(); 
-            close();
-        }}>
-            <Form name="create-habit" form={form} onFinish={onFinish} onFinishFailed={onFinishFailed}>
+        onOk={callbacks.modal.onOk}
+        onCancel={callbacks.modal.onCancel}>
+            <Form 
+            name="create-habit" 
+            form={form} 
+            onFinish={callbacks.form.onFinish} 
+            onFinishFailed={callbacks.form.onFinishFailed}>
                 <Box horizontal="center" vertical="middle" span={12}>
                     <div>
-                        <Form.Item name="name" label="Habit Name" rules={[{ validator }]}>
+                        <Form.Item name="name" label="Habit Name" rules={[{ validator: callbacks.form.validator }]}>
                             <Input size="small"/>
                         </Form.Item>
                     </div>

@@ -3,12 +3,9 @@
 }
 
 .axis-row {
-    padding-left: 1em;
-    padding-right: 1em; 
-    padding-top: .5em; 
     font-size: 1.1em;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
 }
 
 .grid-time-axis-label {
@@ -31,9 +28,7 @@
 }
 
 .grid-time-label-box {
-    /* padding: .2em .2em 0 0; */
-    flex-grow: 1;
-    flex-basis: 0;
+    flex: 1; 
 }
 
 .grid-time-label-box:last-child {

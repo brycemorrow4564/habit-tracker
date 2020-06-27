@@ -4,6 +4,7 @@ import { scaleLinear } from "d3-scale";
 import _ from "lodash"; 
 import moment from "moment"; 
 import { Row, Col, Tabs } from "antd"; 
+import styled from "styled-components"; 
 import { cssLinearGradientPropertyGenerator } from "../utils/util"; 
 import { colors } from "../utils/color";
 import { useRootContext } from "../contexts/context";
@@ -12,22 +13,75 @@ import GridRowLayout from "./GridRowLayout";
 import { ReducerState } from "../reducers/reducer"; 
 import "../css/GridTimeAxis.css"; 
 
-/*
-The time axis for the habit table viewer 
-*/
+export interface TextBoxProps {
+  boxProps: BoxProps, 
+  textStyle: React.CSSProperties, 
+  text: string, 
+  className?: string
+}; 
+
+export interface GridTimeAxisItemProps {
+  date: moment.Moment, 
+  isCurDay: boolean 
+}; 
 
 export interface GridTimeAxisProps {
 
+}; 
+
+const TextBox: React.FC<TextBoxProps> = ({ boxProps, className, text, textStyle }) => {
+  const textProps = className ? { className } : {}; 
+  return (
+    <Box { ...boxProps }>
+      <p { ...textProps} style={textStyle}>{text}</p>
+    </Box>
+  )
+}; 
+
+const GridTimeAxisItem: React.FC<GridTimeAxisItemProps> = (props) => {
+
+  const { date, isCurDay } = props; 
+
+  let itemColors = {
+    'normal': {
+      'backgroundColor': '#333', 
+      'border': colors.timeaxis_border, 
+      'low': colors.timeaxis_text_normal_low_contrast, 
+      'high': colors.timeaxis_text_normal_high_contrast
+    }, 
+    'current': {
+      'backgroundColor': '#46ab16', 
+      'border': colors.timeaxis_border, 
+      'low': colors.timeaxis_text_current_low_contrast, 
+      'high': colors.timeaxis_text_current_high_contrast
+    }
+  }
+  let styleDef = isCurDay ? itemColors.current : itemColors.normal; 
+  let lowContrastStyle = { color: styleDef.low };
+  let highContrastStyle = { color: styleDef.high };
+  let curDayBackgroundColor = styleDef.backgroundColor;
+  let curDayBorder = styleDef.border; 
+  let boxProps: BoxProps = { horizontal: 'center', vertical: 'middle' }; 
+  return (
+    <div style={{ background: curDayBackgroundColor, border: curDayBorder }}>
+      {/* Name of month */}
+      <TextBox boxProps={boxProps} textStyle={lowContrastStyle} className="grid-time-axis-label grid-time-axis-month" text={date.format('MMM')}/>
+      <TextBox boxProps={boxProps} textStyle={highContrastStyle} className="grid-time-axis-label grid-time-axis-day" text={date.format('D')}/>
+      <TextBox boxProps={boxProps} textStyle={lowContrastStyle} className="grid-time-axis-label grid-time-axis-day-of-week" text={date.format('ddd').toUpperCase()}/>
+    </div>
+  );
+
 }
 
-const gi0 = 250;
-const gi1 = 120;
-const timeAxisColorScale = scaleLinear().range([`rgba(${gi0},${gi0},${gi0}, 1)`, `rgba(${gi1},${gi1},${gi1}, 1)`]); 
+const StyledGridTimeAxisItem = styled(GridTimeAxisItem)<{ isCurDay: boolean }>`
+
+
+`
 
 const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
 
   const { state, dispatch } = useRootContext(); 
-  const { weeksWindower, today }: ReducerState = state; 
+  const { weeksWindower, today, timeAxisMiddleSpacingPercent }: ReducerState = state; 
   const axisRef = React.useRef<any>(null); 
   const axisItemRefs = React.useRef<any[]>([]); 
 
@@ -35,8 +89,6 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
   const wlen: number = window.length; 
   const windowLeft = window.slice(0, wlen/2); 
   const windowRight = window.slice(wlen/2, wlen); 
-
-  timeAxisColorScale.domain([0, window.length]); 
 
   // TODO: logic of this effect needs to occur on resize as well
   React.useEffect(() => {
@@ -53,60 +105,34 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
   }, [axisItemRefs, axisRef]); 
 
   const createAxisItem = (iOffset: number, d: moment.Moment, i: number) => {
-    i += iOffset; 
-    let isCurDay: boolean = today.isSame(d, 'days'); 
-    let itemColors = {
-      'normal': {
-        'backgroundColor': timeAxisColorScale(i%7), 
-        'border': colors.timeaxis_border, 
-        'low': colors.timeaxis_text_normal_low_contrast, 
-        'high': colors.timeaxis_text_normal_high_contrast
-      }, 
-      'current': {
-        'backgroundColor': '#46ab16', 
-        'border': colors.timeaxis_border, 
-        'low': colors.timeaxis_text_current_low_contrast, 
-        'high': colors.timeaxis_text_current_high_contrast
-      }
-    }
-    let styleDef = isCurDay ? itemColors.current : itemColors.normal; 
-    let lowContrastStyle = { color: styleDef.low };
-    let highContrastStyle = { color: styleDef.high };
-    let curDayBackgroundColor = styleDef.backgroundColor;
-    let curDayBorder = styleDef.border; 
     return (
       <Col key={d.format()} className={'grid-time-label-box'}>
-        <div style={{ height: '100%', width: '100%' }} ref={ref => {
-          // @ts-ignore
-          axisItemRefs.current[i] = ref;
-        }}>
-          <div style={{ background: curDayBackgroundColor, border: curDayBorder }}>
-            {/* Name of month */}
-            <Box horizontal="center" vertical="middle">
-              <p style={lowContrastStyle} className="grid-time-axis-label grid-time-axis-month">{d.format('MMM')}</p>
-            </Box>
-            {/* Day of month */}
-            <Box horizontal="center" vertical="middle">
-              <p style={highContrastStyle} className="grid-time-axis-label grid-time-axis-day">{d.format('D')}</p>
-            </Box>
-            {/* Label for day of week */}
-            <Box horizontal="center" vertical="middle">
-              <p style={lowContrastStyle} className="grid-time-axis-label grid-time-axis-day-of-week">{d.format('ddd').toUpperCase()}</p>
-            </Box>
-          </div>
+        <div style={{ height: '100%', width: '100%' }} ref={ref => axisItemRefs.current[i+iOffset] = ref}>
+          <GridTimeAxisItem date={d} isCurDay={today.isSame(d, 'days')}/>
         </div>
       </Col>
     );
   }; 
 
-  const notchStyle = { height: 8, background: colors.timeaxis_background }; 
-  const useBottomBorders: boolean = false; 
-  const notchStyleLeft = useBottomBorders ?   Object.assign(_.clone(notchStyle), { borderLeft: colors.timeaxis_border, borderBottom: colors.timeaxis_border }) : 
-                                              Object.assign(_.clone(notchStyle), { borderLeft: colors.timeaxis_border }); 
-  const notchStyleRight = useBottomBorders ?  Object.assign(_.clone(notchStyle), { borderRight: colors.timeaxis_border, borderBottom: colors.timeaxis_border }) : 
-                                              Object.assign(_.clone(notchStyle), { borderRight: colors.timeaxis_border }); 
-  const shiftButtonStyle = { color: colors.shift_button_color }; 
+  const notchStyle = { height: 10, background: colors.timeaxis_background }; 
+  const useBottomBorderLeft: boolean = false; 
+  const useBottomBorderRight: boolean = true; 
+  let notchStyleLeft = Object.assign(_.clone(notchStyle), { 
+    borderLeft: colors.timeaxis_border, 
+    // borderRight: colors.timeaxis_border, 
+  });  
+  let notchStyleRight = Object.assign(_.clone(notchStyle), { 
+    borderRight: colors.timeaxis_border, 
+    // borderLeft: colors.timeaxis_border 
+  }); 
+  if (useBottomBorderLeft) {
+    notchStyleLeft = Object.assign(notchStyleLeft, { borderBottom: colors.timeaxis_border }); 
+  }
+  if (useBottomBorderRight) {
+    notchStyleRight = Object.assign(notchStyleRight, { borderBottom: colors.timeaxis_border }); 
+  }
 
+  const shiftButtonStyle = { color: colors.shift_button_color }; 
   const leftBoxProps: BoxProps = { horizontal: 'end', vertical: 'middle', span: colors.left_span }; 
   const centerBoxProps: BoxProps = { horizontal: 'center', vertical: 'middle', span: 24 }; 
   const rightBoxProps: BoxProps = { horizontal: 'start', vertical: 'middle', span: colors.right_span }; 
@@ -145,26 +171,28 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
         </Box>
       }
       center={
-        <Box { ...centerBoxProps } span={24}>
-          <div className="axis-row" ref={axisRef} style={{ 
+        <Box { ...centerBoxProps }>
+          <div className="axis-row" style={Object.assign({ 
             background: colors.timeaxis_background, 
             borderTop: colors.timeaxis_border, 
             borderLeft: colors.timeaxis_border, 
-            borderRight: colors.timeaxis_border 
-          }}>
-            <div>
-              <Row justify="space-between" align="middle">
-                <Col span={11}>
-                  <Row justify="space-around" align="middle">
-                    {windowLeft.map(_.partial(createAxisItem, 0))}
-                  </Row>
-                </Col>
-                <Col span={11}>
-                  <Row justify="space-around" align="middle">
-                    {windowRight.map(_.partial(createAxisItem, 7))}
-                  </Row>
-                </Col>
-              </Row>
+            borderRight: colors.timeaxis_border
+          }, colors.axisRowPadding)}>
+
+            <div ref={axisRef} style={{ display: 'flex', justifyContent: 'space-between' }}>
+
+              <div style={{ flex: `0 0 ${(.5-timeAxisMiddleSpacingPercent/2)*100}%` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'middle', flex: '0 0 100%' }}>
+                  {windowLeft.map(_.partial(createAxisItem, 0))}
+                </div>
+              </div>
+
+              <div style={{ flex: `0 0 ${(.5-timeAxisMiddleSpacingPercent/2)*100}%` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'middle', flex: '0 0 100%' }}>
+                  {windowRight.map(_.partial(createAxisItem, 7))}
+                </div>
+              </div>
+
             </div>
           </div>
         </Box>
@@ -197,5 +225,7 @@ const GridTimeAxis: React.FC<GridTimeAxisProps> = (props) => {
     </div>
   );
 }
+
+
 
 export default GridTimeAxis;

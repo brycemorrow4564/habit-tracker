@@ -19,30 +19,61 @@ export const colors: any = (() => {
         return acc; 
     }, {});
 
-    // Create style variables, that will allow us to abstract stylings to the component level 
-    const vars = {
-        'body_background': colors.blue[3], 
-        'timeaxis_background': colors.grey[2], 
-        'timeaxis_border': `1px solid ${colors.grey[5]}`, 
-        'timeaxis_text_normal_low_contrast': colors.grey[5], 
-        'timeaxis_text_normal_high_contrast': colors.grey[7], 
-        'timeaxis_text_current_low_contrast': colors.grey[2], 
-        'timeaxis_text_current_high_contrast': colors.grey[0], 
-        'shift_button_color': colors.grey[3], 
-        'habitlist_title_color': colors.grey[6], 
-        'habitlist_header_border_bottom': 0, // `1px solid ${colors.grey[3]}`
-        'left_span': 14, 
-        'right_span': 14, 
-        'gridRowContainerPadding': {
-            paddingTop: 5, 
-            paddingRight: 5, 
-            paddingBottom: 0, 
-            paddingLeft: 5
-        }, 
-        'glyph_background_color': "#f8f8f8", 
-        'habit_card_inner_border_inactive': `1px solid ${colors.grey[2]}`, 
-        'habit_card_inner_border_active': `1px solid ${colors.grey[4]}`
-    }; 
+    const { blue, grey } = colors; 
+
+    const themes = {
+        "theme_one": {
+            'body_background': blue[1], 
+            'timeaxis_background': '#556676', 
+            'timeaxis_border': `1px solid ${grey[2]}`, 
+            'timeaxis_text_normal_low_contrast': grey[5], 
+            'timeaxis_text_normal_high_contrast': grey[7], 
+            'timeaxis_text_current_low_contrast': grey[2], 
+            'timeaxis_text_current_high_contrast': grey[0], 
+            'shift_button_color': grey[1], 
+            'habitlist_title_color': grey[0], 
+            'habitlist_header_border_bottom': 0, 
+            'left_span': 14, 
+            'right_span': 14, 
+            'axisRowPadding': {
+                paddingLeft: '1em',
+                paddingRight: '1em',
+                paddingTop: '.5em' 
+            },
+            'gridRowContainerPadding': {
+                paddingLeft: '1em',
+                paddingRight: '1em'
+            }, 
+            'glyph_background_color': "#f8f8f8", 
+            'habit_card_inner_border_inactive': `1px solid ${grey[2]}`, 
+            'habit_card_inner_border_active': `1px solid ${grey[4]}`
+        },
+        "theme_two": {
+            'body_background': blue[3], 
+            'timeaxis_background': 'none', 
+            'timeaxis_border': `none`, 
+            'timeaxis_text_normal_low_contrast': grey[5], 
+            'timeaxis_text_normal_high_contrast': grey[7], 
+            'timeaxis_text_current_low_contrast': grey[2], 
+            'timeaxis_text_current_high_contrast': grey[0], 
+            'shift_button_color': grey[3], 
+            'habitlist_title_color': grey[2], 
+            'habitlist_header_border_bottom': 0, // `1px solid ${grey[3]}`
+            'left_span': 14, 
+            'right_span': 14, 
+            'gridRowContainerPadding': {
+                paddingTop: 5, 
+                paddingRight: 5, 
+                paddingBottom: 0, 
+                paddingLeft: 5
+            }, 
+            'glyph_background_color': "#f8f8f8", 
+            'habit_card_inner_border_inactive': `1px solid ${grey[2]}`, 
+            'habit_card_inner_border_active': `1px solid ${grey[4]}`
+        }
+    }
+
+    let vars = themes["theme_one"]; 
 
     const merged = Object.assign(colors, vars); 
 

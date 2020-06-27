@@ -72,8 +72,7 @@ const SingleWeekHabitRow: React.FC<SingleWeekHabitRowProps> = (props) => {
                     {data.map(({ date, value, index }, i) => (
                         <React.Fragment key={`${date.format()}-${index}`}>
                             <GridGlyph
-                            
-                            fillColor={fillColor}
+                            activeFillColor={fillColor}
                             rowIndex={rowIndex}
                             colIndex={i}
                             cx={xCoords[i]}

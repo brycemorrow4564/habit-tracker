@@ -21,7 +21,7 @@ const defaults: {
     align: AntdRowAlign, 
     style: object
 } = {
-    justify: undefined, 
+    justify: "center", 
     align: undefined, 
     style: {}
 }

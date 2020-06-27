@@ -1,21 +1,30 @@
 import * as React from "react";
 import _ from "lodash"; 
-import { motion } from "framer-motion"
+import { motion } from "framer-motion"; 
+import styled from "styled-components"; 
 import { useRootContext } from "../contexts/context"; 
-import { colors } from "../utils/color"; 
 import { withoutKeys } from "../utils/util"; 
 import { ReducerState } from "../reducers/reducer";
 
-export interface CircleScalableProps {
+export interface GridGlyphProps {
     cx: number,         // x coord of origin 
     cy: number,         // y coord of origin
-    r: number,          // radius of circle
+    r: number,          // drawing radius 
     value: number,      // value which determines fill
     delay: number,      // amount of time to delay scaling animation 
     rowIndex: number,   // row index of this circle in single week view grid 
     colIndex: number,   // col index of this circle in single week view grid 
-    fillColor: string   // the fill color of the foreground 
+    activeFillColor: string   // the fill color of the foreground 
 };
+
+type GlyphType = "circle" | "square"; 
+type GlyphPropType = RectGlyphProps | CircleGlyphProps; 
+
+interface GlyphProps {
+    className?: string,         // className to pass to underlying DOM node     
+    glyphType: GlyphType,       // which Glyph implementation to utilize 
+    glyphProps: GlyphPropType,  // the props to pass to our selected Glyph implementation
+}; 
 
 interface RectGlyphProps {
     [key: string]: any      // can include other property values to pass through to 
@@ -24,7 +33,7 @@ interface RectGlyphProps {
     cy: number,             // the center y coordinate of the rectangle 
     width: number,          // the width of the rectangle 
     height: number,         // the height of the rectangle 
-    useMotion?: boolean,    // whether or not the DOM node uses framer-motion implementation 
+    className?: string, 
 };
 
 interface CircleGlyphProps {
@@ -33,82 +42,83 @@ interface CircleGlyphProps {
     cx: number,             // the center x coordinate of the circle 
     cy: number,             // the center y coordinate of the circle 
     r: number,              // the radius of the circle 
-    useMotion?: boolean,    // whether or not the DOM node uses framer-motion implementation 
+    className?: string, 
 }
 
 const RectGlyph: React.FC<RectGlyphProps> = (props) => {
-    const { cx, cy, width, height, useMotion } = props; 
+    const { cx, cy, width, height, className } = props; 
     const otherProps: any = withoutKeys(props, ["cx", "cy", "width", "height"], true, true); 
     const br = 3; // border-radius 
-    return useMotion ?  <motion.rect x={cx-width/2} y={cy-height/2} width={width} height={height} { ...otherProps } rx={br} ry={br}/> : 
-                        <rect x={cx-width/2} y={cy-height/2} width={width} height={height} { ...otherProps } rx={br} ry={br}/>; 
+    return <motion.rect className={className} x={cx-width/2} y={cy-height/2} width={width} height={height} { ...otherProps } rx={br} ry={br}/>; 
 }; 
 
 const CircleGlyph: React.FC<CircleGlyphProps> = (props) => {
-    const { cx, cy, r, useMotion } = props; 
+    const { cx, cy, r, className } = props; 
     const otherProps: any = withoutKeys(props, ["cx", "cy", "r"], true, true); 
-    return useMotion ?  <motion.circle r={r} cx={cx} cy={cy} { ...otherProps }/> : 
-                        <circle r={r} cx={cx} cy={cy} { ...otherProps }/>; 
+    return <motion.circle className={className} r={r} cx={cx} cy={cy} { ...otherProps }/>;
 }; 
 
+const Glyph: React.FC<GlyphProps> = ({ glyphProps, glyphType, className }) => {
+    let content = null;
+    switch (glyphType) {
+        case "circle": 
+            content = <CircleGlyph { ...(glyphProps as CircleGlyphProps) } className={className}/>; 
+            break; 
+        case "square": 
+            content = <RectGlyph { ...(glyphProps as RectGlyphProps) } className={className}/>; 
+            break; 
+        default: 
+    }
+    return content; 
+}; 
 
-const GridGlyph: React.FC<CircleScalableProps> = (props) => {
+const StyledGlyph = styled(Glyph)<{ isForeground: boolean, activeFill: string }>`
+    fill: ${props => (props.isForeground ? props.activeFill : props.theme.glyph_background_color )};
+`;
+
+const GridGlyph: React.FC<GridGlyphProps> = (props) => {
 
     const { state, dispatch } = useRootContext(); 
     const { inactiveScaleFactor }: ReducerState = state; 
-    const { cx, cy, r, value, rowIndex, colIndex, fillColor } = props; 
+    const { cx, cy, r, value, rowIndex, colIndex, activeFillColor } = props; 
 
-    const glyph: string = "rect";
+    const glyph: GlyphType = "square";
 
+    // Props shared by all DOM nodes that comprise the glyph 
+    const sharedProps = {
+        // properties used by framer-motion DOM node for animations 
+        initial: false, 
+        transformTemplate: (transform: any, generatedTransform: any) => `translate(${cx}px,${cy}px) ${generatedTransform}`,
+        transition: { duration: 0.25 }, 
+        // position / dimension values for glyph implementations to utilize 
+        ...({ cx: 0, cy: 0, r, width: r*2, height: r*2 }) 
+    }; 
+
+    // Props specific to the different subtypes of DOM nodes that comprise the glyph 
     const glyphProps = {
         background: {
-            useMotion: true, 
-            fill: colors.glyph_background_color, 
-            initial: false, 
             animate: { scale: value ? 1 : inactiveScaleFactor },
-            transition: { duration: 0.25 },
-            transformTemplate: (transform: any, generatedTransform: any) => `translate(${cx}px,${cy}px) ${generatedTransform}`,
             onClick: () =>  {
                 dispatch(['set value habit table', [rowIndex, colIndex, 1]]);
             }
         }, 
         foreground: {
-            useMotion: true, 
-            fill: fillColor, 
-            initial: false, 
             animate: { scale: value ? 1 : 0 },
-            transition: { duration: 0.25 },
-            transformTemplate: (transform: any, generatedTransform: any) => `translate(${cx}px,${cy}px) ${generatedTransform}`,
             onClick: () =>  {
                 dispatch(['set value habit table', [rowIndex, colIndex, 0]]);
             }
         }
     }; 
 
-    let content = null; 
-    switch (glyph) {
-        case 'circle': 
-            content = (
-                <React.Fragment>
-                    <CircleGlyph cx={0} cy={0} r={r} { ...glyphProps.background }/>
-                    <CircleGlyph cx={0} cy={0} r={r} { ...glyphProps.foreground }/> 
-                </React.Fragment>        
-            ); 
-            break; 
-        case 'rect':
-            content = (
-                <React.Fragment>
-                    <RectGlyph cx={0} cy={0} width={r*2} height={r*2} { ...glyphProps.background }/>
-                    <RectGlyph cx={0} cy={0} width={r*2} height={r*2} { ...glyphProps.foreground }/> 
-                </React.Fragment>        
-            ); 
-            break; 
-        default: 
-            throw Error("unrecognized glyph type"); 
-            break; 
-    }
+    const foregroundProps: GlyphPropType = _.merge(glyphProps.foreground, sharedProps); 
+    const backgroundProps: GlyphPropType = _.merge(glyphProps.background, sharedProps); 
 
-    return content; 
+    return (
+        <React.Fragment>
+            <StyledGlyph glyphType={glyph} glyphProps={backgroundProps} isForeground={false} activeFill={activeFillColor}/>
+            <StyledGlyph glyphType={glyph} glyphProps={foregroundProps} isForeground={true} activeFill={activeFillColor}/>
+        </React.Fragment>
+    ); 
 
 };
 

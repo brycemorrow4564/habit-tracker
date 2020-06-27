@@ -2,6 +2,7 @@ import * as React from 'react';
 import _ from "lodash"; 
 import { useRootContext } from "../contexts/context"; 
 import moment from "moment"; 
+import styled from "styled-components";
 import SingleWeekHabitRow from '../components/SingleWeekHabitRow';
 import GridTimeAxis from "../components/GridTimeAxis"; 
 import GridRowLayout from "../components/GridRowLayout";
@@ -14,6 +15,13 @@ import "../css/SingleWeekView.css";
 export interface SingleWeekViewProps {
 
 }
+
+// theme is now fully typed
+export const MyComponent = styled.div`
+  background: red;
+  height: 100px; 
+  width: 100px; 
+`;
 
 const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
 
@@ -31,7 +39,9 @@ const SingleWeekView: React.FC<SingleWeekViewProps> = (props) => {
             left={<HabitList/>}
             center={
               <div className="habit-table-viz-grid">
-                <div style={{ borderTop: colors.timeaxis_border }}>
+                <div style={{ 
+                  // borderTop: colors.timeaxis_border 
+                }}>
                   {habitTable.getNames().map((habitName: string, i: number) => (<SingleWeekHabitRow 
                                                                                 key={habitName}
                                                                                 habitName={habitName} 

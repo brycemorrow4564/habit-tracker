@@ -37,6 +37,7 @@ class DemoServer extends Server {
 
         // attach the database connection to all controllers 
         MongoClient.connect(DemoServer.DATABASE_URI, { useUnifiedTopology: true }, (err, client) => {
+            
             assert.equal(null, err);
             const db: _mongodb.Db = client.db(DemoServer.DATABASE_NAME);
             const success: boolean = controller.setDatabaseConnection(db); 
@@ -68,6 +69,10 @@ class DemoServer extends Server {
                                 label: {
                                     bsonType: "string", 
                                     description: "habit label"
+                                }, 
+                                frequency: {
+                                    bsonType: "string", 
+                                    description: "goal timeline for habit"
                                 }, 
                                 observations: {
                                     bsonType: "array",
