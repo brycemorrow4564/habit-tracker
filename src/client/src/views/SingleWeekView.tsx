@@ -4,7 +4,7 @@ import { useRootContext } from "../contexts/context";
 import moment from "moment"; 
 import styled from "styled-components";
 import SingleWeekHabitRow from '../components/SingleWeekHabitRow';
-import GridTimeAxis from "../components/GridTimeAxis"; 
+import GridTimeAxis from "../components/grid-time-axis/GridTimeAxis"; 
 import GridRowLayout from "../components/GridRowLayout";
 import HabitList from "../components/HabitList";  
 import Modals from "../components/Modals"; 

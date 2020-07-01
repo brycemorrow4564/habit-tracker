@@ -1,11 +1,14 @@
+import baseStyled, { ThemedStyledInterface } from 'styled-components';
+
 export interface Theme {
-    body_background: string,            // the color of the background for the entire app
-    table_axes_border: string,          // the border for the habit list and time axis 
-    table_axes_background: string,      // the background for the habit list and time axis
-    habitlist_card_background: string,  // the background for habit cards    
-    habitlist_card_border: string,      // the border for habit cards    
-    timeaxis_card_background: string,   // the background for time axis cards 
-    timeaxis_card_border: string,       // the border for time axis cards 
+    body_background: string,                    // the color of the background for the entire app
+    table_axes_border: string,                  // the border for the habit list and time axis 
+    table_axes_background: string,              // the background for the habit list and time axis
+    habitlist_card_background: string,          // the background for habit cards    
+    habitlist_card_border: string,              // the border for habit cards    
+    timeaxis_card_background: string,           // the background for time axis cards 
+    timeaxis_card_current_background: string,   // the background for time axis cards 
+    timeaxis_card_border: string,               // the border for time axis cards 
     shift_button_color: string, 
 
     timeaxis_text_normal_low_contrast: string, 
@@ -28,5 +31,6 @@ export interface Theme {
     glyph_background_color: string, 
     habit_card_inner_border_inactive: string, 
     habit_card_inner_border_active: string
-    
-  };
+};
+
+export const styled = baseStyled as ThemedStyledInterface<Theme>;

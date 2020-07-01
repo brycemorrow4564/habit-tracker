@@ -1,10 +1,10 @@
 import * as React from "react";
 import _ from "lodash"; 
 import { motion } from "framer-motion"; 
-import styled from "styled-components"; 
 import { useRootContext } from "../contexts/context"; 
 import { withoutKeys } from "../utils/util"; 
 import { ReducerState } from "../reducers/reducer";
+import { styled } from '../theme';
 
 export interface GridGlyphProps {
     cx: number,         // x coord of origin 

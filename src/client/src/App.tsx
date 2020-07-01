@@ -32,11 +32,12 @@ const theme: Theme = {
 
   body_background: blue[1],            
   table_axes_border: `1px solid ${grey[2]}`,          
-  table_axes_background: grey[3],      
+  table_axes_background: '#556676',      
   habitlist_card_background: grey[2],  
   habitlist_card_border: grey[5],      
   timeaxis_card_background: grey[2], 
-  timeaxis_card_border: grey[5],
+  timeaxis_card_current_background: '#46ab16', 
+  timeaxis_card_border: `1px solid ${grey[5]}`,
   shift_button_color: grey[1], 
 
   'timeaxis_text_normal_low_contrast': grey[5], 
@@ -59,6 +60,7 @@ const theme: Theme = {
   'glyph_background_color': "#f8f8f8", 
   'habit_card_inner_border_inactive': `1px solid ${grey[2]}`, 
   'habit_card_inner_border_active': `1px solid ${grey[4]}`
+  
 };
 
 function App() {
@@ -84,7 +86,7 @@ function App() {
       timestamp = new Date(timestamp.toDateString()); 
       updateHabitObservations(state.user_id, habit_id, timestamp, value).then((v) => {
         console.log(v); 
-      })
+      }); 
     }
   }, [state.habitTableChanges])
 
